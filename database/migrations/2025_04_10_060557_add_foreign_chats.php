@@ -13,7 +13,7 @@ return new class extends Migration
     {
         // Foreign keys
         Schema::table('chats', function (Blueprint $table) {
-            $table->foreign('assessment_star_id')->references('assessment_star_id')->on('assessments')->onDelete('cascade');
+            $table->foreign('assessment_star_id')->references('assessment_star_id')->on('assessments')->onDelete('set null');
         });
     }
 
@@ -24,7 +24,6 @@ return new class extends Migration
     {
         Schema::table('chats', function (Blueprint $table) {
             $table->dropForeign(['assessment_star_id']);
-     
         });
     }
 };

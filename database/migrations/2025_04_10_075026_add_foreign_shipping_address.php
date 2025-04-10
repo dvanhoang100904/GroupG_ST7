@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assessments', callback: function (Blueprint $table) {
-            $table->bigIncrements('assessment_star_id');
-            $table->integer('quantity')->nullable();
-            $table->timestamps();
-       
+        Schema::table('shipping_address', function (Blueprint $table) {
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('assessments');
+        Schema::table('shipping_address', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+        });
     }
 };

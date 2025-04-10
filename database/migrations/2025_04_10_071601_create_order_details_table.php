@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assessments', callback: function (Blueprint $table) {
-            $table->bigIncrements('assessment_star_id');
-            $table->integer('quantity')->nullable();
+        Schema::create('order_details', function (Blueprint $table) {
+            $table->bigIncrements('order_detail_id');
+            $table->integer('quantity');
+            $table->decimal('unit_price', total: 10, places: 2);
+            $table->unsignedBigInteger('order_id');
+            $table->unsignedBigInteger('product_id');
             $table->timestamps();
-       
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('assessments');
+        Schema::dropIfExists('order_details');
     }
 };

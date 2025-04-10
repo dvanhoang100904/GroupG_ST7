@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('chats', function (Blueprint $table) {
             $table->bigIncrements('chat_id');
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('assessment_star_id')->nullable();
+            $table->unsignedBigInteger('assessment_star_id');
             $table->string('photo', 255)->nullable();
             $table->timestamps();
     

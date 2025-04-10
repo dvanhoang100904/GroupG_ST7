@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assessments', callback: function (Blueprint $table) {
-            $table->bigIncrements('assessment_star_id');
-            $table->integer('quantity')->nullable();
+        Schema::create('payments', function (Blueprint $table) {
+            $table->bigIncrements('payment_id');
+            $table->enum('method', ['COD', 'MoMo'])->default('COD');
+            $table->enum('status', ['dang_cho', 'da_thanh_toan', 'that_bai', 'da_hoan_tien'])->default('dang_cho');
+            $table->unsignedBigInteger('order_id');
             $table->timestamps();
-       
         });
     }
 
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('assessments');
+        Schema::dropIfExists('payments');
     }
 };

@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assessments', callback: function (Blueprint $table) {
-            $table->bigIncrements('assessment_star_id');
-            $table->integer('quantity')->nullable();
-            $table->timestamps();
-       
+        Schema::table('payments', function (Blueprint $table) {
+            $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('assessments');
+        Schema::table('order_details', function (Blueprint $table) {
+            $table->dropForeign(['order_id']);
+        });
     }
 };

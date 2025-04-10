@@ -14,7 +14,7 @@ return new class extends Migration
         // Foreign keys
         Schema::table('users', function (Blueprint $table) {
             // khóa ngoại
-            $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade');
+          $table->foreign('role_id')->references('role_id')->on('roles')->onDelete('cascade');
             $table->foreign('chat_id')->references('chat_id')->on('chats')->onDelete('cascade');
         });
     }
@@ -25,12 +25,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Xóa ràng buộc khóa ngoại trước
             $table->dropForeign(['role_id']);
             $table->dropForeign(['chat_id']);
-
-            // Có thể xóa cột nếu bạn muốn
-            // $table->dropColumn(['role_id', 'chat_id']);
         });
     }
 };
