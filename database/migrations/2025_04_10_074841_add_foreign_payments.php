@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Foreign keys
-        Schema::table('chats', function (Blueprint $table) {
-            $table->foreign('assessment_star_id')->references('assessment_star_id')->on('assessments')->onDelete('set null');
+        Schema::table('payments', function (Blueprint $table) {
+            $table->foreign('order_id')->references('order_id')->on('orders')->onDelete('cascade');
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('chats', function (Blueprint $table) {
-            $table->dropForeign(['assessment_star_id']);
+        Schema::table('order_details', function (Blueprint $table) {
+            $table->dropForeign(['order_id']);
         });
     }
 };
