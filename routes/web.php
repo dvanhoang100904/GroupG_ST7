@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\CategoryController;
 
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
@@ -19,8 +20,9 @@ Route::post('login', [CustomerLoginController::class, 'authLogin'])->name('custo
 // Đăng ký
 Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('customer.logout')->middleware('auth');
 
+
 // admin
-route::prefix('admin')->group(function () {
+Route::prefix('admin')->group(function () {
     // Đăng nhập
     Route::get('login', [AdminLoginController::class, 'login'])->name('admin.login')->middleware('redirectIf.admin.auth');
     Route::post('login', [AdminLoginController::class, 'authLogin'])->name('admin.authLogin')->middleware('redirectIf.admin.auth');
@@ -28,14 +30,19 @@ route::prefix('admin')->group(function () {
     // Đăng Xuất
     Route::post('logout', [AdminLogoutController::class, 'logout'])->name('admin.logout')->middleware('auth');
 
-    // Dashboard
-    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin');
+    Route::middleware('auth')->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin'); // Dashboard
+        Route::get('/category', [CategoryController::class, 'index'])->name('category.index'); // Hiển thị danh sách danh mục
+        Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create'); // Hiển thị form tạo danh mục mới
+        Route::post('/category', [CategoryController::class, 'store'])->name('category.store'); // Lưu
+        Route::delete('/category/{category}', [CategoryController::class, 'destroy'])->name('category.destroy'); // Xóa
+        Route::get('/category/{category}', [CategoryController::class, 'read'])->name('category.read'); //chi tiet
+        Route::get('/category/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit'); // Hiển thị form sửa
+        Route::put('/category/{category}', [CategoryController::class, 'update'])->name('category.update'); // Lưu cập nhật
+    });
 });
 
 
-Route::get('/admin/category', function () {
-    return view('admin.content.category.list');
-});
 
 // Route chuyển tới trang đánh giá khách hàng
 Route::get('/admin/reviews', function () {
