@@ -12,9 +12,7 @@ Route::get('/admin/dashboard', function () {
     return view('admin.content.dashboard.index');
 });
 
-
-// Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {   //KHI có login thì sài dòng này!!!
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {   //KHI có login thì sài dòng này!!!
     Route::get('/category', [CategoryController::class, 'index'])->name('category.index'); // Hiển thị danh sách danh mục
     Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create'); // Hiển thị form tạo danh mục mới
     Route::post('/category', [CategoryController::class, 'store'])->name('category.store'); // Lưu
