@@ -13,6 +13,13 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'user_id';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -20,6 +27,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'avatar',
+        'role_id',
         'password',
     ];
 
@@ -40,5 +50,31 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed'
     ];
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'role_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id', 'user_id');
+    }
+
+    public function shippingAddresses()
+    {
+        return $this->hasMany(ShippingAddress::class, 'user_id', 'user_id');
+    }
+
+    public function cart()
+    {
+        return $this->hasOne(Cart::class, 'user_id', 'user_id');
+    }
+
+    public function cartItems()
+    {
+        return $this->hasManyThrough(CartItem::class, Cart::class, 'user_id', 'cart_id', 'user_id', 'cart_id');
+    }
 }
