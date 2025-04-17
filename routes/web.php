@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\Customer\HomeController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TrangChuController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Trang chủ
+Route::get('/', [HomeController::class, 'index'])->name('customer.index');
 
-Route::get('/trangchu', [TrangChuController::class, 'index'])->name('trangchu');
+
+
+
 
 Route::get('/admin/dashboard', function () {
     return view('admin.content.dashboard');
