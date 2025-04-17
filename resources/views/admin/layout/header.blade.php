@@ -7,10 +7,14 @@
 
   <!-- Ô tìm kiếm -->
   <div class="search-box">
-    <input type="text" placeholder="Tìm kiếm..." />
-    <button><img src="{{ asset('images/search.png') }}" alt="Search Icon" /></button>
+    <form method="GET" action="{{ route('admin.category.index') }}" class="search-form">
+      <input type="text" name="search" placeholder="Tìm kiếm danh mục..." value="{{ request('search') }}">
+      <button type="submit">
+        <i class="fas fa-search"></i>
+      </button>
+    </form>
   </div>
-
+  
   <!-- Logo -->
   <div class="logo">
     <img src="{{ asset('images/logo.png') }}" alt="Logo" />

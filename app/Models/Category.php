@@ -18,7 +18,6 @@ class Category extends Model
         'description',
         'image',
         'slug',
-        'is_featured'
     ];
 
     protected $casts = [
