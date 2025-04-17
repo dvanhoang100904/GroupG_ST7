@@ -30,8 +30,6 @@ Route::prefix('admin')->group(function () {
     // Đăng Xuất
     Route::post('logout', [AdminLogoutController::class, 'logout'])->name('admin.logout')->middleware('auth');
 
-
-
     Route::middleware('auth')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin'); // Dashboard
         Route::get('/category', [CategoryController::class, 'index'])->name('category.index'); // Hiển thị danh sách danh mục
