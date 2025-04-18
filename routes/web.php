@@ -40,7 +40,10 @@ Route::prefix('admin')->group(function () {
         Route::get('orders', [AdminOrderController::class, 'index'])->name('order.list');
         // detail
         Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('order.detail');
-
+        // edit
+        Route::get('orders/{id}/edit', [AdminOrderController::class, 'edit'])->name('order.edit');
+        // update
+        Route::put('orders/{id}', [AdminOrderController::class, 'update'])->name('order.update');
         // delete
         Route::delete('orders/{id}', [AdminOrderController::class, 'destroy'])->name('order.delete');
     });
