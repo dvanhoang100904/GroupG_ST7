@@ -1,11 +1,10 @@
 @extends('admin.layout.app')
 
-@section('title', 'Quản lý danh mục')
+@section('page_title', 'Quản Lý Danh Mục')
 
 @section('content')
     <div class="container py-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3>Danh sách danh mục</h3>
             <a href="{{ route('category.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm danh mục
             </a>

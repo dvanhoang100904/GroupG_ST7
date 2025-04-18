@@ -1,11 +1,9 @@
 @extends('admin.layout.app')
 
-@section('title', 'Sửa danh mục')
 @section('page_title', 'Sửa Danh Mục')
 
 @section('content')
     <div class="container py-3">
-        <h3>Sửa danh mục</h3>
 
         <form action="{{ route('category.update', $category->category_id) }}" method="POST" enctype="multipart/form-data">
             @csrf
