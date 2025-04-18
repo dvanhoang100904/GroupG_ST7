@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-
+@section('page_title', 'Quản Lý Đơn Hàng')
 @section('content')
     @php
         $paymentStatuses = [
