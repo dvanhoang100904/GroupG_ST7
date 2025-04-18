@@ -44,8 +44,6 @@
                 <p>Banner</p>
             </a>
         </li>
-    </ul>
-    <ul>
         <span>Chức năng</span>
         <li>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -55,6 +53,6 @@
             <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
-        </li>           
+        </li>
     </ul>
 </div>
