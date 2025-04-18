@@ -9,6 +9,7 @@ use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 
 // Trang chủ
@@ -30,8 +31,16 @@ Route::prefix('admin')->group(function () {
     // Đăng Xuất
     Route::post('logout', [AdminLogoutController::class, 'logout'])->name('admin.logout')->middleware('auth');
 
+    // Dashboard
+    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin');
+
+    // Orders
+    Route::middleware('check.login.admin')->group(function () {
+        // list
+        Route::get('orders', [AdminOrderController::class, 'index'])->name('order.list');
+    });
+
     Route::middleware('auth')->group(function () {
-        Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin'); // Dashboard
         Route::get('/category', [CategoryController::class, 'index'])->name('category.index'); // Hiển thị danh sách danh mục
         Route::get('/category/create', [CategoryController::class, 'create'])->name('category.create'); // Hiển thị form tạo danh mục mới
         Route::post('/category', [CategoryController::class, 'store'])->name('category.store'); // Lưu
@@ -41,8 +50,6 @@ Route::prefix('admin')->group(function () {
         Route::put('/category/{category}', [CategoryController::class, 'update'])->name('category.update'); // Lưu cập nhật
     });
 });
-
-
 
 // Route chuyển tới trang đánh giá khách hàng
 Route::get('/admin/reviews', function () {
