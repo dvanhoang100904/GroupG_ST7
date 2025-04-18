@@ -48,14 +48,13 @@
     <ul>
         <span>Chức năng</span>
         <li>
-            <form action="{{ route('admin.logout') }}" method="POST" style="display: flex; align-items: center;">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <img src="{{ asset('images/logout.png') }}" class="icon" />
+                <p>Thoát</p>
+            </a>
+            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                 @csrf
-                <button type="submit"
-                    style="border: none; background: none; padding: 0; display: flex; align-items: center; cursor: pointer;">
-                    <img src="{{ asset('images/logout.png') }}" class="icon" />
-                    <p style="margin: 0 0 0 5px;">Thoát</p>
-                </button>
             </form>
-        </li>
+        </li>           
     </ul>
 </div>
