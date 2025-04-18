@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-
+@section('page_title', 'Quản Lý Đơn Hàng')
 @section('content')
     @php
         $orderStatuses = [
@@ -80,10 +80,11 @@
                                     class="btn btn-sm btn-info" title="Xem">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="#!" class="btn btn-sm btn-warning" title="Chỉnh sửa">
+                                {{-- edit --}}
+                                <a href="{{ route('order.edit', $order->order_id) }}?page={{ request()->get('page') }}"
+                                    class="btn btn-sm btn-warning" title="Chỉnh sửa">
                                     <i class="fas fa-edit"></i>
                                 </a>
-
                                 {{-- delete --}}
                                 <form
                                     action="{{ route('order.delete', $order->order_id) }}?page={{ request()->get('page') }}"
