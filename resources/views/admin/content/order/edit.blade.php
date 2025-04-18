@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-
+@section('page_title', 'Quản Lý Đơn Hàng')
 @section('content')
     <main class="flex-grow-1 p-4 bg-light">
         <div class="container">
