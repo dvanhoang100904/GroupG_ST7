@@ -3,7 +3,7 @@
     <ul>
         <span>Quản lý</span>
         <li>
-            <a href="#">
+            <a href="{{ route('admin.dashboard') }}">
                 <img src="{{ asset('images/home.png') }}" class="icon" />
                 <p>Dashboard</p>
             </a>
@@ -27,7 +27,7 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('order.list') }}">
                 <img src="{{ asset('images/order.png') }}" class="icon" />
                 <p>Đơn hàng</p>
             </a>
