@@ -31,4 +31,13 @@ class OrderController extends Controller
 
         return view('admin.content.order.list', compact('orders'));
     }
+
+    /**
+     * Detail order
+     */
+    public function show($id)
+    {
+        $order = Order::findOrFail($id);
+        return view('admin.content.order.detail', compact('order'));
+    }
 }
