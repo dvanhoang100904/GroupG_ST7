@@ -53,7 +53,7 @@ class CategoryController extends Controller
 
         $category->save();
 
-        return redirect()->route('admin.category.index')->with('success', 'Danh mục đã được tạo thành công.');
+        return redirect()->route('category.index')->with('success', 'Danh mục đã được tạo thành công.');
     }
 
     // XÓa
@@ -109,6 +109,6 @@ class CategoryController extends Controller
 
         $category->save();
 
-        return redirect()->route('admin.category.read', $category->category_id)->with('success', 'Cập nhật danh mục thành công.');
+        return redirect()->route('category.read', $category->category_id)->with('success', 'Cập nhật danh mục thành công.');
     }
 }

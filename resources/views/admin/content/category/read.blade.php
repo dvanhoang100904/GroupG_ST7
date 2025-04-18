@@ -1,6 +1,5 @@
 @extends('admin.layout.app')
 
-@section('title', 'Chi tiết danh mục')
 @section('page_title', 'Chi Tiết Danh Mục')
 
 @section('content')
