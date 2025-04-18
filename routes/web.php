@@ -40,6 +40,9 @@ Route::prefix('admin')->group(function () {
         Route::get('orders', [AdminOrderController::class, 'index'])->name('order.list');
         // detail
         Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('order.detail');
+
+        // delete
+        Route::delete('orders/{id}', [AdminOrderController::class, 'destroy'])->name('order.delete');
     });
 
     Route::middleware('auth')->group(function () {
