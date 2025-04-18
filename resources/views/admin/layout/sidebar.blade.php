@@ -21,7 +21,7 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('category.index') }}">
                 <img src="{{ asset('images/category.png') }}" class="icon" />
                 <p>Danh mục</p>
             </a>
