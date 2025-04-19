@@ -13,7 +13,17 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 
 // Trang chủ
-Route::get('/', [HomeController::class, 'index'])->name('customer.index');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+// Danh sách sản phẩm
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+// Chi tiết sản phẩm theo slug
+Route::get('product/{slug}', [ProductController::class, 'detail'])->name('products.detail');
+
+// Sản phẩm theo danh mục (theo slug)
+Route::get('/category/{slug}', [CategoryControllers::class, 'show'])->name('category.show');
+
 // Đăng nhập    
 Route::get('login', [CustomerLoginController::class, 'login'])->name('customer.login')->middleware('redirectIf.customer.auth');
 Route::post('login', [CustomerLoginController::class, 'authLogin'])->name('customer.authLogin')->middleware('redirectIf.customer.auth');
@@ -24,6 +34,7 @@ Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('custom
 
 // admin
 Route::prefix('admin')->group(function () {
+    
     // Đăng nhập
     Route::get('login', [AdminLoginController::class, 'login'])->name('admin.login')->middleware('redirectIf.admin.auth');
     Route::post('login', [AdminLoginController::class, 'authLogin'])->name('admin.authLogin')->middleware('redirectIf.admin.auth');
