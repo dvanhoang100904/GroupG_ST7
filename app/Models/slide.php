@@ -12,9 +12,7 @@ class slide extends Model
     protected $primaryKey = 'slide_id';
 
     protected $fillable = [
-        'title',
+        'name',
         'image',
-        'description',
-        'link',
     ];
 }
