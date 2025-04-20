@@ -4,6 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -53,27 +57,27 @@ class User extends Authenticatable
         'password' => 'hashed'
     ];
 
-    public function role()
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id', 'role_id');
     }
 
-    public function orders()
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class, 'user_id', 'user_id');
     }
 
-    public function shippingAddresses()
+    public function shippingAddresses(): HasMany
     {
         return $this->hasMany(ShippingAddress::class, 'user_id', 'user_id');
     }
 
-    public function cart()
+    public function cart(): HasOne
     {
         return $this->hasOne(Cart::class, 'user_id', 'user_id');
     }
 
-    public function cartItems()
+    public function cartItems(): HasManyThrough
     {
         return $this->hasManyThrough(CartItem::class, Cart::class, 'user_id', 'cart_id', 'user_id', 'cart_id');
     }
