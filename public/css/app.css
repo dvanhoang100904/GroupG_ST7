@@ -463,14 +463,24 @@ footer {
 }
 
 .product-image {
-    flex: 1 1 45%; /* Sử dụng flexbox để chia không gian cho hình ảnh */
-    text-align: center; /* Căn giữa hình ảnh */
+    flex: 1 1 45%; /* Cho phép phần tử co giãn, chiếm 45% chiều ngang trong flex container */
+    text-align: center; /* Căn giữa nội dung bên trong theo chiều ngang */
+    border-radius: 16px; /* Bo tròn các góc của khung chứa ảnh */
+    border: 1px solid #e0e0e0; /* Viền xám nhạt cho khung ảnh */
+    padding: 20px; /* Khoảng cách bên trong khung đến nội dung */
+    background-color: #fff; /* Nền trắng cho phần chứa ảnh */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ để làm nổi bật khung ảnh */
+    transition: box-shadow 0.3s ease; /* Hiệu ứng chuyển đổi mượt mà khi hover */
+}
+
+.product-image:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Tăng độ đổ bóng khi rê chuột vào để tạo hiệu ứng nổi bật */
 }
 
 .product-image img {
-    width: 180px; /* Chiều rộng hình ảnh */
-    height: 180px; /* Chiều cao hình ảnh */
-    border-radius: 10px; /* Bo tròn các góc hình ảnh */
+    width: 180px; /* Cố định chiều rộng ảnh sản phẩm */
+    height: 180px; /* Cố định chiều cao ảnh sản phẩm */
+    object-fit: contain; /* Đảm bảo ảnh không bị méo, hiển thị đầy đủ trong khung đã định */
 }
 
 .product-info {

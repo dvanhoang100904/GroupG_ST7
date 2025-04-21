@@ -83,6 +83,7 @@ class ProductSeeder extends Seeder
 
                 DB::table('products')->insert([
                     'product_name' => $productName,  // Tên sản phẩm
+                    'slug' => $productSlug,    
                     'description' => $desc,          // Mô tả sản phẩm
                     'image' => $imagePath,           // Đường dẫn ảnh (trong thư mục con)
                     'price' => rand(2, 30) * 1000000, // Giá sản phẩm (random từ 2 đến 30 triệu VND)

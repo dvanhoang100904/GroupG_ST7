@@ -18,7 +18,7 @@ class ProductController extends Controller
         $categories = Category::orderBy('category_id')->get();
 
         // Trả về view 'products.product' và truyền dữ liệu products, categories
-        return view('products.product', compact('products', 'categories'));
+        return view('customer.pages.products', compact('products', 'categories'));
     }
 
     // Trang sản phẩm theo danh mục
@@ -53,7 +53,7 @@ class ProductController extends Controller
             ->get();
     
         // Trả về view chi tiết sản phẩm và các sản phẩm tương tự
-        return view('products.detail', compact('product', 'similarProducts'));
+        return view('customer.pages.detail-product', compact('product', 'similarProducts'));
     }
     
 }
