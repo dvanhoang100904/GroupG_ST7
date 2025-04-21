@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->bigIncrements('order_id');
-            $table->decimal('total_price', 10, 2);
+            $table->unsignedBigInteger('total_price')->default(0);
             $table->enum('status', ['chờ_xử_lý', 'đang_xử_lý', 'đang_vận_chuyển', 'đã_giao_hàng', 'đã_hủy'])->default('chờ_xử_lý');
             $table->string('notes', 255)->nullable();
             $table->unsignedBigInteger('user_id');

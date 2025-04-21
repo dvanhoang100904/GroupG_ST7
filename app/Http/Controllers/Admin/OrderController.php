@@ -10,15 +10,21 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    // Định nghĩa số lượng đơn hàng hiển thị mỗi trang
+    const PER_PAGES = 10;
+
     /**
-     * List Orders
+     * Liệt kê danh sách đơn hàng
      */
     public function index(Request $request)
     {
+        // Tạo truy vấn cơ sở dữ liệu cho đơn hàng
         $query = Order::query();
 
+        // Kiểm tra nếu có từ khóa tìm kiếm
         if ($request->has('q')) {
             $search = $request->q;
+            // Tìm kiếm theo order_id, hoặc thông tin người dùng (tên, email)
             $query->where('order_id', 'LIKE', "%$search%")
                 ->orWhereHas('user', function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%$search%")
@@ -26,34 +32,36 @@ class OrderController extends Controller
                 });
         }
 
-        $perPage = 10;
-        $orders = $query->latest()->paginate($perPage)->appends($request->only('q'));
+        // Lấy các đơn hàng mới nhất có phân trang và giữ lại từ khóa tìm kiếm
+        $orders = $query->latest()->paginate(self::PER_PAGES)->appends($request->only('q'));
 
+        // Trả về view danh sách đơn hàng
         return view('admin.content.order.list', compact('orders'));
     }
 
     /**
-     * Detail order
+     * Hiển thị chi tiết đơn hàng
      */
     public function show($id)
     {
+        // Tìm đơn hàng theo id
         $order = Order::find($id);
+        // Trả về view chi tiết đơn hàng
         return view('admin.content.order.detail', compact('order'));
     }
 
     /**
-     * delete Order
+     * Xóa đơn hàng
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        DB::beginTransaction();
-
+        // Tìm đơn hàng theo id
         $order = Order::find($id);
 
-        // Xoá các chi tiết đơn hàng 
+        // Xóa các chi tiết đơn hàng liên quan
         $order->orderDetails()->delete();
 
-        // Xoá thông tin thanh toán
+        // Xóa thông tin thanh toán nếu có
         if ($order->payment) {
             $order->payment()->delete();
         }
@@ -61,8 +69,49 @@ class OrderController extends Controller
         // Xoá chính đơn hàng
         $order->delete();
 
-        DB::commit();
+        // Lấy trang hiện tại để duy trì trang khi chuyển hướng
+        $page = $request->get('page');
 
-        return redirect()->route('order.list')->with('success', 'Xóa đơn hàng thành công.');
+        // Chuyển hướng về danh sách đơn hàng
+        return redirect()->route('order.list', ['page' => $page])->with('success', 'Xóa đơn hàng thành công.');
+    }
+
+    /**
+     * Hiển thị form chỉnh sửa đơn hàng
+     */
+    public function edit($id)
+    {
+        // Tìm đơn hàng theo id
+        $order = Order::find($id);
+
+        // Trả về view chỉnh sửa đơn hàng
+        return view('admin.content.order.edit', compact('order'));
+    }
+
+    /**
+     * Cập nhật thông tin đơn hàng
+     */
+    public function update(UpdateOrderRequest $request, $id)
+    {
+        // Tìm đơn hàng theo id
+        $order = Order::find($id);
+
+        // Cập nhật trạng thái đơn hàng
+        $order->status = $request->status;
+        $order->save();
+
+        // Cập nhật thông tin thanh toán nếu có
+        $payment = $order->payment;
+        if ($payment) {
+            $payment->status = $request->payment_status;
+            $payment->method = $request->payment_method;
+            $payment->save();
+        }
+
+        // Lấy trang hiện tại để duy trì trang khi chuyển hướng
+        $page = $request->get('page');
+
+        // Chuyển hướng về danh sách đơn hàng
+        return redirect()->route('order.list', ['page' => $page])->with('success', 'Cập nhật đơn hàng thành công!');
     }
 }

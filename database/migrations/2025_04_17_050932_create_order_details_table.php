@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('order_details', function (Blueprint $table) {
             $table->bigIncrements('order_detail_id');
-            $table->decimal('price', 10, 2);
-            $table->decimal('total_price', 10, 2);
+            $table->unsignedBigInteger('price')->default(0);
+            $table->unsignedBigInteger('total_price')->default(0);
             $table->integer('quantity');
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
