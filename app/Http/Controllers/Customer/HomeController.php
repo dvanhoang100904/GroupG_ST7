@@ -25,5 +25,3 @@ class HomeController extends Controller
         return view('customer.pages.home', compact('categories', 'featuredProducts'));
     }
 }
-
-
