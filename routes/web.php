@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CategoryController;
 
 use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\CategoryControllers;
+use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
 use App\Http\Controllers\Admin\DashboardController;
