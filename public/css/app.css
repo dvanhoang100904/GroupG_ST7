@@ -5,9 +5,10 @@
     box-sizing: border-box; /* Đảm bảo tính toán chiều rộng và chiều cao bao gồm padding và border */
 }
 
-html, body {
+html,
+body {
     height: 100%; /* Đảm bảo body chiếm toàn bộ chiều cao màn hình */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font chữ mặc định */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Font chữ mặc định */
     background-color: #fff8f8; /* Màu nền trang */
     color: #333; /* Màu chữ chính */
 }
@@ -358,7 +359,6 @@ footer {
     min-height: 40px; /* Đảm bảo mô tả có chiều cao tối thiểu */
 }
 
-
 .detail-btn:hover {
     background-color: #a30000; /* Màu nền khi hover */
 }
@@ -391,7 +391,8 @@ footer {
         justify-content: space-between; /* Giảm khoảng cách giữa menu */
     }
 
-    .header-left, .header-right {
+    .header-left,
+    .header-right {
         flex: 1 1 100%; /* Cho phép các phần tử trong header chiếm 100% */
         justify-content: center;
     }
@@ -450,7 +451,7 @@ footer {
 /* ===== CHI TIẾT SẢN PHẨM ===== */
 .product-detail-page {
     padding: 30px 15px; /* Khoảng cách padding trong trang chi tiết sản phẩm */
-    font-family: 'Segoe UI', sans-serif; /* Font chữ cho toàn bộ trang */
+    font-family: "Segoe UI", sans-serif; /* Font chữ cho toàn bộ trang */
     background-color: #fff; /* Màu nền của trang */
 }
 
@@ -511,7 +512,6 @@ footer {
     line-height: 1.6; /* Tăng độ cao dòng cho dễ đọc */
 }
 
-
 /* Số lượng + nút */
 .product-actions {
     display: flex; /* Dùng flexbox để căn chỉnh các nút hành động */
@@ -542,7 +542,8 @@ footer {
     border: 1px solid #ccc; /* Viền cho ô nhập */
 }
 
-.add-to-cart, .buy-now {
+.add-to-cart,
+.buy-now {
     background-color: #c40000; /* Màu nền cho nút */
     color: white; /* Màu chữ */
     border: none; /* Xóa viền */
@@ -558,11 +559,10 @@ footer {
     margin-top: 10px; /* Khoảng cách trên nút "Mua ngay" */
 }
 
-.add-to-cart:hover, .buy-now:hover {
+.add-to-cart:hover,
+.buy-now:hover {
     opacity: 0.9; /* Hiệu ứng khi hover */
 }
-
-
 
 /* Sản phẩm tương tự */
 .related-products-section {
@@ -585,7 +585,6 @@ footer {
     justify-content: left; /* Căn đều các sản phẩm */
 }
 
-
 .product-card {
     background-color: #fff; /* Màu nền cho card sản phẩm */
     border: 1px solid #eee; /* Viền nhẹ cho card */
@@ -593,7 +592,7 @@ footer {
     padding: 15px; /* Khoảng cách padding trong card */
     text-align: center; /* Căn giữa nội dung trong card */
     width: calc(25% - 15px); /* Đảm bảo card sản phẩm chiếm 1/4 chiều rộng */
-    box-shadow: 0 0 10px rgba(0,0,0,0.05); /* Hiệu ứng bóng nhẹ cho card */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); /* Hiệu ứng bóng nhẹ cho card */
     transition: transform 0.3s; /* Hiệu ứng chuyển động khi hover */
 }
 
@@ -652,7 +651,9 @@ footer {
 /* Responsive */
 @media (max-width: 992px) {
     .product-card {
-        width: calc(50% - 10px); /* Thay đổi chiều rộng của card khi màn hình nhỏ hơn 992px */
+        width: calc(
+            50% - 10px
+        ); /* Thay đổi chiều rộng của card khi màn hình nhỏ hơn 992px */
     }
 }
 
@@ -662,4 +663,56 @@ footer {
     }
 }
 
+/* login */
+.login-container {
+    max-width: 450px;
+    margin: 100px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
 
+.form-floating label {
+    padding: 0.8rem 0.75rem;
+}
+
+.btn-login {
+    background-color: #1f77c0c8;
+    border: none;
+    padding: 10px;
+    font-weight: 600;
+}
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 20px 0;
+}
+.divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #ddd;
+    z-index: -1;
+}
+.divider span {
+    background-color: white;
+    padding: 0 15px;
+    color: #777;
+}
+.social-login .btn {
+    width: 100%;
+    margin-bottom: 10px;
+}
+.footer-links {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+.footer-links a {
+    color: #666;
+    text-decoration: none;
+}

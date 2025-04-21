@@ -35,7 +35,7 @@ class LoginController extends Controller
             }
 
             // Đăng nhập thành công, chuyển hướng đến trang chủ của khách hàng
-            return redirect()->route('customer.index')->with('success', 'Đăng nhập thành công');
+            return redirect()->route('home')->with('success', 'Đăng nhập thành công');
         }
 
         // Nếu thông tin đăng nhập sai, quay lại trang đăng nhập
