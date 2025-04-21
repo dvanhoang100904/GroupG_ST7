@@ -11,7 +11,7 @@
 
             <div class="mb-3">
                 <label for="name" class="form-label">Tên danh mục</label>
-                <input type="text" name="name" class="form-control" value="{{ old('name', $category->name) }}" required>
+                <input type="text" name="name" class="form-control" value="{{ old('name', $category->category_name) }}" required>
             </div>
 
             <div class="mb-3">
