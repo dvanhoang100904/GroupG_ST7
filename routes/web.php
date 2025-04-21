@@ -40,6 +40,8 @@ Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('custom
 
 // Giỏ hàng
 route::get('/gio-hang', [CustomerCartController::class, 'index'])->name('cart.list');
+// Thêm giỏ hàng
+route::post('/them-vao-gio-hang', [CustomerCartController::class, 'addToCart'])->name('cart.addToCart');
 
 
 
