@@ -8,6 +8,7 @@ use App\Models\Cart;
 
 class CartController extends Controller
 {
+
     /**
      * Hiển thị trang giỏ hàng.
      */
@@ -44,5 +45,72 @@ class CartController extends Controller
 
         // Trả về trang giỏ hàng với các sản phẩm và tổng giá
         return view('customer.pages.carts', compact('cartItems', 'totalPrice'));
+    }
+
+    /**
+     * Thêm sản phẩm vào giỏ hàng.
+     */
+    public function addToCart(Request $request)
+    {
+        // Lấy thông tin sản phẩm và số lượng từ request
+        $product_id = $request->input('product_id');
+
+        // Mặc định số lượng là 1
+        $quantity = $request->input('quantity', 1);
+
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        $user_id = auth()->check() ? auth()->id() : null;
+        $session_id = session()->getId();
+
+        //  Ưu tiên lấy cart theo session nếu chưa đăng nhập
+        $cart = null;
+
+        if ($user_id) {
+            // Nếu đã đăng nhập, tìm giỏ hàng theo user_id
+            $cart = Cart::where('user_id', $user_id)->first();
+
+            // Nếu chưa có giỏ hàng user, nhưng có giỏ hàng guest, thì gán user_id cho giỏ hàng guest
+            $guestCart = Cart::where('session_id', $session_id)
+                ->whereNull('user_id')
+                ->first();
+
+            if (!$cart && $guestCart) {
+                $guestCart->update(['user_id' => $user_id]);
+                $cart = $guestCart;
+            }
+
+            // Nếu không có guestCart, tạo giỏ mới cho user
+            if (!$cart) {
+                $cart = Cart::create([
+                    'user_id' => $user_id,
+                    'session_id' => $session_id,
+                ]);
+            }
+        } else {
+            // Chưa đăng nhập → tạo hoặc lấy cart guest theo session
+            $cart = Cart::firstOrCreate([
+                'user_id' => null,
+                'session_id' => $session_id,
+            ]);
+        }
+
+        // Thêm hoặc cập nhật sản phẩm trong giỏ
+        $cartItem = $cart->cartItems()
+            ->where('product_id', $product_id)
+            ->first();
+
+        if ($cartItem) {
+            // Nếu có, tăng số lượng lên
+            $cartItem->increment('quantity', $quantity);
+        } else {
+            // Nếu chưa có, thêm mới vào giỏ
+            $cart->cartItems()->create([
+                'product_id' => $product_id,
+                'quantity' => $quantity,
+            ]);
+        }
+
+        // Redirect lại trang giỏ hàng
+        return redirect()->route('cart.list');
     }
 }

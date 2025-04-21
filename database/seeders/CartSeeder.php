@@ -31,14 +31,14 @@ class CartSeeder extends Seeder
                 'session_id' => $sessionId,
             ]);
 
-            // Lấy 2-4 sản phẩm ngẫu nhiên để thêm vào giỏ
-            $randomProducts = $products->random(rand(2, 4));
+            // Lấy 1-2 sản phẩm ngẫu nhiên để thêm vào giỏ
+            $randomProducts = $products->random(rand(1, 2));
 
             foreach ($randomProducts as $product) {
                 CartItem::create([
                     'cart_id' => $cart->cart_id,
                     'product_id' => $product->product_id,
-                    'quantity' => rand(1, 3),
+                    'quantity' => rand(1, 2),
                 ]);
             }
         }

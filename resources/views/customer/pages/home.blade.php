@@ -38,8 +38,10 @@
                             <button class="like-btn">❤</button>
 
                             {{-- Nút Thêm vào giỏ --}}
-                            <form method="POST" action="#">
+                            <form method="POST" action="{{ route('cart.addToCart') }}">
                                 @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->product_id }}" />
+                                <input type="hidden" name="quantity" value="1" />
                                 <button type="submit" class="add-to-cart-btn">Thêm vào giỏ</button>
                             </form>
                         </div>
