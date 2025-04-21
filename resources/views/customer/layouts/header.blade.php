@@ -43,7 +43,15 @@
             <button class="search-btn"><i class="fa fa-search"></i></button>
         </div>
         {{-- Link đến giỏ hàng --}}
-        <a href="#"><i class="fa fa-shopping-cart"></i> Giỏ hàng</a>
+        <a href="{{ route('cart.list') }}" class="position-relative text-decoration-none text-light">
+            <i class="fa fa-shopping-cart fs-5"></i> <span class="ms-1">Giỏ hàng</span>
+            @if (Auth::check() && Auth::user()->cart)
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
+                    {{ Auth::user()->cart->cartItems->count() }}
+                </span>
+            @endif
+        </a>
+
     </div>
 
     <div class="d-flex align-items-center">

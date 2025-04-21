@@ -8,10 +8,14 @@ use App\Http\Controllers\Customer\CategoryControllers;
 use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
+use App\Http\Controllers\Customer\CartController as CustomerCartController;
+
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+
+
 
 
 // Trang chủ
@@ -26,12 +30,17 @@ Route::get('product/{slug}', [ProductController::class, 'detail'])->name('produc
 // Sản phẩm theo danh mục (theo slug)
 Route::get('/category/{slug}', [CategoryControllers::class, 'show'])->name('category.show');
 
+
 // Đăng nhập    
 Route::get('login', [CustomerLoginController::class, 'login'])->name('customer.login')->middleware('redirectIf.customer.auth');
 Route::post('login', [CustomerLoginController::class, 'authLogin'])->name('customer.authLogin')->middleware('redirectIf.customer.auth');
 
 // Đăng ký
 Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('customer.logout')->middleware('auth');
+
+// Giỏ hàng
+route::get('/gio-hang', [CustomerCartController::class, 'index'])->name('cart.list');
+
 
 
 // admin
