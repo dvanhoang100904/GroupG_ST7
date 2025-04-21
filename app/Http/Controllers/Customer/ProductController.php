@@ -53,7 +53,7 @@ class ProductController extends Controller
             ->get();
     
         // Trả về view chi tiết sản phẩm và các sản phẩm tương tự
-        return view('products.detail', compact('product', 'similarProducts'));
+        return view('customer.pages.detail-product', compact('product', 'similarProducts'));
     }
     
 }

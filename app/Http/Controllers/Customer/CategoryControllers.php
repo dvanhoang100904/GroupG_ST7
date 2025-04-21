@@ -18,6 +18,8 @@ class CategoryControllers extends Controller
         // Tìm danh mục theo slug, nếu không có sẽ trả về 404
         $category = Category::where('slug', $slug)->firstOrFail();
 
+        
+
         // Lấy các sản phẩm thuộc danh mục đó
         $products = Product::where('category_id', $category->category_id)->get();
 
@@ -25,7 +27,7 @@ class CategoryControllers extends Controller
         $categories = Category::orderBy('category_id')->get();
 
         // Trả view hiển thị sản phẩm theo danh mục
-        return view('products.by_category', compact('category', 'products', 'categories'));
+        return view('customer.pages.category-products', compact('category', 'products', 'categories'));
     }
 
     /**
