@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Tạo bảng 'categories'
         Schema::create('categories', function (Blueprint $table) {
+            // Tạo cột 'category_id' làm khóa chính tự tăng
             $table->bigIncrements('category_id');
-            $table->string('name', 100);
+            // Tạo cột 'category_name' với độ dài tối đa là 255 ký tự
+            $table->string('category_name', 255);
+            // Tạo cột 'description' có kiểu dữ liệu 'text', có thể null
             $table->text('description')->nullable();
-            $table->text('image')->nullable();
-            $table->string('slug', 100)->unique();
+            // Tạo các cột 'created_at' và 'updated_at' tự động
             $table->timestamps();
         });
     }
@@ -26,6 +29,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Xóa bảng 'categories' nếu tồn tại
         Schema::dropIfExists('categories');
     }
 };
+

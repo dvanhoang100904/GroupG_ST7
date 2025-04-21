@@ -11,14 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Tạo bảng 'products'
         Schema::create('products', function (Blueprint $table) {
+            // Tạo cột 'product_id' làm khóa chính tự tăng
             $table->bigIncrements('product_id');
-            $table->string('name', 100);
-            $table->text('description')->nullable();
-            $table->unsignedBigInteger('price')->default(0);
+            // Tạo cột 'product_name' kiểu chuỗi với độ dài tối đa là 255 ký tự
+            $table->string('product_name', 255);
+            // Tạo cột 'description' kiểu chuỗi với độ dài tối đa 255 ký tự, có thể null
+            $table->string('description', 255)->nullable();
+            // Tạo cột 'image' kiểu văn bản, có thể null, lưu đường dẫn ảnh
             $table->text('image')->nullable();
+            // Tạo cột 'price' kiểu chuỗi, có thể null, dùng để lưu giá sản phẩm
+            $table->string('price', 50)->nullable();
+            // Tạo cột 'category_id' kiểu unsignedBigInteger, dùng làm khóa ngoại đến bảng 'categories'
             $table->unsignedBigInteger('category_id');
-            $table->string('slug')->unique();
+            // Tạo các cột 'created_at' và 'updated_at' tự động
             $table->timestamps();
         });
     }
@@ -28,6 +35,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Xóa bảng 'products' nếu tồn tại
         Schema::dropIfExists('products');
     }
 };
