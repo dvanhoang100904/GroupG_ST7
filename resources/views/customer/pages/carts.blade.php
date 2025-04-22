@@ -115,10 +115,12 @@
                                 </div>
                             </div>
 
-                            <!-- action -->
-                            <a href="#!" class="btn btn-danger w-100">
-                                Đặt hàng
-                            </a>
+                            @if ($cartItems->count())
+                                <!-- action -->
+                                <a href="{{ route('order.checkout') }}" class="btn btn-danger w-100">
+                                    Đặt hàng
+                                </a>
+                            @endif
 
                             <a href="{{ route('products.index') }}" class="btn btn-checkout w-100 mb-2">Tiếp tục mua
                                 sắm</a>
