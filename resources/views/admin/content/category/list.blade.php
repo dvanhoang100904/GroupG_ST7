@@ -6,7 +6,7 @@
     <div class="container py-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3>Danh sách danh mục</h3>
-            <a href="{{ route('admin.category.create') }}" class="btn btn-success">
+            <a href="{{ route('category.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm danh mục
             </a>
         </div>
@@ -29,13 +29,13 @@
                         <td>{{ $category->slug }}</td>
                         <td>{{ $category->description }}</td>
                         <td>
-                            <a href="{{ route('admin.category.read', $category->category_id) }}" class="btn btn-info btn-sm">
+                            <a href="{{ route('category.read', $category->category_id) }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> Chi tiết
                             </a>
-                            <a href="{{ route('admin.category.edit', $category->category_id) }}" class="btn btn-warning">
+                            <a href="{{ route('category.edit', $category->category_id) }}" class="btn btn-warning">
                                 <i class="fas fa-edit"></i> Sửa
                             </a>
-                            <form action="{{ route('admin.category.destroy', $category->category_id) }}" method="POST"
+                            <form action="{{ route('category.destroy', $category->category_id) }}" method="POST"
                                 class="d-inline-block"
                                 onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
                                 @csrf
