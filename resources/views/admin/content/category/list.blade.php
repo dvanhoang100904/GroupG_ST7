@@ -24,7 +24,7 @@
                 @forelse ($categories as $category)
                     <tr>
                         <td>{{ $category->category_id }}</td>
-                        <td>{{ $category->name }}</td>
+                        <td>{{ $category->category_name }}</td>
                         <td>{{ $category->slug }}</td>
                         <td>{{ $category->description }}</td>
                         <td>
@@ -54,7 +54,6 @@
         </table>
 
         <!-- Phân trang -->
-        @include('admin.layout.pagination', ['paginator' => $categories])
 
     </div>
 @endsection
