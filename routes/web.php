@@ -39,9 +39,9 @@ Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('custom
 
 // Giỏ hàng
 route::middleware(['web'])->group(function () {
-    route::get('/gio-hang', [CustomerCartController::class, 'index'])->name('cart.list');
+    Route::get('/gio-hang', [CustomerCartController::class, 'index'])->name('cart.list');
     // Thêm giỏ hàng
-    route::post('/them-vao-gio-hang', [CustomerCartController::class, 'addToCart'])->name('cart.addToCart');
+    Route::post('/them-vao-gio-hang', [CustomerCartController::class, 'addToCart'])->name('cart.addToCart');
     // Xóa giỏ hàng
     Route::post('/gio-hang/xoa', [CustomerCartController::class, 'removeFromCart'])->name('cart.removeFromCart');
     // cập nhật giỏ hàng
