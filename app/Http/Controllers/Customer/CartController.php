@@ -157,4 +157,53 @@ class CartController extends Controller
 
         return back()->withErrors('Sản phẩm không có trong giỏ hàng!');
     }
+
+    /**
+     * Cập nhật số lượng sản phẩm trong giỏ hàng.
+     */
+    public function updateCart(Request $request)
+    {
+        // Lấy thông tin sản phẩm và số lượng mới từ request
+        $product_id = $request->input('product_id');
+        $quantity = $request->input('quantity');
+
+        // Kiểm tra số lượng phải lớn hơn 0
+        if ($quantity < 1) {
+            return back()->withErrors('Số lượng phải lớn hơn 0!');
+        }
+
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        $user_id = auth()->check() ? auth()->id() : null;
+        $session_id = session()->getId();
+
+        // Tìm giỏ hàng của người dùng hoặc guest theo session
+        $cart = Cart::where(function ($q) use ($user_id, $session_id) {
+            if ($user_id) {
+                $q->where('user_id', $user_id);
+            } else {
+                $q->where('session_id', $session_id);
+            }
+        })->first();
+
+        if ($cart) {
+            // Tìm item trong giỏ hàng và cập nhật số lượng
+            $cartItem = $cart->cartItems()
+                ->where('product_id', $product_id)
+                ->first();
+
+            if ($cartItem) {
+                $cartItem->update(['quantity' => $quantity]);
+
+                // Tính lại tổng tiền của giỏ hàng
+                $totalPrice = $cart->cartItems
+                    ->sum(function ($item) {
+                        return $item->product->price * $item->quantity;
+                    });
+
+                // Redirect lại trang giỏ hàng và truyền tổng giá mới
+                return redirect()->route('cart.list')->with('totalPrice', $totalPrice);
+            }
+        }
+        return back()->withErrors('Sản phẩm không có trong giỏ hàng!');
+    }
 }
