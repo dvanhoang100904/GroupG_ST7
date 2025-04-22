@@ -38,6 +38,8 @@ Route::prefix('admin')->group(function () {
     Route::middleware('check.login.admin')->group(function () {
         // list
         Route::get('orders', [AdminOrderController::class, 'index'])->name('order.list');
+        // detail
+        Route::get('orders/{id}', [AdminOrderController::class, 'show'])->name('order.detail');
     });
 
     Route::middleware('auth')->group(function () {
