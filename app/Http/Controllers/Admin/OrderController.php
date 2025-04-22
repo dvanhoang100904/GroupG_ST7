@@ -37,7 +37,32 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order = Order::findOrFail($id);
+        $order = Order::find($id);
         return view('admin.content.order.detail', compact('order'));
+    }
+
+    /**
+     * delete Order
+     */
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        $order = Order::find($id);
+
+        // Xoá các chi tiết đơn hàng 
+        $order->orderDetails()->delete();
+
+        // Xoá thông tin thanh toán
+        if ($order->payment) {
+            $order->payment()->delete();
+        }
+
+        // Xoá chính đơn hàng
+        $order->delete();
+
+        DB::commit();
+
+        return redirect()->route('order.list')->with('success', 'Xóa đơn hàng thành công.');
     }
 }

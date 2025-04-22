@@ -83,9 +83,18 @@
                                 <a href="#!" class="btn btn-sm btn-warning" title="Chỉnh sửa">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="#!" class="btn btn-sm btn-danger" title="Xóa">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
+
+                                {{-- delete --}}
+                                <form
+                                    action="{{ route('order.delete', $order->order_id) }}?page={{ request()->get('page') }}"
+                                    onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');"
+                                    method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" href="#!" class="btn btn-sm btn-danger" title="Xóa">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @endforeach
