@@ -113,4 +113,48 @@ class CartController extends Controller
         // Redirect lại trang giỏ hàng
         return redirect()->route('cart.list');
     }
+
+    /**
+     * Xóa sản phẩm khỏi giỏ hàng.
+     */
+    public function removeFromCart(Request $request)
+    {
+        // Lấy product_id sản phẩm cần xóa
+        $product_id = $request->input('product_id');
+
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        $user_id = auth()->check() ? auth()->id() : null;
+        $session_id = session()->getId();
+
+        // Tìm giỏ hàng của người dùng hoặc của guest theo session
+        $cart = Cart::where(function ($q) use ($user_id, $session_id) {
+            if ($user_id) {
+                $q->where('user_id', $user_id);
+            } else {
+                $q->where('session_id', $session_id);
+            }
+        })->first();
+
+        if ($cart) {
+            // Tìm item trong giỏ hàng và xóa
+            $cartItem = $cart->cartItems()
+                ->where('product_id', $product_id)
+                ->first();
+
+            if ($cartItem) {
+                // Xóa sản phẩm khỏi giỏ hàng
+                $cartItem->delete();
+
+                // Tính lại tổng tiền của giỏ hàng
+                $totalPrice = $cart->cartItems->sum(function ($item) {
+                    return $item->product->price * $item->quantity;
+                });
+
+                // Redirect lại trang giỏ hàng và truyền tổng giá mới
+                return redirect()->route('cart.list')->with('totalPrice', $totalPrice);
+            }
+        }
+
+        return back()->withErrors('Sản phẩm không có trong giỏ hàng!');
+    }
 }
