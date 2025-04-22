@@ -50,9 +50,13 @@
                                         </div>
                                         <!-- action -->
                                         <div class="col-md-1">
-                                            <button class="btn btn-link text-danger">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <form action="{{ route('cart.removeFromCart') }}" method="post">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $cartItem->product_id }}">
+                                                <button class="btn btn-link text-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 @else
@@ -96,7 +100,8 @@
                                 Đặt hàng
                             </a>
 
-                            <a href="{{ route('products.index') }}" class="btn btn-checkout w-100 mb-2">Tiếp tục mua sắm</a>
+                            <a href="{{ route('products.index') }}" class="btn btn-checkout w-100 mb-2">Tiếp tục mua
+                                sắm</a>
                         </div>
                     </div>
                 </div>
