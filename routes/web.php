@@ -4,16 +4,33 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CategoryController;
 
 use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\CategoryControllers;
+use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
+use App\Http\Controllers\Customer\CartController as CustomerCartController;
+
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 
+
+
 // Trang chủ
-Route::get('/', [HomeController::class, 'index'])->name('customer.index');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Danh sách sản phẩm
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+// Chi tiết sản phẩm theo slug
+Route::get('product/{slug}', [ProductController::class, 'detail'])->name('products.detail');
+
+// Sản phẩm theo danh mục (theo slug)
+Route::get('/category/{slug}', [CategoryControllers::class, 'show'])->name('category.show');
+
+
 // Đăng nhập    
 Route::get('login', [CustomerLoginController::class, 'login'])->name('customer.login')->middleware('redirectIf.customer.auth');
 Route::post('login', [CustomerLoginController::class, 'authLogin'])->name('customer.authLogin')->middleware('redirectIf.customer.auth');
@@ -21,9 +38,19 @@ Route::post('login', [CustomerLoginController::class, 'authLogin'])->name('custo
 // Đăng ký
 Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('customer.logout')->middleware('auth');
 
+// Giỏ hàng
+route::middleware(['web'])->group(function () {
+    route::get('/gio-hang', [CustomerCartController::class, 'index'])->name('cart.list');
+    // Thêm giỏ hàng
+    route::post('/them-vao-gio-hang', [CustomerCartController::class, 'addToCart'])->name('cart.addToCart');
+    Route::post('/gio-hang/xoa', [CustomerCartController::class, 'removeFromCart'])->name('cart.removeFromCart');
+});
+
+
 
 // admin
 Route::prefix('admin')->group(function () {
+
     // Đăng nhập
     Route::get('login', [AdminLoginController::class, 'login'])->name('admin.login')->middleware('redirectIf.admin.auth');
     Route::post('login', [AdminLoginController::class, 'authLogin'])->name('admin.authLogin')->middleware('redirectIf.admin.auth');
