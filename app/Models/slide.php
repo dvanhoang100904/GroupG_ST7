@@ -11,8 +11,5 @@ class slide extends Model
 
     protected $primaryKey = 'slide_id';
 
-    protected $fillable = [
-        'name',
-        'image',
-    ];
+    protected $fillable = ['name', 'image'];
 }
