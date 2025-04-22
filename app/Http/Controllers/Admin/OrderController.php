@@ -65,4 +65,39 @@ class OrderController extends Controller
 
         return redirect()->route('order.list')->with('success', 'Xóa đơn hàng thành công.');
     }
+
+    /**
+     * Form Edit Order
+     */
+    public function edit($id)
+    {
+        $order = Order::find($id);
+        return view('admin.content.order.edit', compact('order'));
+    }
+
+    /**
+     * Update Order
+     */
+    public function update(UpdateOrderRequest $request, $id)
+    {
+        DB::beginTransaction();
+
+        $order = Order::find($id);
+        $order->status = $request->status;
+        $order->save();
+
+        // Cập nhật payment nếu tồn tại
+        $payment = $order->payment;
+        if ($payment) {
+            $payment->status = $request->payment_status;
+            $payment->method = $request->payment_method;
+            $payment->save();
+        }
+
+        DB::commit();
+
+        $page = $request->get('page');
+
+        return redirect()->route('order.list', ['page' => $page])->with('success', 'Cập nhật đơn hàng thành công!');
+    }
 }

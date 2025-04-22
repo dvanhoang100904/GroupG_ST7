@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-
+@section('page_title', 'Quản Lý Đơn Hàng')
 @section('content')
     @php
         $paymentStatuses = [
@@ -46,9 +46,6 @@
     @endphp
     <main class="flex-grow-1 p-4 bg-light">
         <div class="mb-4">
-            <h2 class="fw-bold mb-3">
-                <i class="fas fa-shopping-cart me-2"></i> Chi tiết đơn hàng
-            </h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
@@ -57,9 +54,12 @@
                             Quản lý đơn hàng
                         </a>
                     </li>
-                    <li class="breadcrumb-item active" aria-current="page">Chi tiết #{{ $order->order_id }}</li>
+                    <li class="breadcrumb-item active" aria-current="page">Chi tiết </li>
                 </ol>
             </nav>
+            <h3 class="fw-bold mb-3">
+                <i class="fas fa-shopping-cart me-2"></i> Chi tiết đơn hàng #{{ $order->order_id }}
+            </h3>
         </div>
 
         {{-- detail --}}
@@ -154,7 +154,8 @@
                 <i class="fas fa-arrow-left"></i> Quay lại
             </a>
 
-            <a href="#!" class="btn btn-warning">
+            <a href="{{ route('order.edit', $order->order_id) }}?page={{ request()->get('page') }}"
+                class="btn btn-warning">
                 <i class="fas fa-edit"></i> Chỉnh sửa
             </a>
         </div>

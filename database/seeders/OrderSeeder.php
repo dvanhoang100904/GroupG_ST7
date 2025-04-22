@@ -25,7 +25,7 @@ class OrderSeeder extends Seeder
             if ($shippingAddress) {
                 for ($i = 0; $i < 3; $i++) {
                     Order::create([
-                        'total_price' => $faker->randomFloat(2, 100, 5000),
+                        'total_price' => $faker->numberBetween(100, 5000) * 1000,
                         'status' => $faker->randomElement(['chờ_xử_lý', 'đang_xử_lý', 'đang_vận_chuyển', 'đã_giao_hàng', 'đã_hủy']),
                         'notes' => $faker->sentence(5),
                         'user_id' => $user->user_id,

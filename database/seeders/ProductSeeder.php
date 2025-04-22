@@ -26,7 +26,7 @@ class ProductSeeder extends Seeder
             Product::create([
                 'name'  => $name,
                 'description' => $faker->paragraph(),
-                'price' => $faker->randomFloat(2, 100, 5000),
+                'price' => $faker->numberBetween(100, 5000) * 1000,
                 'image' => 'products/' . $faker->image(storage_path('app/public/products'), 400, 300, null, false),
                 'category_id' => $faker->randomElement($categoryIds),
                 'slug' => Str::slug($name) . '-' . uniqid(),
