@@ -9,12 +9,13 @@ use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
 use App\Http\Controllers\Customer\CartController as CustomerCartController;
+use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Models\Cart;
+
 
 // Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -47,7 +48,15 @@ route::middleware(['web'])->group(function () {
     Route::post('gio-hang/cap-nhat', [CustomerCartController::class, 'updateCart'])->name('cart.updateCart');
 });
 
-
+// Order
+route::middleware('check.login.customer')->group(function () {
+    // Thanh toán
+    Route::get('/thanh-toan', [CustomerOrderController::class, 'checkout'])->name('order.checkout');
+    // Đặt hàng
+    Route::post('/dat-hang', [CustomerOrderController::class, 'placeOrder'])->name('order.placeOrder');
+    // Thông báo đặt hàng
+    Route::get('/dat-hang-thanh-cong/{order}', [CustomerOrderController::class, 'orderSuccess'])->name('order.success');
+});
 
 // admin
 Route::prefix('admin')->group(function () {
