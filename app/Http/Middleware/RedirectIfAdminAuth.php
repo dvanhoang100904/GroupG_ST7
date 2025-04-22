@@ -25,7 +25,7 @@ class RedirectIfAdminAuth
             }
 
             if ($user->role_id === 2) {
-                return redirect()->route('customer.index');
+                return redirect()->route('home');
             }
         }
 
