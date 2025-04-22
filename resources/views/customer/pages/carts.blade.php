@@ -28,18 +28,37 @@
                                         </div>
                                         <!-- quantity -->
                                         <div class="col-md-3">
+
                                             <div class="input-group" style="width: 150px">
-                                                <button class="btn btn-outline-danger" type="button">
-                                                    -
-                                                </button>
+                                                {{-- giảm --}}
+                                                <form action="{{ route('cart.updateCart') }}" method="post" class="me-2">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id"
+                                                        value="{{ $cartItem->product_id }}">
+                                                    <input type="hidden" name="quantity"
+                                                        value="{{ $cartItem->quantity - 1 }}">
+                                                    <button class="btn btn-danger"
+                                                        type="submit"{{ $cartItem->quantity <= 1 ? 'disabled' : '' }}>
+                                                        -
+                                                    </button>
+                                                </form>
 
                                                 <!-- Hiển thị số lượng hiện tại -->
                                                 <input type="text" class="form-control text-center"
                                                     value="{{ $cartItem->quantity }}" readonly style="width: 50px" />
 
-                                                <button class="btn btn-outline-danger" type="button">
-                                                    +
-                                                </button>
+                                                {{-- tăng --}}
+                                                <form action="{{ route('cart.updateCart') }}" method="post"
+                                                    class="ms-2">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id"
+                                                        value="{{ $cartItem->product_id }}">
+                                                    <input type="hidden" name="quantity"
+                                                        value="{{ $cartItem->quantity + 1 }}">
+                                                    <button class="btn btn-danger" type="submit">
+                                                        +
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                         <!-- price -->
@@ -52,7 +71,8 @@
                                         <div class="col-md-1">
                                             <form action="{{ route('cart.removeFromCart') }}" method="post">
                                                 @csrf
-                                                <input type="hidden" name="product_id" value="{{ $cartItem->product_id }}">
+                                                <input type="hidden" name="product_id"
+                                                    value="{{ $cartItem->product_id }}">
                                                 <button class="btn btn-link text-danger">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
@@ -95,10 +115,12 @@
                                 </div>
                             </div>
 
-                            <!-- action -->
-                            <a href="#!" class="btn btn-danger w-100">
-                                Đặt hàng
-                            </a>
+                            @if ($cartItems->count())
+                                <!-- action -->
+                                <a href="{{ route('order.checkout') }}" class="btn btn-danger w-100">
+                                    Đặt hàng
+                                </a>
+                            @endif
 
                             <a href="{{ route('products.index') }}" class="btn btn-checkout w-100 mb-2">Tiếp tục mua
                                 sắm</a>
