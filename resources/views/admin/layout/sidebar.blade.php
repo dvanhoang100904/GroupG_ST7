@@ -39,9 +39,9 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('slide.index') }}">
                 <img src="{{ asset('images/banner.png') }}" class="icon" />
-                <p>Banner</p>
+                <p>Slide</p>
             </a>
         </li>
         <span>Chức năng</span>

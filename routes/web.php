@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\SlideController;
 
 
 // Trang chủ
@@ -94,7 +95,20 @@ Route::prefix('admin')->group(function () {
         Route::get('/category/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit'); // Hiển thị form sửa
         Route::put('/category/{category}', [CategoryController::class, 'update'])->name('category.update'); // Lưu cập nhật
     });
+
+    // Route chuyển tới Slide - Banner
+    Route::middleware('auth')->group(function () {
+        Route::get('/slides', [SlideController::class, 'index'])->name('slide.index'); // Danh sách
+        Route::get('/slides/create', [SlideController::class, 'create'])->name('slide.create'); // Form tạo mới
+        Route::post('/slides', [SlideController::class, 'store'])->name('slide.store'); // Lưu mới
+        Route::get('/slides/{slide}', [SlideController::class, 'read'])->name('slide.read'); // Xem chi tiết
+        Route::get('/slides/{slide}/edit', [SlideController::class, 'edit'])->name('slide.edit'); // Form sửa
+        Route::put('/slides/{slide}', [SlideController::class, 'update'])->name('slide.update'); // Lưu sửa
+        Route::delete('/slides/{slide}', [SlideController::class, 'destroy'])->name('slide.destroy'); // Xóa
+    });
 });
+
+
 
 // Route chuyển tới trang đánh giá khách hàng
 Route::get('/admin/reviews', function () {
