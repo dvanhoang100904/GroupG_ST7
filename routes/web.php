@@ -14,9 +14,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-
-
-
+use App\Models\Cart;
 
 // Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -43,7 +41,10 @@ route::middleware(['web'])->group(function () {
     route::get('/gio-hang', [CustomerCartController::class, 'index'])->name('cart.list');
     // Thêm giỏ hàng
     route::post('/them-vao-gio-hang', [CustomerCartController::class, 'addToCart'])->name('cart.addToCart');
+    // Xóa giỏ hàng
     Route::post('/gio-hang/xoa', [CustomerCartController::class, 'removeFromCart'])->name('cart.removeFromCart');
+    // cập nhật giỏ hàng
+    Route::post('gio-hang/cap-nhat', [CustomerCartController::class, 'updateCart'])->name('cart.updateCart');
 });
 
 
