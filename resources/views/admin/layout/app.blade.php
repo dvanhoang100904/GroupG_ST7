@@ -43,6 +43,7 @@
     {{-- Bootstrap JS (bundle có Popper sẵn) --}}
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>
