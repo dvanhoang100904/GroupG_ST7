@@ -7,6 +7,7 @@ use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CategoryControllers;
 use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
+use App\Http\Controllers\Customer\RegisterController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
 use App\Http\Controllers\Customer\CartController as CustomerCartController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SlideController;
+
 
 
 // Trang chủ
@@ -114,3 +116,15 @@ Route::prefix('admin')->group(function () {
 Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');
 })->name('admin.reviews');
+
+// Đăng ký
+
+Route::get('register', [RegisterController::class, 'authRegister'])->name('customer.register');
+Route::post('register', [RegisterController::class, 'register'])->name('customer.register.submit');
+
+
+
+Route::get('/customer/home', function () {
+    return view('customer.home');
+})->name('customer.home');
+
