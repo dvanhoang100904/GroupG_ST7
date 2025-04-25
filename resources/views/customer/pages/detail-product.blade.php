@@ -85,17 +85,17 @@
                         @if(Auth::check() && Auth::id() === $review->user_id)
                             <div class="mt-2 d-flex gap-2">
                                 {{-- Nút sửa --}}
-                                <a href="{{ route('reviews.edit', $review->review_id) }}" class="btn btn-sm btn-warning">
+                                {{-- <a href="{{ route('reviews.edit', $review->review_id) }}" class="btn btn-sm btn-warning">
                                     Sửa
-                                </a>
+                                </a> --}}
 
                                 {{-- Nút xóa --}}
-                                <form action="{{ route('reviews.destroy', $review->review_id) }}" method="POST"
+                                {{-- <form action="{{ route('reviews.destroy', $review->review_id) }}" method="POST"
                                     onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                                </form>
+                                </form> --}}
                             </div>
                         @endif
                     </div>
