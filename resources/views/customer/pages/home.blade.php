@@ -3,12 +3,13 @@
 
 @section('content')
     {{-- Bắt đầu nội dung chính sẽ được chèn vào layout --}}
-
     <div class="container">
 
         {{-- Banner đầu trang --}}
         <div class="banner-wrapper">
-            <img src="{{ asset('images/banner1.png') }}" alt="Banner" class="banner-img">
+            @foreach ($slides as $slide)
+                <img src="{{ asset('storage/' . $slide->image) }}" alt="{{ $slide->name }}" class="banner-img">
+            @endforeach
         </div>
 
         {{-- Khu vực sản phẩm nổi bật --}}
