@@ -28,7 +28,7 @@ class SlideController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
-            'image' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image' => 'required|image|mimes:jpg,jpeg,png,gif', //|max:2048 neu muốn giới hạn
         ]);
 
         $slide = new Slide();
@@ -66,7 +66,7 @@ class SlideController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $slide->name = $request->name;
