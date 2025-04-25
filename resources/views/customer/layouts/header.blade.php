@@ -19,7 +19,7 @@
                 @php use Illuminate\Support\Str; @endphp
 
                 {{-- Danh sách các danh mục từ CSDL --}}
-                @foreach ($categories as $category)
+                @foreach ($categoryList as $category)
                     <a
                         href="{{ route('category.show', ['slug' => $category->slug ?? Str::slug($category->category_name)]) }}">
                         {{ $category->category_name }}
