@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CategoryControllers;
 use App\Http\Controllers\Customer\ProductController;
+use App\Http\Controllers\Customer\ReviewController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
 use App\Http\Controllers\Customer\CartController as CustomerCartController;
@@ -58,6 +59,10 @@ route::middleware('check.login.customer')->group(function () {
     // Thông báo đặt hàng
     Route::get('/dat-hang-thanh-cong/{order}', [CustomerOrderController::class, 'orderSuccess'])->name('order.success');
 });
+//Đánh giá sản phẩm
+Route::post('/product/{productId}/review', [ReviewController::class, 'store'])->name('reviews.store'); // POST để gửi đánh giá
+Route::get('/product/{productId}/reviews', [ReviewController::class, 'getReviews'])->name('reviews.get'); // GET để lấy đánh giá 
+
 
 // admin
 Route::prefix('admin')->group(function () {
@@ -107,10 +112,7 @@ Route::prefix('admin')->group(function () {
         Route::delete('/slides/{slide}', [SlideController::class, 'destroy'])->name('slide.destroy'); // Xóa
     });
 });
-
-
-
-// Route chuyển tới trang đánh giá khách hàng
-Route::get('/admin/reviews', function () {
+   // Route chuyển tới trang đánh giá khách hàng
+   Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');
 })->name('admin.reviews');

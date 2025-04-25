@@ -12,10 +12,13 @@ return new class extends Migration
             $table->bigIncrements('review_id');
             $table->text('content')->nullable();
             $table->integer('rating')->default(0);
+            $table->string('type', 50)->default('review'); // phân loại review/chat
+            $table->string('photo')->nullable();
             $table->unsignedBigInteger('user_id');     
             $table->unsignedBigInteger('product_id'); 
             $table->unsignedBigInteger('chat_id')->nullable();
             $table->timestamps();
+
         });
     }
 
