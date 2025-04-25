@@ -56,9 +56,17 @@ class ProductController extends Controller
             $reviews = Review::where('product_id', $product->product_id)
             ->orderBy('created_at', 'desc')
             ->get();
-    
+    // Xử lý lọc theo số sao (rating)
+    $rating = request()->query('rating');
+    $reviewsQuery = Review::where('product_id', $product->product_id)
+        ->orderBy('created_at', 'desc');
 
-        // Trả về view chi tiết sản phẩm và các sản phẩm tương tự
-        return view('customer.pages.detail-product', compact('product', 'similarProducts' , 'reviews')); // thêm reviews
+    if (is_numeric($rating)) {
+        $reviewsQuery->where('rating', $rating);
+    }
+
+    $reviews = $reviewsQuery->get();
+
+    return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews')); // thêm reviews
     }
 }
