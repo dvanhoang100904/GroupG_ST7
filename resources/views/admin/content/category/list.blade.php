@@ -54,6 +54,6 @@
         </table>
 
         <!-- Phân trang -->
-
+        @include('admin.layout.pagination', ['paginator' => $categories])
     </div>
 @endsection
