@@ -8,6 +8,16 @@
             <a href="{{ route('slide.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm slide
             </a>
+
+            <!-- Ô tìm kiếm -->
+            <div class="search-box">
+                <form method="GET" action="{{ route('slide.index') }}" class="search-form">
+                    <input type="text" name="search" placeholder="Tìm kiếm slide..." value="{{ request('search') }}">
+                    <button type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <table class="table table-bordered table-hover">
@@ -43,6 +53,15 @@
                                 @method('DELETE')
                                 <button class="btn btn-danger btn-sm">
                                     <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </form>
+
+                             {{-- Nút Hiện/Ẩn --}}
+                            <form action="{{ route('slide.toggleVisibility', $slide->slide_id) }}" method="POST" class="d-inline-block">
+                                @csrf
+                                @method('PUT')
+                                <button class="btn {{ $slide->is_visible ? 'btn-success' : 'btn-secondary' }} btn-sm">
+                                    <i class="fas fa-eye"></i> {{ $slide->is_visible ? 'Hiện' : 'Ẩn' }}
                                 </button>
                             </form>
                         </td>

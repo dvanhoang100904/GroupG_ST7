@@ -9,12 +9,19 @@ use App\Models\Slide;
 class SlideController extends Controller
 {
     // Danh sách slide
-    public function index()
+    public function index(Request $request)
     {
-        $slides = Slide::oldest()->paginate(2);
+        // Lấy giá trị tìm kiếm từ request
+        $search = $request->input('search');
+
+        // Lọc theo tên slide nếu có tìm kiếm
+        $slides = Slide::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })->oldest()->paginate(2);
 
         return view('admin.content.slide.list', compact('slides'));
     }
+
 
 
     // Hiển thị form tạo slide mới
@@ -98,5 +105,18 @@ class SlideController extends Controller
         $slide->delete();
 
         return redirect()->route('slide.index')->with('success', 'Xóa slide thành công.');
+    }
+
+
+    // chưc năng hiện thị 
+    public function toggleVisibility($id)
+    {
+        $slide = Slide::findOrFail($id);
+
+        // Chuyển trạng thái is_visible từ false thành true và ngược lại
+        $slide->is_visible = !$slide->is_visible;
+        $slide->save();
+
+        return redirect()->route('slide.index')->with('success', 'Cập nhật trạng thái hiển thị slide thành công.');
     }
 }

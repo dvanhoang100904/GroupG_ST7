@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Models\Slide;
 use Carbon\Carbon;
 
 class HomeController extends Controller
@@ -21,7 +21,10 @@ class HomeController extends Controller
             ->take(8) // Giới hạn chỉ lấy 8 sản phẩm
             ->get();
 
-        // Trả về view và truyền vào danh mục và sản phẩm nổi bật
-        return view('customer.pages.home', compact('categories', 'featuredProducts'));
+        // ktra và lấy trạng thái == true từ crud
+        $slides = Slide::where('is_visible', true)->get();
+
+
+        return view('customer.pages.home', compact('categories', 'featuredProducts', 'slides'));
     }
 }
