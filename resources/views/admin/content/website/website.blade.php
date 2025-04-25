@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-
+@section('page_title', 'Quản Lý Website')
 @section('content')
 <div class="container-fluid">
     <h4 class="mb-4 fw-bold">Quản lí đánh giá khách hàng</h4>

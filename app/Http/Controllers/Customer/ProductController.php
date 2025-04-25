@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Review;
 
 class ProductController extends Controller
 {
@@ -51,8 +52,13 @@ class ProductController extends Controller
             })
             ->limit(4)
             ->get();
+            // lấy đánh giá 
+            $reviews = Review::where('product_id', $product->product_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
 
         // Trả về view chi tiết sản phẩm và các sản phẩm tương tự
-        return view('customer.pages.detail-product', compact('product', 'similarProducts'));
+        return view('customer.pages.detail-product', compact('product', 'similarProducts' , 'reviews')); // thêm reviews
     }
 }
