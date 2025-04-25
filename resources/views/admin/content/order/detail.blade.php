@@ -91,7 +91,7 @@
             <div class="card-body row">
                 <div class="col-md-6">
                     <p><strong>Tên Người Nhận:</strong> {{ $order->shippingAddress->name }}</p>
-                    <p><strong>Email:</strong> {{ $order->user->email }}</p>
+                    <p><strong>Email:</strong> {{ $order->shippingAddress->email }}</p>
                     <div class="col-md-6">
                         <p><strong>Số điện thoại:</strong> {{ $order->shippingAddress->phone }}</p>
                         <p><strong>Địa chỉ giao hàng:</strong> {{ Str::limit($order->shippingAddress->address, 30) }}</p>
