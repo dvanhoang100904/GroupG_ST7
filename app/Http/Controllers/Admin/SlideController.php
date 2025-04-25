@@ -11,7 +11,8 @@ class SlideController extends Controller
     // Danh sách slide
     public function index()
     {
-        $slides = Slide::latest()->paginate(4); // số lượng mỗi trang, ví dụ 10
+        $slides = Slide::oldest()->paginate(2);
+
         return view('admin.content.slide.list', compact('slides'));
     }
 
@@ -37,7 +38,7 @@ class SlideController extends Controller
             $slide->image = $request->file('image')->store('images/slides', 'public');
         }
 
-        $slide->created_at = now(); // nếu bạn muốn tự gán, còn không thì Laravel tự làm
+        $slide->created_at = now();
         $slide->save();
 
         return redirect()->route('slide.index')->with('success', 'Thêm slide thành công!');
@@ -70,12 +71,14 @@ class SlideController extends Controller
 
         $slide->name = $request->name;
 
-        // Nếu có ảnh mới thì xử lý
         if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/slides'), $imageName);
-            $slide->image = 'uploads/slides/' . $imageName;
+            if ($slide->image) {
+                \Storage::disk('public')->delete($slide->image);
+            }
+
+            $slide->image = $request->file('image')->store('images/slides', 'public');
         }
+
 
         $slide->save();
 

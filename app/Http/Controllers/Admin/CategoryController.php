@@ -17,8 +17,8 @@ class CategoryController extends Controller
         $categories = Category::when($search, function ($query, $search) {
             return $query->where('category_name', 'like', "%{$search}%");
         })
-            ->orderBy('category_id', 'desc')
-            ->paginate(7);
+            ->orderBy('category_id', 'asc')
+            ->paginate(2);
 
         // Giữ nguyên từ khóa khi chuyển trang
         $categories->appends(['search' => $search]);

@@ -56,8 +56,6 @@
         </table>
 
         {{-- Phân trang --}}
-        <div class="d-flex justify-content-center">
-            {{ $slides->links() }}
-        </div>
+        @include('admin.layout.pagination', ['paginator' => $slides])
     </div>
 @endsection
