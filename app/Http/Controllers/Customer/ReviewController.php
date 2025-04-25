@@ -193,4 +193,53 @@ class ReviewController extends Controller
 
         return back()->with('success', 'Đánh giá đã được xóa.');
     }
+    public function index(Request $request)
+
+    {
+        $query = Review::with(['user', 'chat']);
+        // Lọc phân loại nếu có
+        if ($request->has('type') && in_array($request->type, ['review', 'chat'])) {
+            $query->where('type', $request->type);
+        }
+
+        // Lọc theo số sao nếu có
+        if ($request->has('rating') && is_numeric($request->rating)) {
+            $query->where('rating', $request->rating);
+        }
+
+        // Phân trang 10 dòng mỗi trang
+        $reviews = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        return view('admin.content.website.website', compact('reviews'));
+    }
+    public function show($reviewId)
+    {
+        $review = Review::with(['user', 'product'])->findOrFail($reviewId);
+
+        return view('admin.content.website.detail', compact('review'));
+    }
+    public function replyForm($reviewId)
+    {
+        $review = Review::with('user')->findOrFail($reviewId);
+        return view('admin.content.website.reply', compact('review'));
+    }
+    public function storeReply(Request $request, $reviewId)
+{
+    $request->validate([
+        'reply_content' => 'required|string|max:1000',
+    ]);
+
+    $review = Review::findOrFail($reviewId);
+
+    Review::create([
+        'user_id' => auth()->id(), // hoặc cố định admin id
+        'product_id' => $review->product_id,
+        'chat_id' => $review->id, // gán chat_id để làm liên kết mềm
+        'type' => 'reply',
+        'content' => $request->reply_content,
+    ]);
+
+    return response()->json(['message' => 'Phản hồi đã được gửi!']);
+}
+
 }

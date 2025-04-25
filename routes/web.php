@@ -112,7 +112,7 @@ Route::prefix('admin')->group(function () {
         Route::delete('/slides/{slide}', [SlideController::class, 'destroy'])->name('slide.destroy'); // Xóa
     });
 });
-   // Route chuyển tới trang đánh giá khách hàng
-   Route::get('/admin/reviews', function () {
-    return view('admin.content.website.website');
-})->name('admin.reviews');
+Route::get('/admin/reviews', [ReviewController::class, 'index'])->name('admin.reviews');
+Route::get('/admin/reviews/{review}', [ReviewController::class, 'show'])->name('admin.reviews.detail');
+Route::get('admin/reviews/{review}/reply', [ReviewController::class, 'replyForm'])->name('admin.reviews.reply');
+Route::post('/admin/reviews/{review}/reply', [ReviewController::class, 'storeReply'])->name('admin.reviews.storeReply');
