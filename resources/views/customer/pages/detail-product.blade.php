@@ -64,7 +64,6 @@
                 </div>
             </div>
         </div>
-
         {{-- KHU VỰC HIỂN THỊ ĐÁNH GIÁ --}}
         <section class="product-reviews mt-5">
             <h3>Đánh giá sản phẩm</h3>
