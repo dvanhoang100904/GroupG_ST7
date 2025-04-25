@@ -64,14 +64,28 @@
                 </div>
             </div>
         </div>
+
         {{-- KHU VỰC HIỂN THỊ ĐÁNH GIÁ --}}
         <section class="product-reviews mt-5">
             <h3>Đánh giá sản phẩm</h3>
+            <!-- Form lọc -->
+            <div class="mb-4">
+                <form method="GET">
+                    <label for="rating">Lọc theo số sao:</label>
+                    <select name="rating" id="rating" onchange="this.form.submit()">
+                        <option value="">Tất cả</option>
+                        @for ($i = 5; $i >= 1; $i--)
+                            <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} sao</option>
+                        @endfor
+                    </select>
+                </form>
+            </div>
+
 
             @if($reviews->count())
                 @foreach($reviews as $review)
                     <div class="review-card mb-3 border p-3 rounded shadow-sm">
-                        <strong>{{ $review->user->user_name ?? 'Ẩn danh' }}</strong>
+                        <strong>{{ $review->user->name ?? 'Ẩn danh' }}</strong>
                         <div>⭐ {{ $review->rating }} / 5</div>
                         <p>{{ $review->content }}</p>
                         @if($review->photo)
@@ -83,30 +97,72 @@
 
                         {{-- Nếu người dùng hiện tại là người viết đánh giá --}}
                         @if(Auth::check() && Auth::id() === $review->user_id)
-                            <div class="mt-2 d-flex gap-2">
-                                {{-- Nút sửa --}}
-                                {{-- <a href="{{ route('reviews.edit', $review->review_id) }}" class="btn btn-sm btn-warning">
-                                    Sửa
-                                </a> --}}
-
-                                {{-- Nút xóa --}}
-                                {{-- <form action="{{ route('reviews.destroy', $review->review_id) }}" method="POST"
-                                    onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                                </form> --}}
+                            <div class="dropdown mt-2">
+                                <button class="btn btn-sm btn-light border dropdown-toggle" type="button"
+                                    id="dropdownMenuButton{{ $review->review_id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ...
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $review->review_id }}">
+                                    <li>
+                                        <a class="dropdown-item" data-bs-toggle="modal"
+                                            data-bs-target="#editReviewModal{{ $review->review_id }}">Chỉnh sửa</a>
+                                    </li>
+                                    <li>
+                                        <form action="{{ route('reviews.destroy', $review->review_id) }}" method="POST"
+                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item text-danger">Xóa</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
                         @endif
+                    </div>
+
+                    {{-- Modal Chỉnh sửa Đánh giá --}}
+                    <div class="modal fade" id="editReviewModal{{ $review->review_id }}" tabindex="-1"
+                        aria-labelledby="editReviewModalLabel{{ $review->review_id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editReviewModalLabel{{ $review->review_id }}">Chỉnh sửa Đánh giá
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Chèn form chỉnh sửa vào modal -->
+                                    <form action="{{ route('reviews.update', $review->review_id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="mb-3">
+                                            <label for="rating" class="form-label">Đánh giá sao</label>
+                                            <input type="number" class="form-control" name="rating" id="rating"
+                                                value="{{ $review->rating }}" min="1" max="5" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="content" class="form-label">Nội dung đánh giá</label>
+                                            <textarea class="form-control" name="content" id="content" rows="3"
+                                                required>{{ $review->content }}</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <button type="submit" class="btn btn-primary">Cập nhật đánh giá</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @endforeach
             @else
                 <p>Chưa có đánh giá nào cho sản phẩm này.</p>
             @endif
         </section>
-
-
     </div>
+
 
     {{-- Khu vực sản phẩm tương tự --}}
     <section class="related-products">

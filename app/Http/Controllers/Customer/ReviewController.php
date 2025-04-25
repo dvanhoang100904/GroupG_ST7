@@ -16,68 +16,6 @@ use Illuminate\Support\Facades\Gate;
 class ReviewController extends Controller
 {
     // Gửi đánh giá
-    // public function store(Request $request)
-    // {
-    //     if (!Auth::check()) {
-    //         return response()->json([
-    //             'status' => 'unauthenticated',
-    //             'message' => 'Bạn cần đăng nhập để đánh giá sản phẩm.'
-    //         ]);
-    //     }
-
-    //     $request->validate([
-    //         'product_id' => 'required|exists:products,product_id',
-    //         'content' => 'required|string|max:1000',
-    //         'rating' => 'required|integer|min:1|max:5',
-    //         'photo' => 'nullable|image|max:2048',
-    //         // Không cần validate chat_id vì nó optional
-    //     ]);
-
-    //     $photoPath = null;
-    //     if ($request->hasFile('photo')) {
-    //         $photo = $request->file('photo');
-    //         $fileName = time() . '_' . Str::random(10) . '.' . $photo->getClientOriginalExtension();
-
-    //         $destination = public_path('images/reviews');
-    //         if (!File::exists($destination)) {
-    //             File::makeDirectory($destination, 0755, true);
-    //         }
-
-    //         $photo->move($destination, $fileName);
-    //         $photoPath = 'images/reviews/' . $fileName;
-    //     }
-
-    //     try {
-    //         Review::create([
-    //             'user_id' => Auth::id(),
-    //             'product_id' => $request->product_id,
-    //             'content' => $request->content,
-    //             'rating' => $request->rating,
-    //             'photo' => $photoPath,
-    //             'type' => 'product',
-    //             'chat_id' => $request->chat_id ?? null, // ✅ thêm vào đây
-    //             'created_at' => now(),
-    //             'updated_at' => now(),
-    //         ]);
-
-    //         // return response()->json([
-    //         //     'status' => 'success',
-    //         //     'message' => 'Đánh giá đã được gửi thành công!'
-    //         // ]);
-    //         $product = Product::findOrFail($productId);
-
-    //         return redirect()
-    //             ->route('products.detail', ['slug' => $product->slug])
-    //             ->with('success', 'Đánh giá đã được gửi thành công!');
-    //     } catch (\Exception $e) {
-    //         Log::error('Lỗi khi lưu đánh giá: ' . $e->getMessage());
-
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Đã xảy ra lỗi khi lưu đánh giá.'
-    //         ]);
-    //     }
-    // }
     public function store(Request $request, $productId)
     {
         if (!Auth::check()) {
@@ -138,8 +76,19 @@ class ReviewController extends Controller
 
         return response()->json($reviews);
     }
+    public function edit($reviewId)
+    {
+        $review = Review::findOrFail($reviewId);
+
+        if (Auth::id() !== $review->user_id) {
+            return back()->with('error', 'Bạn không có quyền chỉnh sửa đánh giá này.');
+        }
+
+        return view('customer.pages.editreview', compact('review'));
+    }
+
     // Cập nhật đánh giá
-    public function edit(Request $request, $reviewId)
+    public function update(Request $request, $reviewId)
     {
         $review = Review::findOrFail($reviewId);
 
@@ -173,7 +122,8 @@ class ReviewController extends Controller
         $review->rating = $request->rating;
         $review->save();
 
-        return back()->with('success', 'Đánh giá đã được cập nhật.');
+        return redirect()->route('products.detail', ['slug' => $review->product->slug])
+            ->with('success', 'Đánh giá đã được cập nhật.');
     }
 
     // Xóa đánh giá
@@ -224,22 +174,21 @@ class ReviewController extends Controller
         return view('admin.content.website.reply', compact('review'));
     }
     public function storeReply(Request $request, $reviewId)
-{
-    $request->validate([
-        'reply_content' => 'required|string|max:1000',
-    ]);
+    {
+        $request->validate([
+            'reply_content' => 'required|string|max:1000',
+        ]);
 
-    $review = Review::findOrFail($reviewId);
+        $review = Review::findOrFail($reviewId);
 
-    Review::create([
-        'user_id' => auth()->id(), // hoặc cố định admin id
-        'product_id' => $review->product_id,
-        'chat_id' => $review->id, // gán chat_id để làm liên kết mềm
-        'type' => 'reply',
-        'content' => $request->reply_content,
-    ]);
+        Review::create([
+            'user_id' => auth()->id(), // hoặc cố định admin id
+            'product_id' => $review->product_id,
+            'chat_id' => $review->id, // gán chat_id để làm liên kết mềm
+            'type' => 'reply',
+            'content' => $request->reply_content,
+        ]);
 
-    return response()->json(['message' => 'Phản hồi đã được gửi!']);
-}
-
+        return response()->json(['message' => 'Phản hồi đã được gửi!']);
+    }
 }

@@ -1,7 +1,7 @@
 @extends('admin.layout.app')
 @section('page_title', 'Chi tiết đánh giá khách hàng')
+
 @section('content')
-<!-- Hiển thị đánh giá chính -->
 <div class="review-card border p-3 rounded shadow-sm mb-3">
     <strong>{{ $review->user->user_name ?? 'Ẩn danh' }}</strong>
     <div>⭐ {{ $review->rating }} / 5</div>
@@ -14,10 +14,10 @@
     <small class="text-muted">{{ $review->created_at->format('d/m/Y H:i') }}</small>
 
     <!-- Nút mở form trả lời -->
-    <button class="btn btn-danger btn-sm mt-2" onclick="toggleReplyForm({{ $review->id }})">Reply</button>
+    <button class="btn btn-danger btn-sm mt-2" onclick="toggleReplyForm({{ $review->id }})">Trả lời</button>
 
     <!-- Form trả lời -->
-    <div id="reply-form-{{ $review->id }}" style="display: none; margin-left: 40px;" class="mt-2">
+    <div id="reply-form-{{ $review->id }}" class="reply-form mt-2" style="display: none; margin-left: 40px;">
         <form onsubmit="submitReply(event, {{ $review->id }})">
             @csrf
             <textarea class="form-control mb-2" name="reply_content" rows="2" placeholder="Nhập phản hồi..."></textarea>
@@ -25,16 +25,20 @@
         </form>
     </div>
 
-    <!-- Hiển thị phản hồi nếu có -->
-    @foreach($review->replies as $reply)
-        <div class="border-start ps-3 mt-2" style="margin-left: 40px;">
-            <strong class="text-danger">Admin</strong>
-            <p>{{ $reply->content }}</p>
-            <small class="text-muted">{{ $reply->created_at->format('d/m/Y H:i') }}</small>
-        </div>
-    @endforeach
+    <!-- Danh sách phản hồi -->
+    <div id="replies-{{ $review->id }}" class="replies-list mt-3" style="margin-left: 40px;">
+        @foreach($review->replies as $reply)
+            <div class="border-start ps-3 mb-2">
+                <strong class="text-danger">Admin</strong>
+                <p>{{ $reply->content }}</p>
+                <small class="text-muted">{{ $reply->created_at->format('d/m/Y H:i') }}</small>
+            </div>
+        @endforeach
+    </div>
 </div>
-@section('script')
+@endsection
+
+@push('scripts')
 <script>
     function toggleReplyForm(reviewId) {
         const form = document.getElementById(`reply-form-${reviewId}`);
@@ -52,7 +56,7 @@
 
         const replyHTML = `
             <div class="border-start ps-3 mb-2">
-                <strong>Admin</strong>
+                <strong class="text-danger">Admin</strong>
                 <p>${replyText}</p>
                 <small class="text-muted">Vừa xong</small>
             </div>
@@ -60,12 +64,13 @@
 
         const repliesContainer = document.getElementById(`replies-${reviewId}`);
         if (repliesContainer) {
-            repliesContainer.innerHTML += replyHTML;
+            repliesContainer.insertAdjacentHTML('beforeend', replyHTML);
         }
 
         textarea.value = '';
-        form.style.display = 'none';
+        form.closest('.reply-form').style.display = 'none';
+
+     
     }
 </script>
-@endsection
-@endsection
+@endpush

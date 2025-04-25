@@ -63,6 +63,12 @@ route::middleware('check.login.customer')->group(function () {
 Route::post('/product/{productId}/review', [ReviewController::class, 'store'])->name('reviews.store'); // POST để gửi đánh giá
 Route::get('/product/{productId}/reviews', [ReviewController::class, 'getReviews'])->name('reviews.get'); // GET để lấy đánh giá 
 
+Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+Route::get('/products/{id}', [ProductController::class, 'showpage'])->name('products.show');
+
+   
 
 // admin
 Route::prefix('admin')->group(function () {
