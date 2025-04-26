@@ -212,9 +212,22 @@ body {
     transform: translateY(-5px); /* Hiệu ứng nâng lên khi hover */
 }
 
+.product-image {
+    width: 100%; /* Phần khung chứa ảnh chiếm toàn bộ chiều rộng của thẻ cha */
+    aspect-ratio: 1/1; /* Tạo khung tỷ lệ 1:1 (hình vuông); có thể đổi thành 4/3 hoặc 3/4 tùy ý */
+    overflow: hidden; /* Nếu ảnh vượt ra ngoài khung thì sẽ bị ẩn đi */
+    display: flex; /* Sử dụng flexbox để căn giữa ảnh */
+    align-items: center; /* Căn giữa ảnh theo chiều dọc */
+    justify-content: center; /* Căn giữa ảnh theo chiều ngang */
+    background: #fff; /* Nền trắng để nhìn sạch và rõ sản phẩm */
+}
+
 .product-image img {
-    width: 100%; /* Đảm bảo hình ảnh sản phẩm chiếm toàn bộ chiều rộng */
-    border-bottom: 1px solid #eee; /* Đường viền dưới hình ảnh */
+    width: 80%; /* Ảnh trải rộng toàn bộ chiều ngang khung */
+    height: 80%; /* Ảnh trải đều toàn bộ chiều cao khung */
+    border-bottom: 1px solid #eee; /* Tạo đường viền mờ ở dưới ảnh để phân tách ảnh với nội dung bên dưới */
+    object-fit: cover; /* Ảnh sẽ phủ kín khung, cắt bớt nếu cần, không bị méo hình */
+    display: block; /* Loại bỏ khoảng trắng dư thừa phía dưới ảnh (do mặc định inline element) */
 }
 
 .product-card .product-info {
@@ -296,14 +309,69 @@ body {
 }
 
 /* ===== FOOTER ===== */
-footer {
-    text-align: center; /* Căn giữa chữ */
-    padding: 25px; /* Khoảng cách trong footer */
-    background: #ffeaea; /* Màu nền footer */
-    border-top: 1px solid #f5baba; /* Đường viền trên footer */
-    margin-top: auto; /* Đảm bảo footer ở dưới cùng */
-    font-size: 15px; /* Kích thước chữ footer */
-    color: #b30000; /* Màu chữ footer */
+.footer {
+    background-color: #222; /* Nền tối */
+    color: #ddd; /* Màu chữ xám nhạt */
+    padding: 40px 20px 20px;
+    font-size: 14px;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-column {
+    flex: 1 1 220px; /* Chiếm ít nhất 220px */
+    margin: 10px;
+}
+
+.footer-column h4 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #fff;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    color: #ddd;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+    color: #f44336; /* Đổi màu khi hover */
+}
+
+.social-icons a {
+    display: inline-block;
+    margin-right: 10px;
+    color: #ddd;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #f44336;
+}
+
+.footer-bottom {
+    border-top: 1px solid #444;
+    margin-top: 30px;
+    padding-top: 15px;
+    text-align: center;
+    font-size: 13px;
 }
 
 /* ===== PRODUCT ===== */
@@ -329,8 +397,8 @@ footer {
 }
 
 .product-image img {
-    width: 180px; /* Kích thước hình ảnh */
-    height: 180px;
+    width: 150px; /* Kích thước hình ảnh */
+    height: 150px;
     object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng */
     border-bottom: 1px solid #eee; /* Đường viền dưới hình ảnh */
 }
