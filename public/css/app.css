@@ -666,28 +666,80 @@ footer {
 /* login */
 .login-container {
     max-width: 450px;
-    margin: 100px auto;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin: 80px auto;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
     background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.form-floating label {
-    padding: 0.8rem 0.75rem;
+.login-container:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.input-group {
+    transition: all 0.3s ease;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.input-group-text {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #64748b;
+}
+
+.form-control {
+    border-left: 0;
+    padding: 12px 15px;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    background-color: #fff;
+    border-color: #e2e8f0;
 }
 
 .btn-login {
-    background-color: #1f77c0c8;
+    background-color: #2563eb;
     border: none;
-    padding: 10px;
+    padding: 12px;
     font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
+
+.btn-login:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+}
+
 .divider {
     position: relative;
     text-align: center;
-    margin: 20px 0;
+    margin: 25px 0;
 }
+
 .divider::before {
     content: "";
     position: absolute;
@@ -695,24 +747,74 @@ footer {
     left: 0;
     right: 0;
     height: 1px;
-    background-color: #ddd;
-    z-index: -1;
+    background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+    z-index: 0;
 }
+
 .divider span {
     background-color: white;
     padding: 0 15px;
-    color: #777;
+    color: #64748b;
+    font-size: 0.85rem;
+    position: relative;
+    z-index: 1;
 }
+
 .social-login .btn {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
 }
+
+.social-login .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.social-login .btn i {
+    margin-right: 8px;
+}
+
 .footer-links {
     text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: #64748b;
 }
+
 .footer-links a {
-    color: #666;
+    color: #2563eb;
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Error message styling */
+.error-message {
+    color: #dc2626;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    display: block;
+}
+
+/* Password toggle button */
+.toggle-password {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.toggle-password:hover {
+    background-color: #e2e8f0;
+    color: #475569;
 }
