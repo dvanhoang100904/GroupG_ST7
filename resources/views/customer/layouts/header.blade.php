@@ -32,7 +32,7 @@
         <a href="{{ route('products.index') }}">Sản phẩm</a>
 
         {{-- Link tùy chọn (chưa xử lý) --}}
-        <a href="#">Sản phẩm theo sở thích</a>
+        <a href="#">Yêu thích</a>
     </div>
 
     <!-- Phải: Tìm kiếm + Tài khoản + Giỏ hàng -->
