@@ -16,6 +16,7 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
+use App\Http\Controllers\Admin\ProductsController as AdminProductsController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SlideController;
 
@@ -77,6 +78,18 @@ Route::prefix('admin')->group(function () {
 
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin');
+
+    // Product routes trong admin
+    Route::middleware('check.login.admin')->group(function () {
+        Route::get('products', [AdminProductsController::class, 'index'])->name('products.list');
+        Route::get('products/create', [AdminProductsController::class, 'create'])->name('products.create');
+        Route::post('products', [AdminProductsController::class, 'store'])->name('products.store');
+        Route::get('products/{product}', [AdminProductsController::class, 'read'])->name('products.read');
+        Route::get('products/{product}/edit', [AdminProductsController::class, 'edit'])->name('products.edit');
+        Route::put('products/{product}', [AdminProductsController::class, 'update'])->name('products.update');
+        Route::delete('products/{product}', [AdminProductsController::class, 'destroy'])->name('products.destroy');
+    }); 
+    
 
     // Orders
     Route::middleware('check.login.admin')->group(function () {

@@ -15,7 +15,7 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('products.list') }}">
                 <img src="{{ asset('images/products.png') }}" class="icon" />
                 <p>Sản phẩm</p>
             </a>
