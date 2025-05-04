@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CategoryController;
 
+use App\Http\Controllers\Customer\PageController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CategoryControllers;
 use App\Http\Controllers\Customer\ProductController;
@@ -117,3 +118,9 @@ Route::prefix('admin')->group(function () {
    Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');
 })->name('admin.reviews');
+
+// Route chuyển tới trang chính sách bảo mật
+Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy-policy');
+
+// Route chuyển tới trang chính sách bảo hành
+Route::get('/warranty-policy', [PageController::class, 'warrantyPolicy'])->name('warranty-policy');
