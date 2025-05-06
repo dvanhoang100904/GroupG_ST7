@@ -5,22 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
+    // Hiển thị danh sách danh mục (có tìm kiếm)
     public function index(Request $request)
     {
-        // Lấy từ khóa tìm kiếm nếu có
         $search = $request->input('search');
 
-        // Query danh sách danh mục có tìm kiếm + phân trang 20 dòng
         $categories = Category::when($search, function ($query, $search) {
             return $query->where('category_name', 'like', "%{$search}%");
         })
             ->orderBy('category_id', 'asc')
             ->paginate(2);
 
-        // Giữ nguyên từ khóa khi chuyển trang
         $categories->appends(['search' => $search]);
 
         return view('admin.content.category.list', compact('categories', 'search'));
@@ -44,9 +45,20 @@ class CategoryController extends Controller
 
         $category = new Category();
         $category->category_name = $request->category_name;
-        $category->slug = $request->slug;
+
+        // Tạo slug nếu chưa có
+        $slug = $request->slug ?? Str::slug($request->category_name);
+        $category->slug = $slug;
+
         $category->description = $request->description;
 
+        // Tạo thư mục theo slug trong public/images nếu chưa tồn tại
+        $folderPath = public_path('images/' . $slug);
+        if (!File::exists($folderPath)) {
+            File::makeDirectory($folderPath, 0755, true);
+        }
+
+        // Nếu người dùng có upload ảnh, lưu vào storage như cũ
         if ($request->hasFile('image')) {
             $category->image = $request->file('image')->store('images/categories', 'public');
         }
@@ -56,34 +68,32 @@ class CategoryController extends Controller
         return redirect()->route('category.index')->with('success', 'Danh mục đã được tạo thành công.');
     }
 
-    // XÓa
+    // Xóa danh mục
     public function destroy(Category $category)
     {
-        // Xóa ảnh nếu có (tùy chọn)
-        if ($category->image) {
-            \Storage::disk('public')->delete($category->image); // vẫn chạy được nha!
+        // Nếu danh mục có ảnh -> xóa ảnh trong ổ cứng
+        if ($category->image && File::exists(public_path($category->image))) {
+            File::delete(public_path($category->image));
         }
 
-        $category->delete();
+        $category->delete(); // Xóa trong DB
 
         return redirect()->route('category.index')->with('success', 'Danh mục đã được xóa.');
     }
 
-
-    // chi tiết
+    // Xem chi tiết danh mục
     public function read(Category $category)
     {
         return view('admin.content.category.read', compact('category'));
     }
 
-    // sửa 
-    // Hiển thị form sửa
+    // Hiển thị form sửa danh mục
     public function edit(Category $category)
     {
         return view('admin.content.category.edit', compact('category'));
     }
 
-    // Lưu cập nhật
+    // Cập nhật danh mục
     public function update(Request $request, Category $category)
     {
         $request->validate([
@@ -94,17 +104,30 @@ class CategoryController extends Controller
         ]);
 
         $category->category_name = $request->category_name;
-        $category->slug = $request->slug;
+
+        // Cập nhật lại slug nếu có thay đổi
+        $slug = $request->slug ?? Str::slug($request->category_name);
+        $category->slug = $slug;
+
         $category->description = $request->description;
 
+        // Tạo lại thư mục nếu chưa có (trường hợp slug mới)
+        $folderPath = public_path('images/' . $slug);
+        if (!File::exists($folderPath)) {
+            File::makeDirectory($folderPath, 0755, true);
+        }
+
+        // Nếu có ảnh mới upload
         if ($request->hasFile('image')) {
-            // Xóa ảnh cũ nếu có
-            if ($category->image) {
-                \Storage::disk('public')->delete($category->image);
+            // Xóa ảnh cũ nếu tồn tại
+            if ($category->image && File::exists(public_path($category->image))) {
+                File::delete(public_path($category->image));
             }
 
-            // Lưu ảnh mới
-            $category->image = $request->file('image')->store('images/categories', 'public');
+            $image = $request->file('image');
+            $imageName = 'thumbnail.' . $image->getClientOriginalExtension();
+            $image->move($folderPath, $imageName);
+            $category->image = 'images/' . $slug . '/' . $imageName;
         }
 
         $category->save();
