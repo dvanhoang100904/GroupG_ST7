@@ -15,16 +15,16 @@
             </div>
             <div class="card-body">
                 <p><strong>ID:</strong> {{ $product->product_id }}</p>
-                <p><strong>Tên:</strong> {{ $product->product_name }}</p>
-                <p><strong>Giá:</strong> {{ $product->price }}</p>
-                <p><strong>Mô tả:</strong> {{ $product->description ?: 'Không có mô tả' }}</p>
+                <p><strong>Tên:</strong> {{ e($product->product_name) }}</p>
+                <p><strong>Giá:</strong> {{ e($product->price) }}</p>
+                <p><strong>Mô tả:</strong> {{ $product->description ? e($product->description) : 'Không có mô tả' }}</p>
                 <p><strong>Danh mục:</strong> {{ $product->category->category_name ?? 'Không xác định' }}</p>
 
+                <p><strong>Ảnh:</strong></p>
                 @if ($product->image)
-                    <p><strong>Ảnh:</strong></p>
-                    <img src="{{ asset('storage/' . $product->image) }}" width="200">
+                <img src="{{ asset($product->image) }}" width="200" alt="{{ $product->product_name }}">
                 @else
-                    <p><strong>Ảnh:</strong> Không có ảnh</p>
+                    <p>Không có ảnh</p>
                 @endif
             </div>
         </div>

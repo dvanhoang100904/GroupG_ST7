@@ -57,6 +57,21 @@
                 @enderror
             </div>
 
+            <div class="mb-3">
+             <label for="category_id" class="form-label">Danh mục</label>
+                <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror" required>
+                    <option value="">-- Chọn danh mục --</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->category_id }}" {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
+                            {{ $category->category_name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('category_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
             <button type="submit" class="btn btn-success">Lưu sản phẩm</button>
         </form>
     </div>

@@ -33,9 +33,10 @@ class Product extends Model
     // Điều này có nghĩa là thay vì sử dụng ID để truy vấn sản phẩm, ta sẽ dùng slug.
     public function getRouteKeyName()
     {
-        return 'slug';  // Chỉ định sử dụng 'slug' làm khóa chính cho URL route
+        // Nếu đang ở route frontend, dùng slug
+        return request()->is('product/*') ? 'slug' : 'product_id';
     }
-
+    
     // Tự động tạo slug khi tạo hoặc cập nhật sản phẩm
     protected static function booted()
     {

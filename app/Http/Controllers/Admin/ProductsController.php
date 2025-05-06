@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;  // Thêm để sử dụng phương thức slug
 
 class ProductsController extends Controller
 {
+    /**
+     * Hiển thị danh sách sản phẩm với tùy chọn tìm kiếm.
+     */
     public function index(Request $request)
     {
         $search = $request->input('search');
-
         $products = Product::when($search, function ($query, $search) {
             return $query->where('product_name', 'like', "%{$search}%");
         })
@@ -25,14 +27,21 @@ class ProductsController extends Controller
         return view('admin.content.products.list', compact('products', 'search'));
     }
 
+    /** 
+     * Hiển thị form tạo mới sản phẩm.
+     */
     public function create()
     {
         $categories = Category::all();
         return view('admin.content.products.create', compact('categories'));
     }
 
+    /**
+     * Lưu sản phẩm mới vào cơ sở dữ liệu.
+     */
     public function store(Request $request)
     {
+        // Xác thực dữ liệu
         $request->validate([
             'product_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
@@ -47,40 +56,51 @@ class ProductsController extends Controller
         $product->price = $request->price;
         $product->category_id = $request->category_id;
 
+        // Lấy slug danh mục
+        $category = Category::find($request->category_id);
+        $categorySlug = Str::slug($category->category_name);
+        $slug = Str::slug($request->product_name);
+
         if ($request->hasFile('image')) {
-            $product->image = $request->file('image')->store('images/products', 'public');
+            $image = $request->file('image');
+            $imageName = $slug . '.' . $image->getClientOriginalExtension();
+            // Lưu vào thư mục images/{slug} tương ứng với danh mục
+            $image->move(public_path("images/{$categorySlug}"), $imageName);
+            $product->image = "images/{$categorySlug}/{$imageName}";
+        } else {
+            // Ảnh mặc định theo danh mục: {categorySlug}/mac-dinh.jpg
+            $product->image = "images/{$categorySlug}/mac-dinh.jpg";
         }
 
         $product->save();
 
-        return redirect()->route('products.index')->with('success', 'Sản phẩm đã được thêm thành công.');
+        return redirect()->route('products.list')->with('success', 'Sản phẩm đã được thêm thành công.');
     }
 
-    public function destroy(Product $product)
-    {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
-        }
-
-        $product->delete();
-
-        return redirect()->route('products.index')->with('success', 'Sản phẩm đã được xóa.');
-    }
-
+    /**
+     * Hiển thị chi tiết sản phẩm.
+     */
     public function read(Product $product)
     {
         $product->load('category');
         return view('admin.content.products.read', compact('product'));
     }
 
+    /**
+     * Hiển thị form chỉnh sửa sản phẩm.
+     */
     public function edit(Product $product)
     {
         $categories = Category::all();
         return view('admin.content.products.edit', compact('product', 'categories'));
     }
 
+    /**
+     * Cập nhật thông tin sản phẩm.
+     */
     public function update(Request $request, Product $product)
     {
+        // Xác thực dữ liệu
         $request->validate([
             'product_name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
@@ -94,16 +114,40 @@ class ProductsController extends Controller
         $product->price = $request->price;
         $product->category_id = $request->category_id;
 
+        $category = Category::find($request->category_id);
+        $categorySlug = Str::slug($category->category_name);
+        $slug = Str::slug($request->product_name);
+
         if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            // Xóa ảnh cũ nếu có
+            if ($product->image && file_exists(public_path($product->image))) {
+                unlink(public_path($product->image));
             }
 
-            $product->image = $request->file('image')->store('images/products', 'public');
+            $image = $request->file('image');
+            $imageName = $slug . '.' . $image->getClientOriginalExtension();
+            // Lưu ảnh mới vào thư mục {categorySlug}
+            $image->move(public_path("images/{$categorySlug}"), $imageName);
+            $product->image = "images/{$categorySlug}/{$imageName}";
         }
 
         $product->save();
 
         return redirect()->route('products.read', $product->product_id)->with('success', 'Cập nhật sản phẩm thành công.');
+    }
+
+    /**
+     * Xóa sản phẩm khỏi cơ sở dữ liệu.
+     */
+    public function destroy(Product $product)
+    {
+        // Xóa ảnh nếu có
+        if ($product->image && file_exists(public_path($product->image))) {
+            unlink(public_path($product->image));
+        }
+
+        $product->delete();
+
+        return redirect()->route('products.list')->with('success', 'Sản phẩm đã được xóa.');
     }
 }

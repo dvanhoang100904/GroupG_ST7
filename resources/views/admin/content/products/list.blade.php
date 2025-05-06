@@ -38,7 +38,7 @@
                         <td>{{ $product->product_name }}</td>
                         <td>
                             @if ($product->image)
-                                <img src="{{ asset('storage/' . $product->image) }}" width="60" alt="{{ $product->product_name }}">
+                                <img src="{{ asset($product->image) }}" width="60" alt="{{ $product->product_name }}">
                             @else
                                 <span class="text-muted">Không có ảnh</span>
                             @endif
