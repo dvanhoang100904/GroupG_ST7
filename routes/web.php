@@ -9,6 +9,7 @@ use App\Http\Controllers\Customer\CategoryControllers;
 use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Customer\ReviewController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
+use App\Http\Controllers\Customer\RegisterController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
 use App\Http\Controllers\Customer\CartController as CustomerCartController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\ProductsController as AdminProductsController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SlideController;
+
 
 
 // Trang chủ
@@ -132,8 +134,22 @@ Route::prefix('admin')->group(function () {
     return view('admin.content.website.website');
 })->name('admin.reviews');
 
+<<<<<<< HEAD
 // Route chuyển tới trang chính sách bảo mật
 Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy-policy');
 
 // Route chuyển tới trang chính sách bảo hành
 Route::get('/warranty-policy', [PageController::class, 'warrantyPolicy'])->name('warranty-policy');
+=======
+// Đăng ký
+
+Route::get('register', [RegisterController::class, 'authRegister'])->name('customer.register');
+Route::post('register', [RegisterController::class, 'register'])->name('customer.register.submit');
+
+
+
+Route::get('/customer/home', function () {
+    return view('customer.home');
+})->name('customer.home');
+
+>>>>>>> Lam_Register
