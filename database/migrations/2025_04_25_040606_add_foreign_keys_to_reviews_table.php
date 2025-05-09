@@ -26,6 +26,7 @@ return new class extends Migration
                 ->references('chat_id')
                 ->on('chats')
                 ->onDelete('set null');
+            $table->foreign('parent_id')->references('review_id')->on('reviews')->onDelete('cascade');
         });
     }
 
@@ -38,7 +39,7 @@ return new class extends Migration
             $table->dropForeign(['user_id']);
             $table->dropForeign(['product_id']);
             $table->dropForeign(['chat_id']);
-
+            $table->dropForeign(['parent_id']);
         });
     }
 };

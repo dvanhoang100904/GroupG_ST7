@@ -41,7 +41,7 @@
                 <button class="buy-now">Mua ngay</button>
                 @if(Auth::check())
                     <button class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                        Viết đánh giá
+                        Viết đánh giá <i class="fas fa-comment ms-2"></i>
                     </button>
                 @endif
             </div>
@@ -50,7 +50,9 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="reviewModalLabel">Đánh giá sản phẩm</h5>
+                            <h5 class="modal-title" id="reviewModalLabel">
+                                <i class="fas fa-comment"></i> Đánh giá sản phẩm
+                            </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">

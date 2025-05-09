@@ -2,19 +2,20 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ReviewSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $users = DB::table('users')->get();
         $products = DB::table('products')->get();
+
+        if ($users->count() === 0 || $products->count() === 0) {
+            $this->command->info('Không có user hoặc product để seed review.');
+            return;
+        }
 
         $comments = [
             'Sản phẩm rất tốt, giao hàng nhanh.',
@@ -30,19 +31,24 @@ class ReviewSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
-            foreach ($users->random(3) as $user) {
+            $randomUsers = $users->shuffle()->take(min(3, $users->count()));
+
+            foreach ($randomUsers as $user) {
                 DB::table('reviews')->insert([
                     'content' => $comments[array_rand($comments)],
                     'rating' => rand(3, 5),
                     'type' => 'review',
                     'photo' => null,
                     'user_id' => $user->user_id,
-                    'product_id' => $product->product_id,
+                    'product_id' => $product->product_id, 
                     'chat_id' => null,
+                    'parent_id' => null,
                     'created_at' => now(),
-                    'updated_at' => now(),
+                    'updated_at' => now(),  
                 ]);
             }
         }
+
+        // $this->command->info('✅ Đã seed reviews thành công!');
     }
 }

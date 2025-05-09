@@ -12,12 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('chats', function (Blueprint $table) {
+            if (!Schema::hasColumn('chats', 'receiver_id')) {
+                $table->unsignedBigInteger('receiver_id'); // thêm cột receiver_id nếu chưa có
+            }
             $table->foreign('assessment_star_id')
                 ->references('assessment_star_id')
                 ->on('assessments')
                 ->onDelete('set null');
 
             $table->foreign('user_id')
+                ->references('user_id')
+                ->on('users')
+                ->onDelete('cascade');
+            $table->foreign('receiver_id')
                 ->references('user_id')
                 ->on('users')
                 ->onDelete('cascade');
@@ -32,6 +39,7 @@ return new class extends Migration
         Schema::table('chats', function (Blueprint $table) {
             $table->dropForeign(['assessment_star_id']);
             $table->dropForeign(['user_id']);
+            $table->dropForeign(['receiver_id']);
         });
     }
 };

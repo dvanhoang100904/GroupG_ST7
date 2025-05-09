@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Slide;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Chat;
 
 class HomeController extends Controller
 {
@@ -23,8 +25,19 @@ class HomeController extends Controller
 
         // ktra và lấy trạng thái == true từ crud
         $slides = Slide::where('is_visible', true)->get();
+        // Lấy danh sách chat nếu người dùng là khách hàng
+        $chats = [];
 
+        if (Auth::check() && Auth::user()->role_id === 2) {
+            $chats = Chat::where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhere('receiver_id', auth()->id());
+            })
+                ->whereNull('assessment_star_id') // loại bỏ reply đánh giá nếu có
+                ->orderBy('created_at')
+                ->get();
+        }
 
-        return view('customer.pages.home', compact('categories', 'featuredProducts', 'slides'));
+        return view('customer.pages.home', compact('categories', 'featuredProducts', 'slides' , 'chats'));
     }
 }

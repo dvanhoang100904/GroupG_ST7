@@ -11,6 +11,9 @@ return new class extends Migration
         Schema::create('assessments', function (Blueprint $table) {
             $table->bigIncrements('assessment_star_id');
             $table->integer('quantity')->nullable();
+            $table->string('target_type');
+            $table->unsignedBigInteger('target_id'); 
+            $table->text('feedback')->nullable();
             $table->timestamps();
         });
     }

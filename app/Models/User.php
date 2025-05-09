@@ -86,4 +86,10 @@ class User extends Authenticatable
     {
         return $this->hasManyThrough(CartItem::class, Cart::class, 'user_id', 'cart_id', 'user_id', 'cart_id');
     }
+    public function chats(): HasMany
+    {
+        return $this->hasMany(Chat::class, 'user_id', 'user_id');
+    }
+    
+
 }

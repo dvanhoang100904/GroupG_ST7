@@ -5,7 +5,8 @@
   <h4 class="mb-4">Danh sách người đã đánh giá</h4>
 
   <!-- Form lọc -->
-  <form method="GET" action="{{ route('admin.reviews') }}" class="row g-3 mb-4">
+  <form method="GET" action="{{ route('admin.website') }}" class="row g-3 mb-4">
+
     <div class="col-md-3">
       <select name="type" class="form-select">
         <option value="">-- Tất cả phân loại --</option>
@@ -23,6 +24,10 @@
     </div>
     <div class="col-md-2">
       <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+    <div class="mb-4">
+      <a href="{{ route('admin.reviews.index') }}" class="btn btn-yellow me-2">Danh Sách Đánh Giá</a>
+      <a href="{{ route('admin.chats.index') }}" class="btn btn-black">Danh sách các tin nhắn</a>
     </div>
   </form>
 
