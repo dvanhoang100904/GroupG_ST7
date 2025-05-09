@@ -169,22 +169,4 @@ Route::get('/home', [HomeController::class, 'indexx'])->name('customer.home');
     return view('admin.content.website.website');
 })->name('admin.reviews');
 
-<<<<<<< HEAD
-// Route chuyển tới trang chính sách bảo mật
-Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy-policy');
 
-// Route chuyển tới trang chính sách bảo hành
-Route::get('/warranty-policy', [PageController::class, 'warrantyPolicy'])->name('warranty-policy');
-=======
-// Đăng ký
-
-Route::get('register', [RegisterController::class, 'authRegister'])->name('customer.register');
-Route::post('register', [RegisterController::class, 'register'])->name('customer.register.submit');
-
-
-
-Route::get('/customer/home', function () {
-    return view('customer.home');
-})->name('customer.home');
-
->>>>>>> Lam_Register

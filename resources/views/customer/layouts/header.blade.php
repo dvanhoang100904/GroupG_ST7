@@ -59,8 +59,8 @@
             <a href="{{ route('customer.login') }}" class="btn btn-outline-light me-2">
                 Đăng nhập
             </a>
-            <a href="{{ route('customer.register') }}" class="btn btn-light">Đăng ký</a>
-            </a>
+            {{-- <a href="{{ route('customer.register') }}" class="btn btn-light">Đăng ký</a>
+            </a> --}}
         @endguest
 
         @auth
