@@ -116,6 +116,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/slides/{slide}/edit', [SlideController::class, 'edit'])->name('slide.edit'); // Form sửa
         Route::put('/slides/{slide}', [SlideController::class, 'update'])->name('slide.update'); // Lưu sửa
         Route::delete('/slides/{slide}', [SlideController::class, 'destroy'])->name('slide.destroy'); // Xóa
+        Route::put('/slides/{slide}/toggle-visibility', [SlideController::class, 'toggleVisibility'])->name('slide.toggleVisibility'); //hiện trang chủ
     });
 });
 Route::get('/admin/reviews', [ReviewController::class, 'index'])->name('admin.reviews');

@@ -9,11 +9,19 @@ use App\Models\Slide;
 class SlideController extends Controller
 {
     // Danh sách slide
-    public function index()
+    public function index(Request $request)
     {
-        $slides = Slide::latest()->paginate(4); // số lượng mỗi trang, ví dụ 10
+        // Lấy giá trị tìm kiếm từ request
+        $search = $request->input('search');
+
+        // Lọc theo tên slide nếu có tìm kiếm
+        $slides = Slide::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })->oldest()->paginate(2);
+
         return view('admin.content.slide.list', compact('slides'));
     }
+
 
 
     // Hiển thị form tạo slide mới
@@ -27,7 +35,7 @@ class SlideController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
-            'image' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image' => 'required|image|mimes:jpg,jpeg,png,gif', //|max:2048 neu muốn giới hạn
         ]);
 
         $slide = new Slide();
@@ -37,7 +45,7 @@ class SlideController extends Controller
             $slide->image = $request->file('image')->store('images/slides', 'public');
         }
 
-        $slide->created_at = now(); // nếu bạn muốn tự gán, còn không thì Laravel tự làm
+        $slide->created_at = now();
         $slide->save();
 
         return redirect()->route('slide.index')->with('success', 'Thêm slide thành công!');
@@ -65,17 +73,19 @@ class SlideController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $slide->name = $request->name;
 
-        // Nếu có ảnh mới thì xử lý
         if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/slides'), $imageName);
-            $slide->image = 'uploads/slides/' . $imageName;
+            if ($slide->image) {
+                \Storage::disk('public')->delete($slide->image);
+            }
+
+            $slide->image = $request->file('image')->store('images/slides', 'public');
         }
+
 
         $slide->save();
 
@@ -95,5 +105,18 @@ class SlideController extends Controller
         $slide->delete();
 
         return redirect()->route('slide.index')->with('success', 'Xóa slide thành công.');
+    }
+
+
+    // chưc năng hiện thị 
+    public function toggleVisibility($id)
+    {
+        $slide = Slide::findOrFail($id);
+
+        // Chuyển trạng thái is_visible từ false thành true và ngược lại
+        $slide->is_visible = !$slide->is_visible;
+        $slide->save();
+
+        return redirect()->route('slide.index')->with('success', 'Cập nhật trạng thái hiển thị slide thành công.');
     }
 }

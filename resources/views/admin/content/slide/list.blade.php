@@ -8,6 +8,16 @@
             <a href="{{ route('slide.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm slide
             </a>
+
+            <!-- Ô tìm kiếm -->
+            <div class="search-box">
+                <form method="GET" action="{{ route('slide.index') }}" class="search-form">
+                    <input type="text" name="search" placeholder="Tìm kiếm slide..." value="{{ request('search') }}">
+                    <button type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <table class="table table-bordered table-hover">
@@ -17,6 +27,7 @@
                     <th>Tên slide</th>
                     <th>Hình ảnh</th>
                     <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
                     <th>Chức năng</th>
                 </tr>
             </thead>
@@ -29,6 +40,16 @@
                             <img src="{{ asset('storage/' . $slide->image) }}" alt="Slide" class="img-fluid" style="max-height: 200px;">
                         </td>
                         <td>{{ $slide->created_at->format('d/m/Y') }}</td>
+                        <td>
+                             {{-- Nút Hiện/Ẩn --}}
+                             <form action="{{ route('slide.toggleVisibility', $slide->slide_id) }}" method="POST" class="d-inline-block">
+                                @csrf
+                                @method('PUT')
+                                <button class="btn {{ $slide->is_visible ? 'btn-success' : 'btn-secondary' }} btn-sm">
+                                    <i class="fas fa-eye"></i> {{ $slide->is_visible ? 'Hiện' : 'Ẩn' }}
+                                </button>
+                            </form>
+                        </td>
                         <td>
                             <a href="{{ route('slide.read', $slide->slide_id) }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> Chi tiết
@@ -56,8 +77,6 @@
         </table>
 
         {{-- Phân trang --}}
-        <div class="d-flex justify-content-center">
-            {{ $slides->links() }}
-        </div>
+        @include('admin.layout.pagination', ['paginator' => $slides])
     </div>
 @endsection

@@ -72,7 +72,11 @@
                             {{-- payment method --}}
                             <td>{{ $order->payment->method }}</td>
                             {{-- phone --}}
-                            <td class="text-center">{{ $order->shippingAddress->phone }}</td>
+                            <td class="text-center">{{ $order->shippingAddress->phone }}
+                                <br>
+                                <small class="text-muted">(SĐT Người Đặt: {{ $order->user->phone }})</small>
+                            </td>
+
                             {{-- action --}}
                             <td class="d-flex justify-content-center gap-3">
                                 {{-- detail --}}
@@ -103,6 +107,6 @@
             </table>
         </div>
         <!-- Phân trang -->
-        @include('admin.layout.pagination', ['paginator' => $orders])
+        {!! $orders->withQueryString()->links('pagination::bootstrap-5') !!}
     </main>
 @endsection
