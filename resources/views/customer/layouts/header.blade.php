@@ -32,7 +32,7 @@
         <a href="{{ route('products.index') }}">Sản phẩm</a>
 
         {{-- Link tùy chọn (chưa xử lý) --}}
-        <a href="#">Sản phẩm theo sở thích</a>
+        <a href="#">Yêu thích</a>
     </div>
 
     <!-- Phải: Tìm kiếm + Tài khoản + Giỏ hàng -->
@@ -59,7 +59,7 @@
             <a href="{{ route('customer.login') }}" class="btn btn-outline-light me-2">
                 Đăng nhập
             </a>
-            <a class="btn btn-light" data-bs-toggle="modal"> Đăng ký
+            <a href="{{ route('customer.register') }}" class="btn btn-light">Đăng ký</a>
             </a>
         @endguest
 

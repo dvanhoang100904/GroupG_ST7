@@ -123,13 +123,17 @@
                 </div>
 
                 <!-- Form trả lời -->
-                <form id="reply-form" method="POST" action="{{ route('admin.chat.reply', $selectedUserId) }}">
-                    @csrf
-                    <div class="input-group mt-3">
-                        <input type="text" name="description" class="form-control" placeholder="Nhập tin nhắn...">
-                        <button class="btn btn-primary" type="submit">Gửi</button>
-                    </div>
-                </form>
+                @if ($selectedUserId)
+                    <form id="reply-form" method="POST" action="{{ route('admin.chat.reply', $selectedUserId) }}">
+                        @csrf
+                        <div class="input-group mt-3">
+                            <input type="text" name="description" class="form-control" placeholder="Nhập tin nhắn...">
+                            <button class="btn btn-primary" type="submit">Gửi</button>
+                        </div>
+                    </form>
+                @else
+                    <div class="alert alert-warning">Vui lòng chọn một người dùng để gửi tin nhắn.</div>
+                @endif
 
             </div>
         </div>

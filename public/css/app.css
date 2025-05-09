@@ -212,9 +212,22 @@ body {
     transform: translateY(-5px); /* Hiệu ứng nâng lên khi hover */
 }
 
+.product-image {
+    width: 100%; /* Phần khung chứa ảnh chiếm toàn bộ chiều rộng của thẻ cha */
+    aspect-ratio: 1/1; /* Tạo khung tỷ lệ 1:1 (hình vuông); có thể đổi thành 4/3 hoặc 3/4 tùy ý */
+    overflow: hidden; /* Nếu ảnh vượt ra ngoài khung thì sẽ bị ẩn đi */
+    display: flex; /* Sử dụng flexbox để căn giữa ảnh */
+    align-items: center; /* Căn giữa ảnh theo chiều dọc */
+    justify-content: center; /* Căn giữa ảnh theo chiều ngang */
+    background: #fff; /* Nền trắng để nhìn sạch và rõ sản phẩm */
+}
+
 .product-image img {
-    width: 100%; /* Đảm bảo hình ảnh sản phẩm chiếm toàn bộ chiều rộng */
-    border-bottom: 1px solid #eee; /* Đường viền dưới hình ảnh */
+    width: 80%; /* Ảnh trải rộng toàn bộ chiều ngang khung */
+    height: 80%; /* Ảnh trải đều toàn bộ chiều cao khung */
+    border-bottom: 1px solid #eee; /* Tạo đường viền mờ ở dưới ảnh để phân tách ảnh với nội dung bên dưới */
+    object-fit: cover; /* Ảnh sẽ phủ kín khung, cắt bớt nếu cần, không bị méo hình */
+    display: block; /* Loại bỏ khoảng trắng dư thừa phía dưới ảnh (do mặc định inline element) */
 }
 
 .product-card .product-info {
@@ -296,14 +309,69 @@ body {
 }
 
 /* ===== FOOTER ===== */
-footer {
-    text-align: center; /* Căn giữa chữ */
-    padding: 25px; /* Khoảng cách trong footer */
-    background: #ffeaea; /* Màu nền footer */
-    border-top: 1px solid #f5baba; /* Đường viền trên footer */
-    margin-top: auto; /* Đảm bảo footer ở dưới cùng */
-    font-size: 15px; /* Kích thước chữ footer */
-    color: #b30000; /* Màu chữ footer */
+.footer {
+    background-color: #222; /* Nền tối */
+    color: #ddd; /* Màu chữ xám nhạt */
+    padding: 40px 20px 20px;
+    font-size: 14px;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-column {
+    flex: 1 1 220px; /* Chiếm ít nhất 220px */
+    margin: 10px;
+}
+
+.footer-column h4 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #fff;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    color: #ddd;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+    color: #f44336; /* Đổi màu khi hover */
+}
+
+.social-icons a {
+    display: inline-block;
+    margin-right: 10px;
+    color: #ddd;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #f44336;
+}
+
+.footer-bottom {
+    border-top: 1px solid #444;
+    margin-top: 30px;
+    padding-top: 15px;
+    text-align: center;
+    font-size: 13px;
 }
 
 /* ===== PRODUCT ===== */
@@ -329,8 +397,8 @@ footer {
 }
 
 .product-image img {
-    width: 180px; /* Kích thước hình ảnh */
-    height: 180px;
+    width: 150px; /* Kích thước hình ảnh */
+    height: 150px;
     object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng */
     border-bottom: 1px solid #eee; /* Đường viền dưới hình ảnh */
 }
@@ -666,80 +734,28 @@ footer {
 /* login */
 .login-container {
     max-width: 450px;
-    margin: 80px auto;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    margin: 100px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     background-color: white;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.login-container:hover {
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #2d3748;
-    font-size: 0.95rem;
-}
-
-.input-group {
-    transition: all 0.3s ease;
-}
-
-.input-group:focus-within {
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-}
-
-.input-group-text {
-    background-color: #f8fafc;
-    border-color: #e2e8f0;
-    color: #64748b;
-}
-
-.form-control {
-    border-left: 0;
-    padding: 12px 15px;
-    background-color: #f8fafc;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    box-shadow: none;
-    background-color: #fff;
-    border-color: #e2e8f0;
+.form-floating label {
+    padding: 0.8rem 0.75rem;
 }
 
 .btn-login {
-    background-color: #2563eb;
+    background-color: #1f77c0c8;
     border: none;
-    padding: 12px;
+    padding: 10px;
     font-weight: 600;
-    letter-spacing: 0.5px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
 }
-
-.btn-login:hover {
-    background-color: #1d4ed8;
-    transform: translateY(-2px);
-}
-
 .divider {
     position: relative;
     text-align: center;
-    margin: 25px 0;
+    margin: 20px 0;
 }
-
 .divider::before {
     content: "";
     position: absolute;
@@ -747,74 +763,24 @@ footer {
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(to right, transparent, #e2e8f0, transparent);
-    z-index: 0;
+    background-color: #ddd;
+    z-index: -1;
 }
-
 .divider span {
     background-color: white;
     padding: 0 15px;
-    color: #64748b;
-    font-size: 0.85rem;
-    position: relative;
-    z-index: 1;
+    color: #777;
 }
-
 .social-login .btn {
     width: 100%;
-    margin-bottom: 12px;
-    padding: 10px;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: 1px solid #e2e8f0;
+    margin-bottom: 10px;
 }
-
-.social-login .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.social-login .btn i {
-    margin-right: 8px;
-}
-
 .footer-links {
     text-align: center;
-    margin-top: 25px;
-    font-size: 0.9rem;
-    color: #64748b;
+    margin-top: 20px;
+    font-size: 14px;
 }
-
 .footer-links a {
-    color: #2563eb;
+    color: #666;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.footer-links a:hover {
-    color: #1d4ed8;
-    text-decoration: underline;
-}
-
-/* Error message styling */
-.error-message {
-    color: #dc2626;
-    font-size: 0.85rem;
-    margin-top: 6px;
-    display: block;
-}
-
-/* Password toggle button */
-.toggle-password {
-    background-color: #f8fafc;
-    border-color: #e2e8f0;
-    color: #64748b;
-    transition: all 0.2s ease;
-}
-
-.toggle-password:hover {
-    background-color: #e2e8f0;
-    color: #475569;
 }
