@@ -43,6 +43,7 @@
                 </a>
             @endforeach
         </div>
+        @include('customer.layouts.pagination', ['paginator' => $products])
     </div>
 @endsection
 {{-- Kết thúc section content --}}

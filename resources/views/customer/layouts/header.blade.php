@@ -20,8 +20,7 @@
 
                 {{-- Danh sách các danh mục từ CSDL --}}
                 @foreach ($categoryList as $category)
-                    <a
-                        href="{{ route('category.show', ['slug' => $category->slug ?? Str::slug($category->category_name)]) }}">
+                    <a href="{{ route('category.show', ['slug' => $category->slug ?? Str::slug($category->category_name)]) }}">
                         {{ $category->category_name }}
                     </a>
                 @endforeach
@@ -38,10 +37,10 @@
     <!-- Phải: Tìm kiếm + Tài khoản + Giỏ hàng -->
     <div class="header-right">
         {{-- Ô tìm kiếm sản phẩm --}}
-        <div class="search-container">
-            <input type="text" class="search-box" placeholder="Tìm kiếm...">
+        <form action="{{ route('products.index') }}" method="GET" class="search-container">
+            <input type="text" name="search" class="search-box" placeholder="Tìm kiếm..." value="{{ request('search') }}">
             <button class="search-btn"><i class="fa fa-search"></i></button>
-        </div>
+        </form>
         {{-- Link đến giỏ hàng --}}
         <a href="{{ route('cart.list') }}" class="position-relative text-decoration-none text-light">
             <i class="fa fa-shopping-cart fs-5"></i> <span class="ms-1">Giỏ hàng</span>
@@ -51,7 +50,6 @@
                 </span>
             @endif
         </a>
-
     </div>
 
     <div class="d-flex align-items-center">
@@ -60,7 +58,6 @@
                 Đăng nhập
             </a>
             <a href="{{ route('customer.register') }}" class="btn btn-light">Đăng ký</a>
-            </a>
         @endguest
 
         @auth

@@ -41,5 +41,8 @@
                 <p>Không có sản phẩm nào trong danh mục này.</p>
             @endforelse
         </div>
+        @if ($products instanceof \Illuminate\Pagination\Paginator || $products instanceof \Illuminate\Pagination\LengthAwarePaginator)
+            @include('customer.layouts.pagination', ['paginator' => $products])
+        @endif
     </div>
 @endsection

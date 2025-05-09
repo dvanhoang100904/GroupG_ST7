@@ -6,20 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Review;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    // Trang tất cả sản phẩm
-    public function index()
+    // Trang tất cả sản phẩm hoặc tìm kiếm
+    public function index(Request $request)
     {
-        // Lấy tất cả sản phẩm và sắp xếp theo product_id
-        $products = Product::orderBy('product_id')->get();
+        // Kiểm tra nếu có từ khóa tìm kiếm
+        $search = $request->input('search', ''); // Lấy từ khóa tìm kiếm
 
-        // Lấy tất cả danh mục và sắp xếp theo category_id
+        // Tìm kiếm sản phẩm theo tên, tên danh mục, hoặc tên sản phẩm tương tự
+        $products = Product::query()
+            ->when($search, function ($query, $search) {
+                return $query->where('product_name', 'LIKE', '%' . $search . '%')
+                    ->orWhereHas('category', function ($query) use ($search) {
+                        $query->where('category_name', 'LIKE', '%' . $search . '%');
+                    });
+            })
+            ->orderBy('product_id')
+            ->paginate(12);
+
+        // Lấy tất cả danh mục
         $categories = Category::orderBy('category_id')->get();
 
-        // Trả về view 'products.product' và truyền dữ liệu products, categories
-        return view('customer.pages.products', compact('products', 'categories'));
+        return view('customer.pages.products', compact('products', 'categories', 'search'));
     }
 
     // Trang sản phẩm theo danh mục
@@ -28,23 +39,22 @@ class ProductController extends Controller
         // Tìm danh mục theo slug
         $category = Category::where('slug', $slug)->firstOrFail();
 
-        // Lấy tất cả sản phẩm thuộc danh mục này
-        $products = Product::where('category_id', $category->id)->get();
+        // Lấy sản phẩm thuộc danh mục, phân trang 12 sản phẩm mỗi trang
+        $products = Product::where('category_id', $category->id)
+            ->orderBy('product_id')
+            ->paginate(12);
 
-        // Lấy tất cả danh mục để hiển thị trong sidebar (nếu cần)
+        // Lấy tất cả danh mục (nếu dùng trong sidebar)
         $categories = Category::orderBy('category_id')->get();
 
-        return view('products.show', compact('products', 'category', 'categories'));
+        return view('customer.pages.products-by-category', compact('products', 'category', 'categories'));
     }
-
 
     // Trang chi tiết sản phẩm
     public function detail($slug)
     {
-        // Tìm sản phẩm theo slug
         $product = Product::where('slug', $slug)->firstOrFail();
 
-        // Lấy các sản phẩm tương tự nếu có
         $similarProducts = Product::where('product_id', '!=', $product->product_id)
             ->where(function ($query) use ($product) {
                 $query->where('product_name', 'LIKE', '%' . $product->product_name . '%')
@@ -52,13 +62,11 @@ class ProductController extends Controller
             })
             ->limit(4)
             ->get();
-            // lấy đánh giá 
-            $reviews = Review::where('product_id', $product->product_id)
+
+        $reviews = Review::where('product_id', $product->product_id)
             ->orderBy('created_at', 'desc')
             ->get();
-    
 
-        // Trả về view chi tiết sản phẩm và các sản phẩm tương tự
-        return view('customer.pages.detail-product', compact('product', 'similarProducts' , 'reviews')); // thêm reviews
+        return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews'));
     }
 }
