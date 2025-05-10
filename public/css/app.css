@@ -431,6 +431,56 @@ body {
     background-color: #a30000; /* Màu nền khi hover */
 }
 
+.sort-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.sort-label {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+    margin-right: 10px;
+}
+
+.sort-btn {
+    padding: 10px 20px;
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 5px;
+    font-size: 14px;
+    text-transform: capitalize;
+}
+
+.sort-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.sort-btn.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.reset-btn {
+    background-color: #f44336;
+    color: white;
+    border-color: #f44336;
+}
+
+.reset-btn:hover {
+    background-color: #e53935;
+    border-color: #e53935;
+}
+
+
 /* ===== MEDIA QUERIES - Phản hồi theo kích thước màn hình ===== */
 
 /* Màn hình nhỏ hơn 1200px (tablet và laptop nhỏ) */

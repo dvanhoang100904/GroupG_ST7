@@ -7,6 +7,35 @@
         {{-- Hiển thị tên danh mục sản phẩm --}}
         <h2 class="product-heading">{{ mb_strtoupper($category->category_name) }}</h2>
 
+    {{-- Bộ lọc sắp xếp --}}
+    <div class="sort-filter mb-3">
+        <label class="sort-label" for="sortForm">Sắp xếp:</label>
+        
+        <form method="GET"
+            id="sortForm"
+            @if(isset($category))
+                action="{{ route('category.show', $category->slug) }}"
+            @else
+                action="{{ route('products.index') }}"
+            @endif
+        >
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+
+            {{-- Các button sắp xếp --}}
+            <button type="submit" name="sort" value="name_asc" class="sort-btn {{ request('sort') == 'name_asc' ? 'active' : '' }}">Tên A-Z</button>
+            <button type="submit" name="sort" value="name_desc" class="sort-btn {{ request('sort') == 'name_desc' ? 'active' : '' }}">Tên Z-A</button>
+            <button type="submit" name="sort" value="price_asc" class="sort-btn {{ request('sort') == 'price_asc' ? 'active' : '' }}">Giá thấp đến cao</button>
+            <button type="submit" name="sort" value="price_desc" class="sort-btn {{ request('sort') == 'price_desc' ? 'active' : '' }}">Giá cao đến thấp</button>
+
+            {{-- Nút quay lại --}}
+            @if(request('sort'))
+                <button type="submit" name="sort" value="" class="sort-btn reset-btn">Quay lại</button>
+            @endif
+        </form>
+    </div>
+
         <div class="product-grid">
             {{-- Kiểm tra nếu có sản phẩm trong danh mục --}}
             @forelse($products as $product)

@@ -34,6 +34,7 @@ Route::get('product/{slug}', [ProductController::class, 'detail'])->name('produc
 
 // Sản phẩm theo danh mục (theo slug)
 Route::get('/category/{slug}', [CategoryControllers::class, 'show'])->name('category.show');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 
 // Đăng nhập    
