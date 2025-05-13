@@ -11,14 +11,7 @@
     <div class="sort-filter mb-3">
         <label class="sort-label" for="sortForm">Sắp xếp:</label>
         
-        <form method="GET"
-            id="sortForm"
-            @if(isset($category))
-                action="{{ route('category.show', $category->slug) }}"
-            @else
-                action="{{ route('products.index') }}"
-            @endif
-        >
+        <form method="GET" id="sortForm" action="{{ route('category.show', $category->slug) }}">
             @if(request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
@@ -74,4 +67,28 @@
             @include('customer.layouts.pagination', ['paginator' => $products])
         @endif
     </div>
+    <!-- Nút trở về đầu trang -->
+    <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("scrollToTopBtn");
+
+        // Ẩn hiện nút khi cuộn
+        window.onscroll = function () {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+
+        // Khi nhấn nút thì cuộn lên đầu trang
+        btn.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
+@endpush

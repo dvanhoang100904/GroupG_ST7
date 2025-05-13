@@ -54,45 +54,6 @@ class ProductController extends Controller
         return view('customer.pages.products', compact('products', 'categories', 'search', 'sort'));
     }
 
-    // Trang sản phẩm theo danh mục
-    public function show(Request $request, $slug)
-    {
-        $sort = $request->input('sort', ''); // Lấy lựa chọn sắp xếp nếu có
-
-        // Tìm danh mục theo slug, nếu không thấy thì trả về 404
-        $category = Category::where('slug', $slug)->firstOrFail();
-
-        // Truy vấn sản phẩm thuộc danh mục này
-        $products = Product::where('category_id', $category->id);
-
-        // Áp dụng sắp xếp theo lựa chọn
-        switch ($sort) {
-            case 'name_asc':
-                $products->orderBy('product_name', 'asc'); // Sắp xếp theo tên A-Z
-                break;
-            case 'name_desc':
-                $products->orderBy('product_name', 'desc'); // Sắp xếp theo tên Z-A
-                break;
-            case 'price_asc':
-                $products->orderBy('price', 'asc'); // Sắp xếp giá thấp đến cao
-                break;
-            case 'price_desc':
-                $products->orderBy('price', 'desc'); // Sắp xếp giá cao đến thấp
-                break;
-            default:
-                $products->orderBy('product_id');
-        }
-
-        // Phân trang và giữ lại tham số sắp xếp
-        $products = $products->paginate(12)->appends($request->query());
-
-        // Lấy tất cả danh mục để hiển thị trong sidebar nếu có
-        $categories = Category::orderBy('category_id')->get();
-
-        // Truyền dữ liệu sang view
-        return view('customer.pages.products-by-category', compact('products', 'category', 'categories', 'sort'));
-    }
-
 
     // Trang chi tiết sản phẩm
     public function detail($slug)

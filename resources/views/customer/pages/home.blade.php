@@ -50,7 +50,31 @@
                 @endforeach
             </div>
         </section>
-
+        <!-- Nút trở về đầu trang -->
+    <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
     </div>
 @endsection
 {{-- Kết thúc section content --}}
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("scrollToTopBtn");
+
+        // Ẩn hiện nút khi cuộn
+        window.onscroll = function () {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+
+        // Khi nhấn nút thì cuộn lên đầu trang
+        btn.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
+@endpush
+
