@@ -24,6 +24,13 @@ class ProductController extends Controller
                     ->orWhereHas('category', function ($query) use ($search) {
                         $query->where('category_name', 'LIKE', '%' . $search . '%');
                     });
+            })
+            ->when(true, function ($query) {
+                // Điều kiện lọc sản phẩm nổi bật: Giá từ 4 triệu đến 10 triệu hoặc sản phẩm mới tạo trong vòng 7 ngày qua
+                return $query->where(function ($query) {
+                    $query->whereBetween('price', [4000000, 10000000])
+                        ->orWhere('created_at', '>=', now()->subDays(7)); // Sản phẩm mới tạo trong 7 ngày qua
+                });
             });
 
         // Áp dụng sắp xếp theo lựa chọn từ dropdown
@@ -44,8 +51,8 @@ class ProductController extends Controller
                 $products->orderBy('product_id'); // Mặc định theo thứ tự thêm vào
         }
 
-        // Phân trang và giữ lại các query string (search, sort)
-        $products = $products->paginate(12)->appends($request->query());
+        // Lấy chỉ 8 sản phẩm (giới hạn) và phân trang
+        $products = $products->limit(8)->paginate(8)->appends($request->query());
 
         // Lấy tất cả danh mục để hiển thị nếu cần
         $categories = Category::orderBy('category_id')->get();
@@ -54,17 +61,16 @@ class ProductController extends Controller
         return view('customer.pages.products', compact('products', 'categories', 'search', 'sort'));
     }
 
-
     // Trang chi tiết sản phẩm
     public function detail($slug)
     {
         // Tìm sản phẩm theo slug
         $product = Product::where('slug', $slug)->firstOrFail();
 
-        // Tìm các sản phẩm tương tự (không trùng ID, cùng tên gần giống hoặc giá gần giống)
+        // Lấy các sản phẩm tương tự nếu có
         $similarProducts = Product::where('product_id', '!=', $product->product_id)
             ->where(function ($query) use ($product) {
-                $query->where('product_name', 'LIKE', '%' . $product->product_name . '%')
+                $query->where('category_id', $product->category_id)
                     ->orWhereBetween('price', [$product->price * 0.9, $product->price * 1.1]);
             })
             ->limit(4)
