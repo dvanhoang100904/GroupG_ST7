@@ -20,7 +20,7 @@ class CategoryController extends Controller
             return $query->where('category_name', 'like', "%{$search}%");
         })
             ->orderBy('category_id', 'asc')
-            ->paginate(2);
+            ->paginate(3);
 
         $categories->appends(['search' => $search]);
 
