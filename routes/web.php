@@ -203,7 +203,6 @@ Route::middleware(['auth'])->group(function () {
 });
 ;
 
-Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('customer.profile.edit');
@@ -217,12 +216,8 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
 
 
-Route::prefix('customer')->name('customer.')->middleware('auth')->group(function () {
-    Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    
+Route::prefix('customer')->middleware('auth')->name('customer.')->group(function () {
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
-Route::put('/customer/profile/update', [ProfileController::class, 'update'])->name('customer.profile.update');
 
-
-Route::put('/customer/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
