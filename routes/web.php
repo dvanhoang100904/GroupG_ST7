@@ -21,6 +21,8 @@ use App\Http\Controllers\Admin\ProductsController as AdminProductsController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SlideController;
 use App\Http\Controllers\Customer\SocialController;
+use App\Http\Controllers\Auth\CustomerForgotPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 
 
@@ -165,3 +167,22 @@ Route::get('/customer/home', function () {
     return view('customer.pages.home');
 })->name('customer.home');
 
+
+
+
+Route::get('quen-mat-khau', [CustomerForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('quen-mat-khau', [CustomerForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+
+use App\Http\Controllers\Auth\CustomerResetPasswordController;
+
+Route::get('reset-password/{token}', [CustomerResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+
+Route::get('reset-password/{token}', [CustomerResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+
+Route::post('reset-password', [CustomerResetPasswordController::class, 'reset'])
+    ->name('password.store');
+
+    
