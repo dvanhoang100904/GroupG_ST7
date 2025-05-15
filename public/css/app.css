@@ -170,11 +170,12 @@ body {
 }
 
 .banner-wrapper img {
-    width: 100%; /* Đảm bảo banner chiếm chiều rộng đầy đủ */
-    border-radius: 12px; /* Bo tròn các góc của banner */
-    object-fit: cover; /* Cắt ảnh sao cho phù hợp */
-    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.1); /* Hiệu ứng bóng cho banner */
-    margin-bottom: 20px; /* Khoảng cách dưới banner */
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.1);
+    margin-bottom: 10px; /* Giảm khoảng cách dưới */
+    margin-top: -20px; /* Nhích ảnh lên trên một chút */
 }
 
 /* ===== SẢN PHẨM NỔI BẬT ===== */
