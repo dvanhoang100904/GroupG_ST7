@@ -103,8 +103,8 @@ Route::prefix('admin')->group(function () {
         Route::get('products/{product}/edit', [AdminProductsController::class, 'edit'])->name('edit');
         Route::put('products/{product}', [AdminProductsController::class, 'update'])->name('products.update');
         Route::delete('products/{product}', [AdminProductsController::class, 'destroy'])->name('products.destroy');
-    }); 
-    
+    });
+
 
     // Orders
     Route::middleware('check.login.admin')->group(function () {
@@ -142,11 +142,10 @@ Route::prefix('admin')->group(function () {
         Route::put('/slides/{slide}/toggle-visibility', [SlideController::class, 'toggleVisibility'])->name('slide.toggleVisibility'); //hiện trang chủ
     });
 });
-   // Route chuyển tới trang đánh giá khách hàng
-   Route::get('/admin/reviews', function () {
+// Route chuyển tới trang đánh giá khách hàng
+Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');
 })->name('admin.reviews');
-
 
 // Route chuyển tới trang chính sách bảo mật
 Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy-policy');
@@ -164,4 +163,3 @@ Route::post('register', [RegisterController::class, 'register'])->name('customer
 Route::get('/customer/home', function () {
     return view('customer.pages.home');
 })->name('customer.home');
-
