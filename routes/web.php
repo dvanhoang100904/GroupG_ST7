@@ -172,10 +172,7 @@ Route::get('/customer/home', function () {
 
 
 
-<<<<<<< HEAD
 //Forgot password
-=======
->>>>>>> khai-tam/8-merge-7
 Route::get('quen-mat-khau', [CustomerForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('quen-mat-khau', [CustomerForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
