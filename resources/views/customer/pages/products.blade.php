@@ -50,11 +50,12 @@
                     <p class="description">{{ Str::limit($product->description, 100) }}</p>
 
                     {{-- Nút yêu thích --}}
-                    <form method="POST" action="{{ route('favorites.store', ['productId' => $product->product_id]) }}">
-                    <button class="favorite-btn" data-product-id="{{ $product->id }}">
+                   <form method="POST" action="{{ route('favorites.store', ['productId' => $product->product_id]) }}" style="display:inline;">
+                    @csrf
+                    <button class="favorite-btn" data-product-id="{{ $product->product_id }}" style="background:none; border:none; cursor:pointer;">
                         <i class="fa fa-heart" style="color: black;"></i>
                     </button>
-
+                </form>
 
 
                     {{-- Nút thêm vào giỏ --}}
@@ -97,4 +98,49 @@
         });
     });
 </script>
+
+@endpush
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $(document).on('click', '.favorite-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let btn = $(this);
+        let icon = btn.find('i.fa-heart');
+        let productId = btn.data('product-id');
+
+        if (!productId) {
+            alert('Không tìm thấy sản phẩm!');
+            return;
+        }
+
+        let isFavorited = icon.css('color') === 'rgb(255, 0, 0)'; // đỏ
+
+        if (isFavorited) {
+            $.ajax({
+                url: '/favorites/' + productId,
+                type: 'DELETE',
+                data: {_token: '{{ csrf_token() }}'},
+                success: function() {
+                    icon.css('color', 'black');
+                },
+                error: function() {
+                    alert('Xóa yêu thích thất bại. Thử lại nhé!');
+                }
+            });
+        } else {
+            $.post('/favorites/' + productId, {_token: '{{ csrf_token() }}'})
+            .done(function() {
+                icon.css('color', 'red');
+            })
+            .fail(function() {
+                alert('Thêm yêu thích thất bại. Thử lại nhé!');
+            });
+        }
+    });
+});
+</script>
+
 @endpush
