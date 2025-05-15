@@ -30,6 +30,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\NotificationController;
 
 
 
@@ -228,7 +229,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-
+//crud user
 Route::prefix('admin/users')->controller(UserController::class)->group(function () {
     Route::get('/', 'index')->name('users.list');
     Route::get('/create', 'create')->name('users.create');
@@ -245,3 +246,13 @@ Route::get('/users', [UserController::class, 'index'])->name('users.list');
 Route::prefix('admin')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.list');
 });
+
+
+//notification 
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+});
+
+
+

@@ -51,6 +51,47 @@
             @endif
         </a>
     </div>
+    @auth
+    @if (Auth::user()->role_id === 2)
+        <div class="dropdown me-3 position-relative">
+            <button class="btn text-light position-relative" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-bell fs-5"></i>
+                @if ($unreadCount > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ $unreadCount }}
+                    </span>
+                @endif
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end p-2 shadow" aria-labelledby="notificationBtn" style="width: 300px;">
+    <li class="fw-bold px-2 mb-2">🔔 Thông báo</li>
+    <hr class="m-1">
+    @forelse ($notifications as $notification)
+        <li class="mb-2">
+            <a href="{{ route('notifications.read', $notification->notification_id) }}"
+                class="dropdown-item {{ $notification->is_read ? 'text-muted' : 'fw-bold' }}"
+                style="white-space: normal; word-wrap: break-word;">
+                <strong>{{ $notification->title }}</strong><br>
+                <small class="d-block text-truncate" style="max-width: 100%; white-space: normal;">
+                    {{ \Illuminate\Support\Str::limit($notification->content, 80) }}
+                </small>
+                <small class="d-block text-muted" style="font-size: 0.75rem;">
+                    {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
+                </small>
+            </a>
+        </li>
+    @empty
+        <li class="dropdown-item text-muted">Không có thông báo nào</li>
+    @endforelse
+    <li><hr class="dropdown-divider"></li>
+    <li class="text-center">
+        <a href="{{ route('notifications.index') }}" class="dropdown-item text-primary">Xem tất cả</a>
+    </li>
+</ul>
+
+        </div>
+    @endif
+@endauth
 
     <div class="d-flex align-items-center">
         @guest
