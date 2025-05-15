@@ -28,6 +28,8 @@ use App\Http\Controllers\Auth\PasswordController;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\FavoriteController;
+
 
 
 // Trang chủ
@@ -219,4 +221,14 @@ Route::prefix('customer')->middleware('auth')->name('customer.')->group(function
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
+//Favorite list
+Route::middleware(['auth'])->group(function () {
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/{productId}', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+});
+
+
+
 
