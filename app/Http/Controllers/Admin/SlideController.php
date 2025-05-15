@@ -121,7 +121,12 @@ class SlideController extends Controller
     {
         $slide = Slide::findOrFail($id);
 
-        // Chuyển trạng thái is_visible từ false thành true và ngược lại
+        if (!$slide->is_visible) {
+            // Nếu đang ẩn và được nhấn để hiện, thì ẩn tất cả slide khác
+            Slide::where('slide_id', '!=', $id)->update(['is_visible' => false]);
+        }
+
+        // Toggle trạng thái
         $slide->is_visible = !$slide->is_visible;
         $slide->save();
 
