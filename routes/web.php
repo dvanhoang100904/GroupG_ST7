@@ -32,6 +32,7 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ShippingAddressController;
 
 
 
@@ -260,3 +261,19 @@ Route::middleware('auth')->group(function () {
 // Lịch sử  mua hàng
 
 Route::get('/history-order', [OrderController::class, 'history'])->name('purchase.history');
+
+
+//sổ địa chỉ
+Route::middleware(['auth'])->group(function () {
+    Route::get('/shipping-addresses', [ShippingAddressController::class, 'index'])->name('shipping_address.index');
+    Route::get('/shipping-addresses/create', [ShippingAddressController::class, 'create'])->name('shipping_address.create');
+    Route::post('/shipping-addresses', [ShippingAddressController::class, 'store'])->name('shipping_address.store');
+    Route::get('/shipping-addresses/{id}/edit', [ShippingAddressController::class, 'edit'])->name('shipping_address.edit');
+    Route::put('/shipping-addresses/{id}', [ShippingAddressController::class, 'update'])->name('shipping_address.update');
+    Route::delete('/shipping-addresses/{id}', [ShippingAddressController::class, 'destroy'])->name('shipping_address.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+});
+Route::resource('shipping-addresses', ShippingAddressController::class);

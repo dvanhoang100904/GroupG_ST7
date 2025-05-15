@@ -123,7 +123,13 @@
                                 <i class="fas fa-history me-2"></i> Lịch sử mua hàng
                             </a>
                         </li>
-                        
+                        <!-- Thêm nút quản lý sổ địa chỉ ngay dưới Lịch sử mua hàng -->
+                        <li>
+                            <a class="dropdown-item" href="{{ route('shipping_address.index') }}">
+                                <i class="fas fa-address-book me-2"></i> Quản lý sổ địa chỉ
+                            </a>
+                        </li>
+
                         <li>
                             <hr class="dropdown-divider">
                         </li>
