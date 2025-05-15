@@ -18,13 +18,16 @@
 }
 
 
-    .sidebar {
-      width: 300px;
-      background: #fff;
-      border-right: 1px solid #e0e0e0;
-      overflow-y: auto;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-    }
+
+ .sidebar {
+  width: 300px;
+  background: #fff;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  margin-top: 70px; /* thêm dòng này */
+}
+
 
     .sidebar h2 {
       padding: 15px 20px;
