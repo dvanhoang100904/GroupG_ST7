@@ -29,6 +29,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Admin\UserController;
 
 
 
@@ -232,3 +233,19 @@ Route::middleware(['auth'])->group(function () {
 
 
 
+Route::prefix('admin/users')->controller(UserController::class)->group(function () {
+    Route::get('/', 'index')->name('users.list');
+    Route::get('/create', 'create')->name('users.create');
+    Route::post('/store', 'store')->name('users.store');
+    Route::get('/{user}/read', 'read')->name('users.read');
+    Route::get('/{user}/edit', 'edit')->name('users.edit');
+    Route::put('/{user}', 'update')->name('users.update');
+    Route::delete('/{user}', 'destroy')->name('users.destroy');
+});
+
+Route::get('/users', [UserController::class, 'index'])->name('users.list');
+
+
+Route::prefix('admin')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.list');
+});
