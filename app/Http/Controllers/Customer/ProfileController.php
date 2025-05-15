@@ -23,7 +23,7 @@ class ProfileController extends Controller
         'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
         'phone' => 'nullable|string|max:20',
     ]
-    );
+);
 
     $user = auth()->user();
     $user->update($request->only('name', 'email', 'phone'));
