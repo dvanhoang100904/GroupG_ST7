@@ -42,7 +42,9 @@ class SlideController extends Controller
         $slide->name = $request->name;
 
         if ($request->hasFile('image')) {
-            $slide->image = $request->file('image')->store('images/slides', 'public');
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path('storage/images/slides'), $filename);
+            $slide->image = 'images/slides/' . $filename;
         }
 
         $slide->created_at = now();
@@ -50,7 +52,6 @@ class SlideController extends Controller
 
         return redirect()->route('slide.index')->with('success', 'Thêm slide thành công!');
     }
-
 
     // Xem chi tiết slide
     public function read($id)
@@ -80,10 +81,14 @@ class SlideController extends Controller
 
         if ($request->hasFile('image')) {
             if ($slide->image) {
-                \Storage::disk('public')->delete($slide->image);
+                $oldImagePath = public_path('storage/' . $slide->image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-
-            $slide->image = $request->file('image')->store('images/slides', 'public');
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path('storage/images/slides'), $filename);
+            $slide->image = 'images/slides/' . $filename;
         }
 
 
@@ -99,7 +104,10 @@ class SlideController extends Controller
 
         // Xóa file ảnh nếu cần
         if (file_exists(public_path($slide->image))) {
-            unlink(public_path($slide->image));
+            $oldImagePath = public_path('storage/' . $slide->image);
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
         }
 
         $slide->delete();
