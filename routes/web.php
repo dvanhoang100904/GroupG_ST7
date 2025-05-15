@@ -41,6 +41,7 @@ Route::get('product/{slug}', [ProductController::class, 'detail'])->name('produc
 
 // Sản phẩm theo danh mục (theo slug)
 Route::get('/category/{slug}', [CategoryControllers::class, 'show'])->name('category.show');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 
 // Đăng nhập    
@@ -106,7 +107,7 @@ Route::prefix('admin')->group(function () {
         Route::get('products/create', [AdminProductsController::class, 'create'])->name('products.create');
         Route::post('products', [AdminProductsController::class, 'store'])->name('products.store');
         Route::get('products/{product}', [AdminProductsController::class, 'read'])->name('products.read');
-        Route::get('products/{product}/edit', [AdminProductsController::class, 'edit'])->name('edit');
+        Route::get('products/{product}/edit', [AdminProductsController::class, 'edit'])->name('products.edit');
         Route::put('products/{product}', [AdminProductsController::class, 'update'])->name('products.update');
         Route::delete('products/{product}', [AdminProductsController::class, 'destroy'])->name('products.destroy');
     }); 
@@ -153,13 +154,11 @@ Route::prefix('admin')->group(function () {
     return view('admin.content.website.website');
 })->name('admin.reviews');
 
-
 // Route chuyển tới trang chính sách bảo mật
 Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy-policy');
 
 // Route chuyển tới trang chính sách bảo hành
 Route::get('/warranty-policy', [PageController::class, 'warrantyPolicy'])->name('warranty-policy');
-
 // Đăng ký
 
 Route::get('register', [RegisterController::class, 'authRegister'])->name('customer.register');
@@ -173,7 +172,10 @@ Route::get('/customer/home', function () {
 
 
 
+<<<<<<< HEAD
 //Forgot password
+=======
+>>>>>>> khai-tam/8-merge-7
 Route::get('quen-mat-khau', [CustomerForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('quen-mat-khau', [CustomerForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
