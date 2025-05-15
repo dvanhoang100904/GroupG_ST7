@@ -5,11 +5,6 @@
     {{-- Bắt đầu nội dung chính sẽ được chèn vào layout --}}
     <div class="container">
 
-    {{-- Banner đầu trang --}}
-    <div class="banner-wrapper">
-        <img src="{{ asset('images/banner1.png') }}" alt="Banner" class="banner-img">
-    </div>
-
         {{-- Banner đầu trang --}}
         <div class="banner-wrapper">
             @foreach ($slides as $slide)
