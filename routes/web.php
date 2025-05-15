@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\ProductsController as AdminProductsController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SlideController;
+use App\Http\Controllers\Customer\SocialController;
 
 
 
@@ -39,6 +40,18 @@ Route::get('/category/{slug}', [CategoryControllers::class, 'show'])->name('cate
 // Đăng nhập    
 Route::get('login', [CustomerLoginController::class, 'login'])->name('customer.login')->middleware('redirectIf.customer.auth');
 Route::post('login', [CustomerLoginController::class, 'authLogin'])->name('customer.authLogin')->middleware('redirectIf.customer.auth');
+
+//Đăng nhập qua FaceBook, Google
+
+
+// Route cho Google
+Route::get('/auth/google', [SocialController::class, 'redirectGoogle']);
+Route::get('/auth/google/callback', [SocialController::class, 'handleGoogleCallback']);
+
+Route::get('/auth/facebook', [SocialController::class, 'redirectFacebook']);
+Route::get('/auth/facebook/callback', [SocialController::class, 'handleFacebookCallback']);
+
+
 
 // Đăng ký
 Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('customer.logout')->middleware('auth');
@@ -149,6 +162,6 @@ Route::post('register', [RegisterController::class, 'register'])->name('customer
 
 
 Route::get('/customer/home', function () {
-    return view('customer.home');
+    return view('customer.pages.home');
 })->name('customer.home');
 

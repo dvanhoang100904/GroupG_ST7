@@ -12,6 +12,9 @@ class HomeController extends Controller
 {
     public function index()
     {
+        // Lấy dữ liệu slides
+        $slides = Slide::all();  // Hoặc tùy vào cách bạn lưu trữ slide
+        
         // Lấy tất cả các danh mục từ bảng 'categories'
         $categories = Category::orderBy('category_id')->get();
 

@@ -62,14 +62,15 @@
                     <span class="divider-line"></span>
                 </div>
 
-                <div class="social-login mb-4">
-                    <button type="button" class="btn btn-outline-primary btn-social">
-                        <i class="fab fa-facebook-f me-2"></i> Facebook
-                    </button>
-                    <button type="button" class="btn btn-outline-danger btn-social mt-2">
-                        <i class="fab fa-google me-2"></i> Google
-                    </button>
-                </div>
+                            <div class="social-login mb-4">
+                <a href="/auth/facebook" class="btn btn-outline-primary btn-social d-block mb-2">
+                    <i class="fab fa-facebook-f me-2"></i> Facebook
+                </a>
+                <a href="/auth/google" class="btn btn-outline-danger btn-social d-block">
+                    <i class="fab fa-google me-2"></i> Google
+                </a>
+            </div>
+
 
                 <div class="text-center register-link pt-3">
                     <a href="#!" class="text-dark text-decoration-none fw-bold"> Đăng ký</a>
