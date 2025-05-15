@@ -52,6 +52,18 @@
             </div>
         </div>
         
+        <!-- Danh muc-->
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-list fa-2x mb-2"></i>
+                    <h5 class="card-title">Danh mục</h5>
+                    <p class="card-text fs-4">{{ $categoryCount }}</p>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 </div>
 
