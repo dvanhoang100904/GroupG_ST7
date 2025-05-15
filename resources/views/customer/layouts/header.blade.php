@@ -31,7 +31,7 @@
         <a href="{{ route('products.index') }}">Sản phẩm</a>
 
         {{-- Link tùy chọn (chưa xử lý) --}}
-        <a href="#">Yêu thích</a>
+        <a href="{{ route('favorites.index') }}">Yêu thích</a>
     </div>
 
     <!-- Phải: Tìm kiếm + Tài khoản + Giỏ hàng -->

@@ -9,11 +9,13 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('users.list') }}">
                 <img src="{{ asset('images/users.png') }}" class="icon" />
                 <p>Người dùng</p>
             </a>
         </li>
+       
+
         <li>
             <a href="{{ route('products.list') }}">
                 <img src="{{ asset('images/products.png') }}" class="icon" />

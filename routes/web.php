@@ -28,6 +28,9 @@ use App\Http\Controllers\Auth\PasswordController;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Admin\UserController;
+
 
 
 // Trang chủ
@@ -215,4 +218,30 @@ Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name
 Route::prefix('customer')->middleware('auth')->name('customer.')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+//Favorite list
+Route::middleware(['auth'])->group(function () {
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/{productId}', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+});
+
+
+
+
+Route::prefix('admin/users')->controller(UserController::class)->group(function () {
+    Route::get('/', 'index')->name('users.list');
+    Route::get('/create', 'create')->name('users.create');
+    Route::post('/store', 'store')->name('users.store');
+    Route::get('/{user}/read', 'read')->name('users.read');
+    Route::get('/{user}/edit', 'edit')->name('users.edit');
+    Route::put('/{user}', 'update')->name('users.update');
+    Route::delete('/{user}', 'destroy')->name('users.destroy');
+});
+
+Route::get('/users', [UserController::class, 'index'])->name('users.list');
+
+
+Route::prefix('admin')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.list');
 });
