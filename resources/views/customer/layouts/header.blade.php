@@ -74,9 +74,10 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{ route('customer.profile.edit') }}">
                                 <i class="fas fa-user me-2"></i> Hồ sơ
                             </a>
+
                         </li>
                         <li>
                             <hr class="dropdown-divider">

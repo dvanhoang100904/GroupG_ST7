@@ -23,7 +23,11 @@ use App\Http\Controllers\Admin\SlideController;
 use App\Http\Controllers\Customer\SocialController;
 use App\Http\Controllers\Auth\CustomerForgotPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\CustomerResetPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CustomerAuthController;
 
 
 // Trang chủ
@@ -169,15 +173,9 @@ Route::get('/customer/home', function () {
 
 
 
-
+//Forgot password
 Route::get('quen-mat-khau', [CustomerForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('quen-mat-khau', [CustomerForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-
-
-use App\Http\Controllers\Auth\CustomerResetPasswordController;
-
-Route::get('reset-password/{token}', [CustomerResetPasswordController::class, 'showResetForm'])
-    ->name('password.reset');
 
 Route::get('reset-password/{token}', [CustomerResetPasswordController::class, 'showResetForm'])
     ->name('password.reset');
@@ -185,4 +183,46 @@ Route::get('reset-password/{token}', [CustomerResetPasswordController::class, 's
 Route::post('reset-password', [CustomerResetPasswordController::class, 'reset'])
     ->name('password.store');
 
+
+// routes/web.php
+use App\Http\Controllers\ProfileController;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('customer.profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+
+Route::put('/user/password', [PasswordController::class, 'update'])->name('password.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+;
+
+Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('customer.profile.edit');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('customer.profile.update');
+});
+
+
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout');
+Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
+
+
+Route::prefix('customer')->name('customer.')->middleware('auth')->group(function () {
+    Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile/update', [ProfileController::class, 'update'])->name('profile.update');
     
+});
+Route::put('/customer/profile/update', [ProfileController::class, 'update'])->name('customer.profile.update');
+
+
+Route::put('/customer/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
