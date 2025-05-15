@@ -31,6 +31,7 @@ use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
 
 
 
@@ -256,3 +257,6 @@ Route::middleware('auth')->group(function () {
 
 
 
+// Lịch sử  mua hàng
+
+Route::get('/history-order', [OrderController::class, 'history'])->name('purchase.history');
