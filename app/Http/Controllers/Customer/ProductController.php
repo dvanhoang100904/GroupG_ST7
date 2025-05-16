@@ -80,11 +80,9 @@ class ProductController extends Controller
         $reviews = Review::where('product_id', $product->product_id)
             ->orderBy('created_at', 'desc')
             ->get();
-<<<<<<< HEAD
 
         // Truyền dữ liệu sang view chi tiết sản phẩm
         return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews'));
-=======
     // Xử lý lọc theo số sao (rating)
     $rating = request()->query('rating');
     $reviewsQuery = Review::where('product_id', $product->product_id)
@@ -97,6 +95,5 @@ class ProductController extends Controller
     $reviews = $reviewsQuery->get();
 
     return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews')); // thêm reviews
->>>>>>> test
     }
 }

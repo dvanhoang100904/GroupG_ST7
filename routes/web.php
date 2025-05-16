@@ -164,8 +164,6 @@ Route::prefix('admin')->group(function () {
         Route::put('/slides/{slide}/toggle-visibility', [SlideController::class, 'toggleVisibility'])->name('slide.toggleVisibility'); //hiện trang chủ
     });
 });
-<<<<<<< HEAD
-=======
 Route::middleware('auth')->group(function () {
     // Route cho dashboard chính
     Route::get('/admin/website', [ReviewController::class, 'index'])->name('admin.website');
@@ -200,7 +198,6 @@ Route::middleware('auth')->group(function () {
 });
 Route::post('/customer/chats', [ChatController::class, 'store'])->name('customer.chats.store')->middleware('auth');
 Route::get('/home', [HomeController::class, 'indexx'])->name('customer.home');
->>>>>>> test
 // Route chuyển tới trang đánh giá khách hàng
 Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');
