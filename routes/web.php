@@ -22,6 +22,19 @@ use App\Http\Controllers\Admin\LogoutController as AdminLogoutController;
 use App\Http\Controllers\Admin\ProductsController as AdminProductsController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SlideController;
+use App\Http\Controllers\Customer\SocialController;
+use App\Http\Controllers\Auth\CustomerForgotPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\CustomerResetPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
+
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ShippingAddressController;
 
 
 
@@ -36,11 +49,24 @@ Route::get('product/{slug}', [ProductController::class, 'detail'])->name('produc
 
 // Sản phẩm theo danh mục (theo slug)
 Route::get('/category/{slug}', [CategoryControllers::class, 'show'])->name('category.show');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 
 // Đăng nhập    
 Route::get('login', [CustomerLoginController::class, 'login'])->name('customer.login')->middleware('redirectIf.customer.auth');
 Route::post('login', [CustomerLoginController::class, 'authLogin'])->name('customer.authLogin')->middleware('redirectIf.customer.auth');
+
+//Đăng nhập qua FaceBook, Google
+
+
+// Route cho Google
+Route::get('/auth/google', [SocialController::class, 'redirectGoogle']);
+Route::get('/auth/google/callback', [SocialController::class, 'handleGoogleCallback']);
+
+Route::get('/auth/facebook', [SocialController::class, 'redirectFacebook']);
+Route::get('/auth/facebook/callback', [SocialController::class, 'handleFacebookCallback']);
+
+
 
 // Đăng ký
 Route::post('logout', [CustomerLogoutController::class, 'logout'])->name('customer.logout')->middleware('auth');
@@ -95,11 +121,11 @@ Route::prefix('admin')->group(function () {
         Route::get('products/create', [AdminProductsController::class, 'create'])->name('products.create');
         Route::post('products', [AdminProductsController::class, 'store'])->name('products.store');
         Route::get('products/{product}', [AdminProductsController::class, 'read'])->name('products.read');
-        Route::get('products/{product}/edit', [AdminProductsController::class, 'edit'])->name('edit');
+        Route::get('products/{product}/edit', [AdminProductsController::class, 'edit'])->name('products.edit');
         Route::put('products/{product}', [AdminProductsController::class, 'update'])->name('products.update');
         Route::delete('products/{product}', [AdminProductsController::class, 'destroy'])->name('products.destroy');
-    }); 
-    
+    });
+
 
     // Orders
     Route::middleware('check.login.admin')->group(function () {
@@ -169,13 +195,11 @@ Route::get('/home', [HomeController::class, 'indexx'])->name('customer.home');
     return view('admin.content.website.website');
 })->name('admin.reviews');
 
-
 // Route chuyển tới trang chính sách bảo mật
 Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy-policy');
 
 // Route chuyển tới trang chính sách bảo hành
 Route::get('/warranty-policy', [PageController::class, 'warrantyPolicy'])->name('warranty-policy');
-
 // Đăng ký
 
 Route::get('register', [RegisterController::class, 'authRegister'])->name('customer.register');
@@ -184,6 +208,107 @@ Route::post('register', [RegisterController::class, 'register'])->name('customer
 
 
 Route::get('/customer/home', function () {
-    return view('customer.home');
+    return view('customer.pages.home');
 })->name('customer.home');
 
+//Forgot password
+Route::get('quen-mat-khau', [CustomerForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('quen-mat-khau', [CustomerForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+Route::get('reset-password/{token}', [CustomerResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+
+Route::post('reset-password', [CustomerResetPasswordController::class, 'reset'])
+    ->name('password.store');
+
+
+// routes/web.php
+use App\Http\Controllers\ProfileController;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('customer.profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+
+Route::put('/user/password', [PasswordController::class, 'update'])->name('password.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});;
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('customer.profile.edit');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('customer.profile.update');
+});
+
+
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout');
+Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
+
+
+Route::prefix('customer')->middleware('auth')->name('customer.')->group(function () {
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+//Favorite list
+Route::middleware(['auth'])->group(function () {
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/{productId}', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+});
+
+
+
+//crud user
+Route::prefix('admin/users')->controller(UserController::class)->group(function () {
+    Route::get('/', 'index')->name('users.list');
+    Route::get('/create', 'create')->name('users.create');
+    Route::post('/store', 'store')->name('users.store');
+    Route::get('/{user}/read', 'read')->name('users.read');
+    Route::get('/{user}/edit', 'edit')->name('users.edit');
+    Route::put('/{user}', 'update')->name('users.update');
+    Route::delete('/{user}', 'destroy')->name('users.destroy');
+});
+
+Route::get('/users', [UserController::class, 'index'])->name('users.list');
+
+
+Route::prefix('admin')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.list');
+});
+
+
+//notification 
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+});
+
+
+
+// Lịch sử  mua hàng
+
+Route::get('/history-order', [OrderController::class, 'history'])->name('purchase.history');
+
+
+//sổ địa chỉ
+Route::middleware(['auth'])->group(function () {
+    Route::get('/shipping-addresses', [ShippingAddressController::class, 'index'])->name('shipping_address.index');
+    Route::get('/shipping-addresses/create', [ShippingAddressController::class, 'create'])->name('shipping_address.create');
+    Route::post('/shipping-addresses', [ShippingAddressController::class, 'store'])->name('shipping_address.store');
+    Route::get('/shipping-addresses/{id}/edit', [ShippingAddressController::class, 'edit'])->name('shipping_address.edit');
+    Route::put('/shipping-addresses/{id}', [ShippingAddressController::class, 'update'])->name('shipping_address.update');
+    Route::delete('/shipping-addresses/{id}', [ShippingAddressController::class, 'destroy'])->name('shipping_address.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+});
+Route::resource('shipping-addresses', ShippingAddressController::class);

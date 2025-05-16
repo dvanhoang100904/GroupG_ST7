@@ -7,6 +7,28 @@
         {{-- Hiển thị tên danh mục sản phẩm --}}
         <h2 class="product-heading">{{ mb_strtoupper($category->category_name) }}</h2>
 
+    {{-- Bộ lọc sắp xếp --}}
+    <div class="sort-filter mb-3">
+        <label class="sort-label" for="sortForm">Sắp xếp:</label>
+        
+        <form method="GET" id="sortForm" action="{{ route('category.show', $category->slug) }}">
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+
+            {{-- Các button sắp xếp --}}
+            <button type="submit" name="sort" value="name_asc" class="sort-btn {{ request('sort') == 'name_asc' ? 'active' : '' }}">Tên A-Z</button>
+            <button type="submit" name="sort" value="name_desc" class="sort-btn {{ request('sort') == 'name_desc' ? 'active' : '' }}">Tên Z-A</button>
+            <button type="submit" name="sort" value="price_asc" class="sort-btn {{ request('sort') == 'price_asc' ? 'active' : '' }}">Giá thấp đến cao</button>
+            <button type="submit" name="sort" value="price_desc" class="sort-btn {{ request('sort') == 'price_desc' ? 'active' : '' }}">Giá cao đến thấp</button>
+
+            {{-- Nút quay lại --}}
+            @if(request('sort'))
+                <button type="submit" name="sort" value="" class="sort-btn reset-btn">Quay lại</button>
+            @endif
+        </form>
+    </div>
+
         <div class="product-grid">
             {{-- Kiểm tra nếu có sản phẩm trong danh mục --}}
             @forelse($products as $product)
@@ -41,5 +63,32 @@
                 <p>Không có sản phẩm nào trong danh mục này.</p>
             @endforelse
         </div>
+        @if ($products instanceof \Illuminate\Pagination\Paginator || $products instanceof \Illuminate\Pagination\LengthAwarePaginator)
+            @include('customer.layouts.pagination', ['paginator' => $products])
+        @endif
     </div>
+    <!-- Nút trở về đầu trang -->
+    <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("scrollToTopBtn");
+
+        // Ẩn hiện nút khi cuộn
+        window.onscroll = function () {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+
+        // Khi nhấn nút thì cuộn lên đầu trang
+        btn.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
+@endpush

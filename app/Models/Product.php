@@ -36,7 +36,7 @@ class Product extends Model
         // Nếu đang ở route frontend, dùng slug
         return request()->is('product/*') ? 'slug' : 'product_id';
     }
-    
+
     // Tự động tạo slug khi tạo hoặc cập nhật sản phẩm
     protected static function booted()
     {
@@ -56,4 +56,9 @@ class Product extends Model
             }
         });
     }
+        public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites');
+    }
+
 }

@@ -120,4 +120,15 @@ class OrderController extends Controller
 
         return view('customer.pages.order-success', compact('order'));
     }
+
+    //Lịch sử mua hàng
+   public function history()
+    {
+        $orders = Order::with('details.product')
+                    ->where('user_id', Auth::id())
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return view('customer.pages.history_order', compact('orders'));
+    }
 }
