@@ -128,7 +128,12 @@
                             </a>
                         </li>
                         <!-- Thêm nút quản lý sổ địa chỉ ngay dưới Lịch sử mua hàng -->
-
+                       
+                        <li>
+                            <a class="dropdown-item" href="{{ route('shipping_address.index') }}">
+                                <i class="fas fa-map-marker-alt me-2"></i> Sổ địa chỉ
+                            </a>
+                        </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>

@@ -214,9 +214,7 @@ Route::get('/warranty-policy', [PageController::class, 'warrantyPolicy'])->name(
 Route::get('register', [RegisterController::class, 'authRegister'])->name('customer.register');
 Route::post('register', [RegisterController::class, 'register'])->name('customer.register.submit');
 
-Route::get('/customer/home', function () {
-    return view('customer.pages.home');
-})->name('customer.home');
+
 
 //Forgot password
 Route::get('quen-mat-khau', [CustomerForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
