@@ -35,7 +35,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShippingAddressController;
-
+use App\Http\Controllers\ProfileController;
 
 
 // Trang chủ
@@ -208,12 +208,11 @@ Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('p
 
 // Route chuyển tới trang chính sách bảo hành
 Route::get('/warranty-policy', [PageController::class, 'warrantyPolicy'])->name('warranty-policy');
-// Đăng ký
 
+
+// Đăng ký
 Route::get('register', [RegisterController::class, 'authRegister'])->name('customer.register');
 Route::post('register', [RegisterController::class, 'register'])->name('customer.register.submit');
-
-
 
 Route::get('/customer/home', function () {
     return view('customer.pages.home');
@@ -230,41 +229,21 @@ Route::post('reset-password', [CustomerResetPasswordController::class, 'reset'])
     ->name('password.store');
 
 
-// routes/web.php
-use App\Http\Controllers\ProfileController;
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('customer.profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-});
 
+//Xoá tài khoản
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout');
+Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
 
 Route::put('/user/password', [PasswordController::class, 'update'])->name('password.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });;
 
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('customer.profile.edit');
-    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('customer.profile.update');
-});
 
-
-
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-    ->name('logout');
-Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
-
-
-Route::prefix('customer')->middleware('auth')->name('customer.')->group(function () {
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-});
 //Favorite list
 Route::middleware(['auth'])->group(function () {
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
@@ -285,12 +264,6 @@ Route::prefix('admin/users')->controller(UserController::class)->group(function 
     Route::delete('/{user}', 'destroy')->name('users.destroy');
 });
 
-Route::get('/users', [UserController::class, 'index'])->name('users.list');
-
-
-Route::prefix('admin')->group(function () {
-    Route::get('/users', [UserController::class, 'index'])->name('users.list');
-});
 
 
 //notification 
@@ -302,9 +275,10 @@ Route::middleware('auth')->group(function () {
 
 
 // Lịch sử  mua hàng
-
 Route::get('/history-order', [OrderController::class, 'history'])->name('purchase.history');
-
+Route::middleware('auth')->group(function () {
+    Route::get('/history-order', [CustomerOrderController::class, 'history'])->name('purchase.history');
+});
 
 //sổ địa chỉ
 Route::middleware(['auth'])->group(function () {
@@ -316,7 +290,12 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/shipping-addresses/{id}', [ShippingAddressController::class, 'destroy'])->name('shipping_address.destroy');
 });
 
-Route::middleware(['auth'])->group(function () {
+
+
+//Profile
+Route::prefix('customer')->middleware('auth')->name('customer.')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-Route::resource('shipping-addresses', ShippingAddressController::class);
+

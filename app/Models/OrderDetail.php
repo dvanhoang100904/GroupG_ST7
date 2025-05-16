@@ -35,4 +35,5 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
+    
 }

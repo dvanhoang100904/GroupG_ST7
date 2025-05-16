@@ -9,7 +9,11 @@
                 </div>
                 <h2 class="mb-3">Đăng Nhập</h2>
             </div>
-
+                @if ($errors->has('login_failed'))
+                    <div class="alert alert-danger text-center">
+                        <i class="fas fa-exclamation-triangle me-2"></i> {{ $errors->first('login_failed') }}
+                    </div>
+                @endif
             <form action="{{ route('customer.authLogin') }}" method="POST" class="login-form">
                 @csrf
                 <!-- Email Field -->
@@ -52,13 +56,12 @@
     Quên mật khẩu?
 </a>
 
-
-                </div>
-
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-light btn-login w-100 mb-3 py-3">
+                </div>
+                <button type="submit" class="btn btn-primary btn-login w-100 mb-3 py-3">
                     <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
                 </button>
+                
 
                 <div class="divider my-4">
                     <span class="divider-line"></span>
@@ -77,8 +80,9 @@
 
 
                 <div class="text-center register-link pt-3">
-                    <a href="#!" class="text-dark text-decoration-none fw-bold"> Đăng ký</a>
+                    <a href="{{ route('customer.register') }}" class="text-dark text-decoration-none fw-bold">Đăng ký</a>
                 </div>
+
             </form>
         </div>
     </div>
