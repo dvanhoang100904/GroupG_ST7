@@ -84,9 +84,7 @@
         <li class="dropdown-item text-muted">Không có thông báo nào</li>
     @endforelse
     <li><hr class="dropdown-divider"></li>
-    <li class="text-center">
-        <a href="{{ route('notifications.index') }}" class="dropdown-item text-primary">Xem tất cả</a>
-    </li>
+    
 </ul>
 
         </div>
@@ -107,11 +105,11 @@
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
                     id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <img 
-                            src="{{ asset(Auth::user()->avatar ?: 'images/logo.jpg') }}" 
-                            alt="Avatar" 
-                            class="rounded-circle me-2" 
-                            width="32" 
-                            height="32">
+                                src="{{ asset(Auth::user()->avatar ?: 'images/logo.jpg') }}" 
+                                alt="Avatar" 
+                                class="rounded-circle me-2" 
+                                width="32" 
+                                height="32">
 
                         <span class="text-light">{{ Auth::user()->name }}</span>
                     </a>
