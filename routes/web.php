@@ -281,3 +281,7 @@ Route::get('shipping-addresses/{id}/edit', [ShippingAddressController::class, 'e
 Route::delete('shipping-addresses/{id}', [ShippingAddressController::class, 'destroy'])->name('shipping_address.destroy');
 Route::put('/shipping-address/{id}', [ShippingAddressController::class, 'update'])->name('shipping-address.update');
 
+
+Route::middleware('auth')->group(function () {
+    Route::get('/history-order', [CustomerOrderController::class, 'history'])->name('purchase.history');
+});
