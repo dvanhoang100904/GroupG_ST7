@@ -48,12 +48,13 @@ class ShippingAddressController extends Controller
     // Form sửa địa chỉ
     public function edit($shipping_address_id)
     {
-        $address = ShippingAddress::where('user_id', Auth::id())
-                                ->where('shipping_address_id', $shipping_address_id)
-                                ->firstOrFail();
+        $shippingAddress = ShippingAddress::where('user_id', Auth::id())
+                                        ->where('shipping_address_id', $shipping_address_id)
+                                        ->firstOrFail();
 
-        return view('customer.address.edit', compact('address'));
+        return view('customer.address.edit', compact('shippingAddress'));
     }
+
 
     // Cập nhật địa chỉ
     public function update(Request $request, $id)

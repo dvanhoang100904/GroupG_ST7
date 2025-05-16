@@ -276,4 +276,8 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
 });
-Route::resource('shipping-addresses', ShippingAddressController::class);
+Route::get('shipping-addresses/{id}', [ShippingAddressController::class, 'show'])->name('shipping_address.show');
+Route::get('shipping-addresses/{id}/edit', [ShippingAddressController::class, 'edit'])->name('shipping_address.edit');
+Route::delete('shipping-addresses/{id}', [ShippingAddressController::class, 'destroy'])->name('shipping_address.destroy');
+Route::put('/shipping-address/{id}', [ShippingAddressController::class, 'update'])->name('shipping-address.update');
+
