@@ -91,6 +91,7 @@ route::middleware('check.login.customer')->group(function () {
     // Thông báo đặt hàng
     Route::get('/dat-hang-thanh-cong/{order}', [CustomerOrderController::class, 'orderSuccess'])->name('order.success');
 });
+ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin');
 //Đánh giá sản phẩm
 Route::post('/product/{productId}/review', [ReviewController::class, 'store'])->name('reviews.store'); // POST để gửi đánh giá
 Route::get('/product/{productId}/reviews', [ReviewController::class, 'getReviews'])->name('reviews.get'); // GET để lấy đánh giá 
@@ -163,12 +164,10 @@ Route::prefix('admin')->group(function () {
         Route::put('/slides/{slide}/toggle-visibility', [SlideController::class, 'toggleVisibility'])->name('slide.toggleVisibility'); //hiện trang chủ
     });
 });
-
-
 Route::middleware('auth')->group(function () {
     // Route cho dashboard chính
     Route::get('/admin/website', [ReviewController::class, 'index'])->name('admin.website');
-    
+
     // Route hiển thị danh sách đánh giá
     Route::get('/admin/reviews/list', [ReviewsController::class, 'listReviews'])->name('admin.reviews.index');
 
@@ -186,12 +185,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/chat/{id}/detail', [ChatController::class, 'detail']);
     Route::get('/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat.show');
     Route::post('/admin/chat/reply/{id}', [ChatController::class, 'reply'])->name('admin.chat.reply');
+    // Chỉnh sửa
+    Route::get('/admin/chat/edit/{chat}', [ChatController::class, 'edit'])->name('admin.chat.edit');
+    Route::put('/admin/chat/update/{chat}', [ChatController::class, 'update'])->name('admin.chat.update');
+    Route::get('/admin/chat/cancel-edit', function() {
+    session()->forget(['editing_chat_id', 'editing_chat_content']);
+    return back();
+})->name('admin.chat.cancelEdit');
 
+    // Xóa
+    Route::delete('/admin/chat/delete/{chat}', [ChatController::class, 'destroy'])->name('admin.chat.delete');
 });
 Route::post('/customer/chats', [ChatController::class, 'store'])->name('customer.chats.store')->middleware('auth');
 Route::get('/home', [HomeController::class, 'indexx'])->name('customer.home');
-   // Route chuyển tới trang đánh giá khách hàng
-   Route::get('/admin/reviews', function () {
+// Route chuyển tới trang đánh giá khách hàng
+Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');
 })->name('admin.reviews');
 

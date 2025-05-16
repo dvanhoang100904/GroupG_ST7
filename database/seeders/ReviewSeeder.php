@@ -9,7 +9,7 @@ class ReviewSeeder extends Seeder
 {
     public function run(): void
     {
-        $users = DB::table('users')->get();
+        $users = DB::table('users')->where('user_id', '>', 1)->get();
         $products = DB::table('products')->get();
 
         if ($users->count() === 0 || $products->count() === 0) {
@@ -40,14 +40,15 @@ class ReviewSeeder extends Seeder
                     'type' => 'review',
                     'photo' => null,
                     'user_id' => $user->user_id,
-                    'product_id' => $product->product_id, 
+                    'product_id' => $product->product_id,
                     'chat_id' => null,
                     'parent_id' => null,
                     'created_at' => now(),
-                    'updated_at' => now(),  
+                    'updated_at' => now(),
                 ]);
             }
         }
+
 
         // $this->command->info('✅ Đã seed reviews thành công!');
     }
