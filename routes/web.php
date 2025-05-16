@@ -8,6 +8,8 @@ use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CategoryControllers;
 use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Customer\ReviewController;
+use App\Http\Controllers\Admin\ReviewsController;
+use App\Http\Controllers\Admin\ChatController;
 use App\Http\Controllers\Customer\LoginController as CustomerLoginController;
 use App\Http\Controllers\Customer\RegisterController;
 use App\Http\Controllers\Customer\LogoutController as CustomerLogoutController;
@@ -89,9 +91,16 @@ route::middleware('check.login.customer')->group(function () {
     // Thông báo đặt hàng
     Route::get('/dat-hang-thanh-cong/{order}', [CustomerOrderController::class, 'orderSuccess'])->name('order.success');
 });
+ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin');
 //Đánh giá sản phẩm
 Route::post('/product/{productId}/review', [ReviewController::class, 'store'])->name('reviews.store'); // POST để gửi đánh giá
 Route::get('/product/{productId}/reviews', [ReviewController::class, 'getReviews'])->name('reviews.get'); // GET để lấy đánh giá 
+
+Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.edit');
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+Route::get('/products/{id}', [ProductController::class, 'showpage'])->name('products.show');
+
 
 
 // admin
@@ -155,6 +164,43 @@ Route::prefix('admin')->group(function () {
         Route::put('/slides/{slide}/toggle-visibility', [SlideController::class, 'toggleVisibility'])->name('slide.toggleVisibility'); //hiện trang chủ
     });
 });
+<<<<<<< HEAD
+=======
+Route::middleware('auth')->group(function () {
+    // Route cho dashboard chính
+    Route::get('/admin/website', [ReviewController::class, 'index'])->name('admin.website');
+
+    // Route hiển thị danh sách đánh giá
+    Route::get('/admin/reviews/list', [ReviewsController::class, 'listReviews'])->name('admin.reviews.index');
+
+    // Route xem chi tiết đánh giá
+    Route::get('/admin/reviews/{review}', [ReviewController::class, 'show'])->name('admin.reviews.detail');
+
+    // Route form phản hồi cho đánh giá
+    Route::get('admin/reviews/{review}/reply', [ReviewController::class, 'replyForm'])->name('admin.reviews.reply');
+
+    // Route xử lý phản hồi cho đánh giá
+    Route::post('/admin/reviews/{review}/reply', [ReviewController::class, 'storeReply'])->name('admin.reviews.storeReply');
+
+    // Route cho danh sách tin nhắn (admin)
+    Route::get('/admin/chats', [ChatController::class, 'index'])->name('admin.chats.index');
+    Route::get('/admin/chat/{id}/detail', [ChatController::class, 'detail']);
+    Route::get('/chat/{id}', [ChatController::class, 'showChat'])->name('admin.chat.show');
+    Route::post('/admin/chat/reply/{id}', [ChatController::class, 'reply'])->name('admin.chat.reply');
+    // Chỉnh sửa
+    Route::get('/admin/chat/edit/{chat}', [ChatController::class, 'edit'])->name('admin.chat.edit');
+    Route::put('/admin/chat/update/{chat}', [ChatController::class, 'update'])->name('admin.chat.update');
+    Route::get('/admin/chat/cancel-edit', function() {
+    session()->forget(['editing_chat_id', 'editing_chat_content']);
+    return back();
+})->name('admin.chat.cancelEdit');
+
+    // Xóa
+    Route::delete('/admin/chat/delete/{chat}', [ChatController::class, 'destroy'])->name('admin.chat.delete');
+});
+Route::post('/customer/chats', [ChatController::class, 'store'])->name('customer.chats.store')->middleware('auth');
+Route::get('/home', [HomeController::class, 'indexx'])->name('customer.home');
+>>>>>>> test
 // Route chuyển tới trang đánh giá khách hàng
 Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');

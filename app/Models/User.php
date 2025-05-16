@@ -77,15 +77,28 @@ class User extends Authenticatable
     {
         return $this->hasOne(Cart::class, 'user_id', 'user_id');
     }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'user_id');
+    }
+
 
     public function cartItems(): HasManyThrough
     {
         return $this->hasManyThrough(CartItem::class, Cart::class, 'user_id', 'cart_id', 'user_id', 'cart_id');
     }
+<<<<<<< HEAD
  public function favorites()
 {
     return $this->belongsToMany(Product::class, 'favorites', 'user_id', 'product_id');
 }
 
+=======
+    public function chats(): HasMany
+    {
+        return $this->hasMany(Chat::class, 'user_id', 'user_id');
+    }
+    
+>>>>>>> test
 
 }

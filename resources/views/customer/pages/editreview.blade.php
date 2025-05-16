@@ -1,39 +1,43 @@
-@extends('customer.layouts.app')
-@section('title', 'Chỉnh sửa đánh giá')
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
 
-@section('content')
-<div class="container mt-5">
-    <h3>Chỉnh sửa đánh giá</h3>
+@if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+@endif
 
-    <form action="{{ route('reviews.update', $review->review_id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
+<form action="{{ route('reviews.update', $review->review_id) }}" method="POST" enctype="multipart/form-data">
 
-        <div class="mb-3">
-            <label for="rating">Đánh giá (sao):</label>
-            <select name="rating" id="rating" class="form-control">
-                @for ($i = 1; $i <= 5; $i++)
-                    <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>{{ $i }}</option>
-                @endfor
-            </select>
-        </div>
+    @csrf
+    @method('PUT')
 
-        <div class="mb-3">
-            <label for="content">Nội dung:</label>
-            <textarea name="content" id="content" class="form-control" rows="4">{{ $review->content }}</textarea>
-        </div>
+    <input type="hidden" name="product_id" value="{{ $review->product_id }}">
 
-        <div class="mb-3">
-            <label for="photo">Ảnh minh họa (tuỳ chọn):</label><br>
-            @if($review->photo)
-                <img src="{{ asset($review->photo) }}" alt="Ảnh cũ" width="150"><br>
-            @endif
-            <input type="file" name="photo" class="form-control mt-2">
-        </div>
+    <div class="mb-3">
+        <label for="rating" class="form-label">Đánh giá (1-5 sao)</label>
+        <select name="rating" id="rating" class="form-select" required>
+            <option value="">-- Chọn sao --</option>
+            @for ($i = 1; $i <= 5; $i++)
+                <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>{{ $i }} sao</option>
+            @endfor
+        </select>
+    </div>
 
-        <button type="submit" class="btn btn-primary">Cập nhật đánh giá</button>
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">Huỷ</a>
-    </form>
-</div>
-@endsection
-    
+    <div class="mb-3">
+        <label for="content" class="form-label">Mô tả đánh giá</label>
+        <textarea name="content" id="content" class="form-control" rows="4" required>{{ $review->content }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="photo" class="form-label">Ảnh (Tùy chọn)</label>
+        <input type="file" name="photo" id="photo" class="form-control" accept="image/*">
+
+        @if ($review->photo)
+            <div class="mt-2">
+                <img src="{{ asset($review->photo) }}" alt="Ảnh hiện tại" style="max-width: 200px;">
+            </div>
+        @endif
+    </div>
+
+    <button type="submit" class="btn btn-success">Cập nhật đánh giá</button>
+</form>

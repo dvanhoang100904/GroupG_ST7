@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');     
             $table->unsignedBigInteger('product_id'); 
             $table->unsignedBigInteger('chat_id')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
 
         });

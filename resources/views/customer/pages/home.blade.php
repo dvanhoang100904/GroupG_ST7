@@ -53,6 +53,95 @@
         <!-- Nút trở về đầu trang -->
     <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
     </div>
+ <!-- Nút mở chat -->
+<div id="chat-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
+    <button class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;" onclick="toggleChat()">
+        <i class="far fa-comment-dots"></i>
+    </button>
+</div>
+
+<!-- Form Chat (ẩn ban đầu) -->
+<div id="chat-box" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 320px; z-index: 9999; font-family: Arial, sans-serif;">
+    @auth
+        @if (Auth::user()->role_id === 2)
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span>Hỗ trợ khách hàng</span>
+                    <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="toggleChat()"></button>
+                </div>
+                <div class="card-body p-2" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Danh sách tin nhắn -->
+                    <div class="chat-messages" style="max-height: 250px; overflow-y: auto; margin-bottom: 10px;">
+                        @foreach ($chats as $chat)
+                            @if ($chat->user_id === auth()->id())
+                                <!-- Tin nhắn khách hàng -->
+                                <div style="text-align: right; margin-bottom: 8px;">
+                                    <div style="display: inline-block; background-color: #006AFF; color: white; padding: 8px 12px; border-radius: 18px 18px 0 18px; max-width: 75%;">
+                                        {{ $chat->description }}
+                                        <div style="font-size: 10px; color: #d9d9d9; text-align: right;">{{ $chat->created_at->format('H:i') }}</div>
+                                    </div>
+                                </div>
+                            @else
+                                <!-- Tin nhắn admin -->
+                                <div style="text-align: left; margin-bottom: 8px;">
+                                    <div style="display: inline-block; background-color: #e4e6eb; color: black; padding: 8px 12px; border-radius: 18px 18px 18px 0; max-width: 75%;">
+                                        {{ $chat->description }}
+                                        <div style="font-size: 10px; color: #888; text-align: right;">{{ $chat->created_at->format('H:i') }}</div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+
+                    <!-- Form gửi tin nhắn -->
+                    <form action="{{ route('customer.chats.store') }}" method="POST">
+                        @csrf
+                        <div class="mb-2">
+                            <textarea name="message" class="form-control" rows="2" placeholder="Nhập nội dung..." required></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-success btn-sm">Gửi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Auto scroll -->
+            <script>
+                const chatMessages = document.querySelector('.chat-messages');
+                if (chatMessages) {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            </script>
+        @endif
+    @endauth
+
+    @guest
+        <div class="card border-danger shadow">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <span>Vui lòng đăng nhập</span>
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="toggleChat()"></button>
+            </div>
+            <div class="card-body text-center">
+                <p>Vui lòng <a href="{{ route('customer.login') }}">đăng nhập</a> hoặc đăng ký để sử dụng chức năng chat.</p>
+            </div>
+        </div>
+    @endguest
+</div>
+
+<!-- Script toggle chat -->
+<script>
+    function toggleChat() {
+        const chatBox = document.getElementById("chat-box");
+        if (chatBox.style.display === "none") {
+            chatBox.style.display = "block";
+        } else {
+            chatBox.style.display = "none";
+        }
+    }
+</script>
+
+
 @endsection
 {{-- Kết thúc section content --}}
 

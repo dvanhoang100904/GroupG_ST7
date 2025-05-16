@@ -24,6 +24,10 @@ class Review extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    public function replies()
+    {
+        return $this->hasMany(Review::class, 'chat_id')->where('type', 'reply');
+    }
 
     public function product()
     {

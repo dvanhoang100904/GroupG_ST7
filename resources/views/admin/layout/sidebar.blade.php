@@ -35,7 +35,7 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('admin.website') }}">
                 <img src="{{ asset('images/website.png') }}" class="icon" />
                 <p>Website</p>
             </a>
