@@ -54,7 +54,7 @@
     <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
     </div>
  <!-- Nút mở chat -->
-<div id="chat-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
+<div id="chat-toggle" style="position: fixed; bottom: 90px; right: 30px; z-index: 999;">
     <button class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;" onclick="toggleChat()">
         <i class="far fa-comment-dots"></i>
     </button>
