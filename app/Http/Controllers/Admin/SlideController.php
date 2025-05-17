@@ -103,12 +103,11 @@ class SlideController extends Controller
         $slide = Slide::findOrFail($id);
 
         // Xóa file ảnh nếu cần
-        if (file_exists(public_path($slide->image))) {
-            $oldImagePath = public_path('storage/' . $slide->image);
-            if (file_exists($oldImagePath)) {
-                unlink($oldImagePath);
-            }
+        $oldImagePath = public_path('storage/' . $slide->image);
+        if (file_exists($oldImagePath)) {
+            unlink($oldImagePath);
         }
+
 
         $slide->delete();
 
