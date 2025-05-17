@@ -8,7 +8,7 @@
     <div class="card-header bg-light fw-bold">Thông tin đánh giá</div>
     <div class="card-body row">
       <div class="col-md-6">
-        <p><strong>Họ tên khách hàng:</strong> {{ $review->user->name }}</p>
+       <p><strong>Họ tên khách hàng:</strong> {{ $review->user->name }} (ID: {{ $review->user->user_id }})</p>
         <p><strong>Số điện thoại:</strong> {{ $review->user->phone ?? 'Không có' }}</p>
         <p><strong>Email:</strong> {{ $review->user->email }}</p>
       </div>
