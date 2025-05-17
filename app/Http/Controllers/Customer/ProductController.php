@@ -76,24 +76,19 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
-        // Lấy đánh giá sản phẩm theo thời gian mới nhất
-        $reviews = Review::where('product_id', $product->product_id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Xử lý lọc theo số sao (rating)
+        $rating = request()->query('rating');
 
-        // Truyền dữ liệu sang view chi tiết sản phẩm
+        $reviewsQuery = Review::where('product_id', $product->product_id)
+            ->orderBy('created_at', 'desc');
+
+        if (is_numeric($rating)) {
+            $reviewsQuery->where('rating', $rating);
+        }
+
+        $reviews = $reviewsQuery->get();
+
+        // ✅ Chỉ return 1 lần sau khi đã xử lý lọc
         return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews'));
-    // Xử lý lọc theo số sao (rating)
-    $rating = request()->query('rating');
-    $reviewsQuery = Review::where('product_id', $product->product_id)
-        ->orderBy('created_at', 'desc');
-
-    if (is_numeric($rating)) {
-        $reviewsQuery->where('rating', $rating);
-    }
-
-    $reviews = $reviewsQuery->get();
-
-    return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews')); // thêm reviews
     }
 }

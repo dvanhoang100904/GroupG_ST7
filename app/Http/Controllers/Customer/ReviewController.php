@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
 
@@ -65,7 +66,18 @@ class ReviewController extends Controller
             return redirect()->back()->with('error', 'Đã xảy ra lỗi khi lưu đánh giá.');
         }
     }
-
+//API
+    public function tempConfirm(Request $request)
+    {
+        $reviewId = $request->input('review_id');
+        if (!$reviewId) {
+            return response()->json(['success' => false, 'message' => 'Review ID không hợp lệ']);
+        }
+        $confirmed = session('temp_confirmed_reviews', []);
+        $confirmed[$reviewId] = now()->addMinutes(10)->toDateTimeString();
+        session(['temp_confirmed_reviews' => $confirmed]);
+        return response()->json(['success' => true]);
+    }
     // Lấy danh sách đánh giá cho 1 sản phẩm
     public function getProductReviews($product_id)
     {
@@ -144,23 +156,34 @@ class ReviewController extends Controller
         return back()->with('success', 'Đánh giá đã được xóa.');
     }
     public function index(Request $request)
-
     {
         $query = Review::with(['user', 'chat']);
+
         // Lọc phân loại nếu có
-        if ($request->has('type') && in_array($request->type, ['review', 'chat'])) {
+        if ($request->filled('type') && in_array($request->type, ['review', 'chat'])) {
             $query->where('type', $request->type);
         }
 
         // Lọc theo số sao nếu có
-        if ($request->has('rating') && is_numeric($request->rating)) {
+        if ($request->filled('rating') && is_numeric($request->rating)) {
             $query->where('rating', $request->rating);
         }
 
-        // Phân trang 10 dòng mỗi trang
         $reviews = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('admin.content.website.website', compact('reviews'));
+        // Lấy danh sách review đã tạm xác nhận (trong session)
+        $confirmed = session('temp_confirmed_reviews', []);
+        $now = now();
+
+        // Lọc những review 
+        $validConfirmed = collect($confirmed)->filter(function ($expireTime) use ($now) {
+            return $now->lt(\Carbon\Carbon::parse($expireTime));
+        })->keys()->toArray();
+
+        return view('admin.content.website.website', [
+            'reviews' => $reviews,
+            'tempConfirmedIds' => $validConfirmed
+        ]);
     }
     public function show($reviewId)
     {
@@ -191,7 +214,4 @@ class ReviewController extends Controller
 
         return response()->json(['message' => 'Phản hồi đã được gửi!']);
     }
-
-
-
 }

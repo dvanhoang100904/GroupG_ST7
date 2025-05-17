@@ -90,14 +90,15 @@
                         <strong>{{ $review->user->name ?? 'Ẩn danh' }}</strong>
                         <div>⭐ {{ $review->rating }} / 5</div>
                         <p>{{ $review->content }}</p>
+
                         @if($review->photo)
                             <div>
                                 <img src="{{ asset($review->photo) }}" alt="Ảnh đánh giá" style="max-width: 150px;">
                             </div>
                         @endif
+
                         <small class="text-muted">{{ $review->created_at->format('d/m/Y H:i') }}</small>
 
-                        {{-- Nếu người dùng hiện tại là người viết đánh giá --}}
                         @if(Auth::check() && Auth::id() === $review->user_id)
                             <div class="dropdown mt-2">
                                 <button class="btn btn-sm btn-light border dropdown-toggle" type="button"
@@ -120,6 +121,25 @@
                                 </ul>
                             </div>
                         @endif
+
+                        @if($review->replies->count())
+                            <div class="admin-reply mt-3 ms-3 ps-3 border-start" style="background:#f9f9f9;">
+                                @foreach($review->replies as $reply)
+                                    <div class="mb-2 p-2 bg-light rounded">
+                                        {{-- Kiểm tra nếu reply là admin (id = 1) --}}
+                                        <strong class="text-primary">
+                                            @if($reply->user_id == 1)
+                                                Admin
+                                            @else
+                                                {{ $reply->user->name ?? 'Người trả lời' }}
+                                            @endif
+                                        </strong>
+                                        <p>{{ $reply->content }}</p>
+                                        <small class="text-muted">{{ $reply->created_at->format('d/m/Y H:i') }}</small>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Modal Chỉnh sửa Đánh giá --}}
@@ -133,7 +153,6 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <!-- Chèn form chỉnh sửa vào modal -->
                                     <form action="{{ route('reviews.update', $review->review_id) }}" method="POST">
                                         @csrf
                                         @method('PUT')
@@ -160,52 +179,51 @@
                     </div>
                 @endforeach
             @else
-                <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+                <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
             @endif
-        </section>
-    </div>
 
 
-    {{-- Khu vực sản phẩm tương tự --}}
-    <section class="related-products">
-        <h2>SẢN PHẨM TƯƠNG TỰ</h2>
 
-        <div class="product-grid">
-            {{-- Hiển thị sản phẩm tương tự --}}
-            @foreach ($similarProducts as $product)
-                <a href="{{ route('products.detail', ['slug' => $product->slug]) }}" class="product-card">
-                    <div class="product-image">
-                        {{-- Ảnh sản phẩm --}}
-                        <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
-                    </div>
+            {{-- Khu vực sản phẩm tương tự --}}
+            <section class="related-products">
+                <h2>SẢN PHẨM TƯƠNG TỰ</h2>
 
-                    <div class="product-info">
-                        {{-- Tên sản phẩm --}}
-                        <h3>{{ $product->product_name }}</h3>
+                <div class="product-grid">
+                    {{-- Hiển thị sản phẩm tương tự --}}
+                    @foreach ($similarProducts as $product)
+                        <a href="{{ route('products.detail', ['slug' => $product->slug]) }}" class="product-card">
+                            <div class="product-image">
+                                {{-- Ảnh sản phẩm --}}
+                                <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                            </div>
 
-                        {{-- Giá sản phẩm --}}
-                        <p class="price">{{ number_format($product->price, 0, ',', '.') }}₫</p>
+                            <div class="product-info">
+                                {{-- Tên sản phẩm --}}
+                                <h3>{{ $product->product_name }}</h3>
 
-                        {{-- Mô tả ngắn --}}
-                        <p class="description">{{ $product->description }}</p>
+                                {{-- Giá sản phẩm --}}
+                                <p class="price">{{ number_format($product->price, 0, ',', '.') }}₫</p>
 
-                        {{-- Nút yêu thích --}}
-                        <button class="like-btn">❤</button>
+                                {{-- Mô tả ngắn --}}
+                                <p class="description">{{ $product->description }}</p>
 
-                        {{-- Nút Thêm vào giỏ --}}
-                        <form method="POST" action="{{ route('cart.addToCart') }}">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->product_id }}" />
-                            <input type="hidden" name="quantity" id="product-quantity-input" value="1" />
-                            <button type="submit" class="add-to-cart-btn">Thêm vào giỏ</button>
-                        </form>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-    </section>
-    <!-- Nút trở về đầu trang -->
-    <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
+                                {{-- Nút yêu thích --}}
+                                <button class="like-btn">❤</button>
+
+                                {{-- Nút Thêm vào giỏ --}}
+                                <form method="POST" action="{{ route('cart.addToCart') }}">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->product_id }}" />
+                                    <input type="hidden" name="quantity" id="product-quantity-input" value="1" />
+                                    <button type="submit" class="add-to-cart-btn">Thêm vào giỏ</button>
+                                </form>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+            <!-- Nút trở về đầu trang -->
+            <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
     </div>
 @endsection
 
@@ -222,23 +240,23 @@
 @endpush
 
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const btn = document.getElementById("scrollToTopBtn");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("scrollToTopBtn");
 
-        // Ẩn hiện nút khi cuộn
-        window.onscroll = function () {
-            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
-        };
+            // Ẩn hiện nút khi cuộn
+            window.onscroll = function () {
+                if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                    btn.style.display = "block";
+                } else {
+                    btn.style.display = "none";
+                }
+            };
 
-        // Khi nhấn nút thì cuộn lên đầu trang
-        btn.addEventListener("click", function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Khi nhấn nút thì cuộn lên đầu trang
+            btn.addEventListener("click", function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         });
-    });
-</script>
+    </script>
 @endpush

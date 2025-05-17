@@ -91,7 +91,7 @@ route::middleware('check.login.customer')->group(function () {
     // Thông báo đặt hàng
     Route::get('/dat-hang-thanh-cong/{order}', [CustomerOrderController::class, 'orderSuccess'])->name('order.success');
 });
- Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin');
+Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard')->middleware('check.login.admin');
 //Đánh giá sản phẩm
 Route::post('/product/{productId}/review', [ReviewController::class, 'store'])->name('reviews.store'); // POST để gửi đánh giá
 Route::get('/product/{productId}/reviews', [ReviewController::class, 'getReviews'])->name('reviews.get'); // GET để lấy đánh giá 
@@ -179,7 +179,7 @@ Route::middleware('auth')->group(function () {
 
     // Route xử lý phản hồi cho đánh giá
     Route::post('/admin/reviews/{review}/reply', [ReviewController::class, 'storeReply'])->name('admin.reviews.storeReply');
-
+    Route::post('admin/review/temp-confirm', [ReviewController::class, 'tempConfirm'])->name('admin.review.tempConfirm');
     // Route cho danh sách tin nhắn (admin)
     Route::get('/admin/chats', [ChatController::class, 'index'])->name('admin.chats.index');
     Route::get('/admin/chat/{id}/detail', [ChatController::class, 'detail']);
@@ -188,10 +188,10 @@ Route::middleware('auth')->group(function () {
     // Chỉnh sửa
     Route::get('/admin/chat/edit/{chat}', [ChatController::class, 'edit'])->name('admin.chat.edit');
     Route::put('/admin/chat/update/{chat}', [ChatController::class, 'update'])->name('admin.chat.update');
-    Route::get('/admin/chat/cancel-edit', function() {
-    session()->forget(['editing_chat_id', 'editing_chat_content']);
-    return back();
-})->name('admin.chat.cancelEdit');
+    Route::get('/admin/chat/cancel-edit', function () {
+        session()->forget(['editing_chat_id', 'editing_chat_content']);
+        return back();
+    })->name('admin.chat.cancelEdit');
 
     // Xóa
     Route::delete('/admin/chat/delete/{chat}', [ChatController::class, 'destroy'])->name('admin.chat.delete');
@@ -296,4 +296,3 @@ Route::prefix('customer')->middleware('auth')->name('customer.')->group(function
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-

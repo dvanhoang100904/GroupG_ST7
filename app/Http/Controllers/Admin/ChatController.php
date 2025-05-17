@@ -131,7 +131,7 @@ class ChatController extends Controller
         $chat->photo = null;
         $chat->save();
 
-        // ✅ Sau khi gửi tin nhắn, chuyển về lại trang chat với người dùng
+        //  Sau khi gửi tin nhắn, chuyển về lại trang chat với người dùng
         return redirect()->route('admin.chat.show', ['id' => $id])
             ->with('success', 'Phản hồi đã được gửi thành công.');
     }
