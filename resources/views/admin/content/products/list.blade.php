@@ -4,6 +4,15 @@
 
 @section('content')
     <div class="container py-3">
+
+        {{-- Hiển thị thông báo thành công --}}
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ route('products.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm sản phẩm
@@ -19,6 +28,13 @@
                 </form>
             </div>
         </div>
+
+        {{-- Thông báo khi không tìm thấy sản phẩm --}}
+        @if(request('search') && $products->isEmpty())
+            <div class="alert alert-warning">
+                Không tìm thấy sản phẩm với từ khóa: <strong>{{ request('search') }}</strong>
+            </div>
+        @endif
 
         <table class="table table-bordered table-hover">
             <thead class="table-light">
