@@ -67,6 +67,7 @@ class OrderController extends Controller
             'user_id' => $user->user_id,
             'name' => $request->name,
             'phone' => $request->phone,
+            'email' => $request->email,
             'address' => $request->address,
         ]);
 
@@ -122,12 +123,12 @@ class OrderController extends Controller
     }
 
     //Lịch sử mua hàng
-   public function history()
+    public function history()
     {
         $orders = Order::with('details.product')
-                    ->where('user_id', Auth::id())
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('customer.pages.history_order', compact('orders'));
     }
