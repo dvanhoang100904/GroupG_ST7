@@ -101,11 +101,11 @@ class ProductsController extends Controller
         // Xác thực dữ liệu
         $request->validate([
             'product_name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|alpha_dash|unique:products,slug,' . $product->product_id . ',product_id',
-            'description' => 'nullable|string|max:1000',
+            'slug' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
-            'category_id' => 'required|integer|exists:categories,category_id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'category_id' => 'required|exists:categories,category_id',
         ]);
 
         $product->product_name = $request->product_name;
@@ -130,10 +130,6 @@ class ProductsController extends Controller
 
         // Nếu có ảnh mới
         if ($request->hasFile('image')) {
-            // Xóa ảnh cũ nếu tồn tại
-            if ($product->image && file_exists(public_path($product->image))) {
-                unlink(public_path($product->image));
-            }
 
             $image = $request->file('image');
             $imageName = $slug . '.' . $image->getClientOriginalExtension(); // Đặt tên ảnh mới
@@ -149,10 +145,6 @@ class ProductsController extends Controller
     // Xóa sản phẩm
     public function destroy(Product $product)
     {
-        // Xóa ảnh nếu tồn tại
-        if ($product->image && file_exists(public_path($product->image))) {
-            unlink(public_path($product->image));
-        }
 
         $product->delete(); // Xóa sản phẩm khỏi cơ sở dữ liệu
 

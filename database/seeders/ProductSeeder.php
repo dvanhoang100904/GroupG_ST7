@@ -10,7 +10,6 @@ class ProductSeeder extends Seeder
 {
     public function run()
     {
-        // Dữ liệu sản phẩm mẫu theo các danh mục
         $productData = [
             'Điện thoại' => [
                 'products' => [
@@ -94,38 +93,46 @@ class ProductSeeder extends Seeder
             ]
         ];
 
-
-        // Lấy tất cả danh mục từ bảng 'categories'
         $categories = DB::table('categories')->get();
 
-        // Duyệt qua từng danh mục để thêm sản phẩm tương ứng
         foreach ($categories as $category) {
-            // Lấy danh sách sản phẩm và mô tả của danh mục từ dữ liệu mẫu
-            $products = $productData[$category->category_name]['products'] ?? [];
-            $desc = $productData[$category->category_name]['description'] ?? 'Sản phẩm chất lượng cao.';
+            $categoryName = $category->category_name;
+            $categorySlug = strtolower(Str::slug($categoryName));
+            $categoryPath = public_path("images/{$categorySlug}");
 
-            // Tạo thư mục cho từng danh mục nếu chưa có
-            $categoryFolder = strtolower(Str::slug($category->category_name));
-            $categoryPath = public_path('images/' . $categoryFolder);
             if (!is_dir($categoryPath)) {
-                mkdir($categoryPath, 0777, true); // Tạo thư mục nếu chưa tồn tại
+                mkdir($categoryPath, 0777, true);
             }
 
-            // Thêm các sản phẩm vào bảng 'products'
+            $products = $productData[$categoryName]['products'] ?? [];
+            $desc = $productData[$categoryName]['description'] ?? 'Sản phẩm chất lượng cao.';
+
+            $existingCount = count($products);
+            $total = 20;
+
+            // Thêm sản phẩm ngẫu nhiên cho đủ số lượng
+            for ($i = $existingCount + 1; $i <= $total; $i++) {
+                $products[] = "{$categoryName} Sản phẩm {$i}";
+            }
+
             foreach ($products as $productName) {
-                // Tạo slug cho tên sản phẩm và đặt tên ảnh
                 $productSlug = Str::slug($productName);
-                $imagePath = 'images/' . $categoryFolder . '/' . $productSlug . '.jpg';  // Đường dẫn đến thư mục con tương ứng
+                $imageFile = "{$categoryPath}/{$productSlug}.jpg";
+
+                // Kiểm tra xem file ảnh tồn tại không
+                $imagePath = file_exists($imageFile)
+                    ? "images/{$categorySlug}/{$productSlug}.jpg"
+                    : "images/{$categorySlug}/mac-dinh.jpg";
 
                 DB::table('products')->insert([
-                    'product_name' => $productName,  // Tên sản phẩm
+                    'product_name' => $productName,
                     'slug' => $productSlug,
-                    'description' => $desc,          // Mô tả sản phẩm
-                    'image' => $imagePath,           // Đường dẫn ảnh (trong thư mục con)
-                    'price' => rand(2, 30) * 1000000, // Giá sản phẩm (random từ 2 đến 30 triệu VND)
-                    'category_id' => $category->category_id, // ID danh mục sản phẩm
-                    'created_at' => now(),           // Thời gian tạo
-                    'updated_at' => now(),           // Thời gian cập nhật
+                    'description' => $desc,
+                    'image' => $imagePath,
+                    'price' => rand(2, 30) * 1000000,
+                    'category_id' => $category->category_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }
