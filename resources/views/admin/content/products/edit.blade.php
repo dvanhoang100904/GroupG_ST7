@@ -60,7 +60,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Cập nhật ảnh mới</label>
-                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror">
+                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept=".jpg,.jpeg,.png,.gif,image/*">
                 @error('image')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

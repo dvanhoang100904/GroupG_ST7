@@ -40,22 +40,21 @@ class ProductsController extends Controller
             'slug' => 'nullable|string|max:255|alpha_dash|unique:products,slug',
             'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'category_id' => 'required|integer|exists:categories,category_id',
         ]);
 
-        $product = new Product(); // Khởi tạo đối tượng sản phẩm mới
+        $product = new Product();
         $product->product_name = $request->product_name;
         $product->description = $request->description;
         $product->price = $request->price;
         $product->category_id = $request->category_id;
 
         // Xử lý slug sản phẩm
-        $slug = $request->slug ?: Str::slug($request->product_name); // Nếu không nhập slug thì tự tạo
+        $slug = $request->slug ?: Str::slug($request->product_name);
         $originalSlug = $slug;
         $count = 1;
 
-        // Đảm bảo slug là duy nhất trong bảng
         while (Product::where('slug', $slug)->exists()) {
             $slug = $originalSlug . '-' . $count++;
         }
@@ -66,17 +65,18 @@ class ProductsController extends Controller
         $categorySlug = Str::slug($category->category_name);
 
         // Nếu có upload ảnh
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $image = $request->file('image');
-            $imageName = $slug . '.' . $image->getClientOriginalExtension(); // Đặt tên ảnh theo slug
-            $image->move(public_path("images/{$categorySlug}"), $imageName); // Lưu ảnh vào thư mục images/{categorySlug}
+            $extension = $image->getClientOriginalExtension(); // lấy đúng extension gốc
+            $imageName = $slug . '.' . $extension; // Đặt tên theo slug + extension
+            $image->move(public_path("images/{$categorySlug}"), $imageName);
             $product->image = "images/{$categorySlug}/{$imageName}";
         } else {
             // Nếu không có ảnh thì dùng ảnh mặc định
             $product->image = "images/{$categorySlug}/mac-dinh.jpg";
         }
 
-        $product->save(); // Lưu vào cơ sở dữ liệu
+        $product->save();
 
         return redirect()->route('products.list')->with('success', 'Sản phẩm đã được thêm thành công.');
     }
@@ -95,16 +95,14 @@ class ProductsController extends Controller
         return view('admin.content.products.edit', compact('product', 'categories'));
     }
 
-    // Cập nhật thông tin sản phẩm
     public function update(Request $request, Product $product)
     {
-        // Xác thực dữ liệu
         $request->validate([
             'product_name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'category_id' => 'required|exists:categories,category_id',
         ]);
 
@@ -113,34 +111,34 @@ class ProductsController extends Controller
         $product->price = $request->price;
         $product->category_id = $request->category_id;
 
-        // Xử lý cập nhật slug
         $slug = $request->slug ?: Str::slug($request->product_name);
         $originalSlug = $slug;
         $count = 1;
-
-        // Đảm bảo slug không trùng (ngoại trừ chính sản phẩm đang sửa)
         while (Product::where('slug', $slug)->where('product_id', '!=', $product->product_id)->exists()) {
             $slug = $originalSlug . '-' . $count++;
         }
         $product->slug = $slug;
 
-        // Tạo slug danh mục
         $category = Category::find($request->category_id);
         $categorySlug = Str::slug($category->category_name);
 
-        // Nếu có ảnh mới
-        if ($request->hasFile('image')) {
-
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $image = $request->file('image');
-            $imageName = $slug . '.' . $image->getClientOriginalExtension(); // Đặt tên ảnh mới
+            $extension = strtolower($image->getClientOriginalExtension());
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                return back()->withErrors(['image' => 'Ảnh phải có định dạng jpg, jpeg, png hoặc gif']);
+            }
+            $imageName = $slug . '.' . $extension;
             $image->move(public_path("images/{$categorySlug}"), $imageName);
             $product->image = "images/{$categorySlug}/{$imageName}";
         }
 
-        $product->save(); // Lưu cập nhật
+        $product->save();
 
         return redirect()->route('products.read', $product->product_id)->with('success', 'Cập nhật sản phẩm thành công.');
     }
+
+
 
     // Xóa sản phẩm
     public function destroy(Product $product)
