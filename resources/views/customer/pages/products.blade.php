@@ -30,6 +30,13 @@
 
 
     <div class="product-grid">
+        {{-- Nếu không có sản phẩm nào --}}
+        @if ($products->count() === 0)
+            <div class="alert alert-warning text-center my-4">
+                Không tìm thấy sản phẩm nào{{ $search ? ' với từ khóa: "' . $search . '"' : '' }}.
+            </div>
+        @endif
+
         {{-- Lặp qua danh sách sản phẩm --}}
         @foreach ($products as $product)
             {{-- Liên kết đến trang chi tiết sản phẩm dựa trên slug --}}

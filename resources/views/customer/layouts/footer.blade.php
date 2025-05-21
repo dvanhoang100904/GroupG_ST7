@@ -19,8 +19,8 @@
     <div class="footer-column">
       <h4>Hỗ trợ khách hàng</h4>
       <ul>
-         {{-- <li><a href="{{ route('warranty-policy') }}">Chính sách bảo hành</a></li>
-         <li><a href="{{ route('privacy-policy') }}">Chính sách bảo mật</a></li> --}}
+          <li><a href="{{ route('warranty-policy') }}">Chính sách bảo hành</a></li>
+         <li><a href="{{ route('privacy-policy') }}">Chính sách bảo mật</a></li> 
       </ul>
     </div>
 

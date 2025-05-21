@@ -4,6 +4,14 @@
 
 @section('content')
     <div class="container py-3">
+
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="mb-4">
             <a href="{{ route('products.list') }}" class="btn btn-secondary">Quay lại</a>
             <a href="{{ route('products.edit', $product->product_id) }}" class="btn btn-warning">Sửa</a>
