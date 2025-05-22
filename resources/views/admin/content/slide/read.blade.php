@@ -10,7 +10,14 @@
             </a>
             <a href="{{ route('slide.edit', $slide) }}" class="btn btn-warning">
                 <i class="fas fa-edit"></i> Sửa slide
-            </a>                      
+            </a>           
+            <form action="{{ route('slide.toggleVisibility', $slide->slide_id) }}" method="POST" class="d-inline-block">
+                    @csrf
+                    @method('PUT')
+                <button class="btn {{ $slide->is_visible ? 'btn-success' : 'btn-secondary' }}">
+                    <i class="fas fa-eye"></i> {{ $slide->is_visible ? 'Hiện' : 'Ẩn' }}
+                </button>
+            </form>         
         </div>
 
         <div class="card shadow">

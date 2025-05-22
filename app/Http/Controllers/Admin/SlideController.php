@@ -91,7 +91,7 @@ class SlideController extends Controller
 
         $slide->save();
 
-        return redirect()->route('slide.index')->with('success', 'Cập nhật slide thành công.');
+        return redirect()->route('slide.read', $slide->slide_id)->with('success', 'Cập nhật slide thành công.');
     }
 
     // Xóa slide
