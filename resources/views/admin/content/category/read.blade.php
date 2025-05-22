@@ -4,6 +4,19 @@
 
 @section('content')
     <div class="container py-4">
+        {{-- thong bao --}}
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Thành công!</strong> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Lỗi!</strong> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
         <div class="mb-4">
             <a href="{{ route('category.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Trở về danh sách
@@ -26,7 +39,7 @@
                 @if ($category->image)
                     <div>
                         <strong>Hình ảnh:</strong><br>
-                        <img src="{{ asset('storage/' . $category->image) }}" alt="Ảnh danh mục" class="img-thumbnail"
+                        <img src="{{ asset($category->image) }}" alt="Ảnh danh mục" class="img-thumbnail"
                             style="max-width: 300px;">
                     </div>
                 @else

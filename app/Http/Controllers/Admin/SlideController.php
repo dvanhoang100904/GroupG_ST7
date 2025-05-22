@@ -34,8 +34,11 @@ class SlideController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
-            'image' => 'required|image|mimes:jpg,jpeg,png,gif', //|max:2048 neu muốn giới hạn
+            'name' => 'required|string|max:100|unique:slides,name',
+            'image' => 'required|image|mimes:jpg,jpeg,png,gif'
+                . '|dimensions:min_width=1200,min_height=400',
+            // chi nhan anh >= 1200 & 400
+            //|max:2048 neu muốn giới hạn
         ]);
 
         $slide = new Slide();
@@ -43,8 +46,8 @@ class SlideController extends Controller
 
         if ($request->hasFile('image')) {
             $filename = time() . '_' . $request->file('image')->getClientOriginalName();
-            $request->file('image')->move(public_path('storage/images/slides'), $filename);
-            $slide->image = 'images/slides/' . $filename;
+            $request->file('image')->move(public_path('img_slide'), $filename);
+            $slide->image = 'img_slide/' . $filename;
         }
 
         $slide->created_at = now();
@@ -73,28 +76,24 @@ class SlideController extends Controller
         $slide = Slide::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:slides,name,' . $slide->slide_id . ',slide_id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $slide->name = $request->name;
 
         if ($request->hasFile('image')) {
-            if ($slide->image) {
-                $oldImagePath = public_path('storage/' . $slide->image);
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
-                }
+            if ($slide->image && file_exists(public_path($slide->image))) {
+                unlink(public_path($slide->image));
             }
             $filename = time() . '_' . $request->file('image')->getClientOriginalName();
-            $request->file('image')->move(public_path('storage/images/slides'), $filename);
-            $slide->image = 'images/slides/' . $filename;
+            $request->file('image')->move(public_path('img_slide'), $filename);
+            $slide->image = 'img_slide/' . $filename;
         }
-
 
         $slide->save();
 
-        return redirect()->route('slide.index')->with('success', 'Cập nhật slide thành công.');
+        return redirect()->route('slide.read', $slide->slide_id)->with('success', 'Cập nhật slide thành công.');
     }
 
     // Xóa slide
@@ -103,11 +102,8 @@ class SlideController extends Controller
         $slide = Slide::findOrFail($id);
 
         // Xóa file ảnh nếu cần
-        if (file_exists(public_path($slide->image))) {
-            $oldImagePath = public_path('storage/' . $slide->image);
-            if (file_exists($oldImagePath)) {
-                unlink($oldImagePath);
-            }
+        if ($slide->image && file_exists(public_path($slide->image))) {
+            unlink(public_path($slide->image));
         }
 
         $slide->delete();

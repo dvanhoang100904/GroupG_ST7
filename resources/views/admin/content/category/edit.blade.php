@@ -11,12 +11,19 @@
         
             <div class="mb-3">
                 <label for="category_name" class="form-label">Tên danh mục</label>
-                <input type="text" name="category_name" class="form-control" value="{{ old('category_name', $category->category_name) }}" required>
+                <input type="text" name="category_name" class="form-control @error('category_name') is-invalid @enderror" value="{{ old('category_name', $category->category_name) }}" required>
+                @error('category_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         
             <div class="mb-3">
                 <label for="slug" class="form-label">Slug</label>
-                <input type="text" name="slug" class="form-control" value="{{ old('slug', $category->slug) }}">
+                <input type="text" name="slug" class="form-control @error('slug') is-invalid @enderror"
+                    value="{{ old('slug', $category->slug) }}">
+                @error('slug')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         
             <div class="mb-3">
@@ -30,7 +37,7 @@
                 {{-- Ảnh hiện tại (nếu có) --}}
                 <div class="mb-2">
                     @if ($category->image)
-                        <img id="current-image" src="{{ asset('storage/' . $category->image) }}" alt="Current Image" width="150">
+                        <img id="current-image" src="{{ asset($category->image) }}" alt="Current Image" width="150">
                     @else
                         <p>Chưa có ảnh</p>
                     @endif

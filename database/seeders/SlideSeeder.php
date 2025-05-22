@@ -13,14 +13,14 @@ class SlideSeeder extends Seeder
         $slides = [
             [
                 'name' => 'Slide Giới thiệu',
-                'image' => 'images/slides/banner.png',
+                'image' => 'img_slide/banner4.jpeg',
                 'is_visible' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Slide Khuyến mãi',
-                'image' => 'images/slides/banner2.png',
+                'image' => 'img_slide/banner2.jpg',
                 'is_visible' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
