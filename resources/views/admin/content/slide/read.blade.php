@@ -18,14 +18,14 @@
                 <h4>Thông tin chi tiết slide</h4>
             </div>
             <div class="card-body">
-                <p><strong>ID:</strong> {{ $slide->id }}</p>
+                <p><strong>ID:</strong> {{ $slide->slide_id }}</p>
                 <p><strong>Tên slide:</strong> {{ $slide->name }}</p>
-                <p><strong>Ngày tạo:</strong> {{ $slide->created_at->format('d/m/Y H:i') }}</p>
+                <p><strong>Ngày tạo:</strong> {{ $slide->created_at->format('d/m/Y') }}</p>
 
                 @if ($slide->image)
                     <div>
                         <strong>Hình ảnh:</strong><br>
-                        <img src="{{ asset('storage/' . $slide->image) }}" alt="Ảnh slide" class="img-thumbnail"
+                        <img src="{{ asset($slide->image) }}" alt="Ảnh slide" class="img-thumbnail"
                             style="max-width: 300px;">
                     </div>
                 @else

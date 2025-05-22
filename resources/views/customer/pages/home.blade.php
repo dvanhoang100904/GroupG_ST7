@@ -8,7 +8,7 @@
         {{-- Banner đầu trang --}}
         <div class="banner-wrapper">
             @foreach ($slides as $slide)
-                <img src="{{ asset('storage/' . $slide->image) }}" alt="{{ $slide->name }}" class="banner-img">
+                <img src="{{ asset($slide->image) }}" alt="{{ $slide->name }}" class="banner-img">
             @endforeach
         </div>
 

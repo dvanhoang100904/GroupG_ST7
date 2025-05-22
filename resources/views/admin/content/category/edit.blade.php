@@ -30,7 +30,7 @@
                 {{-- Ảnh hiện tại (nếu có) --}}
                 <div class="mb-2">
                     @if ($category->image)
-                        <img id="current-image" src="{{ asset('storage/' . $category->image) }}" alt="Current Image" width="150">
+                        <img id="current-image" src="{{ asset($category->image) }}" alt="Current Image" width="150">
                     @else
                         <p>Chưa có ảnh</p>
                     @endif
