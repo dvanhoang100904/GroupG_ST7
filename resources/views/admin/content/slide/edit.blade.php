@@ -23,7 +23,7 @@
                 <label for="image" class="form-label">Ảnh hiện tại</label>
                 <div class="mb-2">
                     @if ($slide->image)
-                        <img id="current-image" src="{{ asset('storage/' . $slide->image) }}" alt="Current Image" width="150">
+                        <img id="current-image" src="{{ asset($slide->image) }}" alt="Current Image" width="150">
                     @else
                         <p>Chưa có ảnh</p>
                     @endif
