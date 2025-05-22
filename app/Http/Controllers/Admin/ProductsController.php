@@ -102,7 +102,7 @@ class ProductsController extends Controller
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image' => 'nullable|image|max:2048',
             'category_id' => 'required|exists:categories,category_id',
         ]);
 
