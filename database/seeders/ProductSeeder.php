@@ -10,7 +10,6 @@ class ProductSeeder extends Seeder
 {
     public function run()
     {
-        // Dữ liệu sản phẩm mẫu theo các danh mục
         $productData = [
             'Điện thoại' => [
                 'products' => [
@@ -94,38 +93,56 @@ class ProductSeeder extends Seeder
             ]
         ];
 
-
-        // Lấy tất cả danh mục từ bảng 'categories'
+        // Lấy danh sách các danh mục từ bảng `categories`
         $categories = DB::table('categories')->get();
 
-        // Duyệt qua từng danh mục để thêm sản phẩm tương ứng
         foreach ($categories as $category) {
-            // Lấy danh sách sản phẩm và mô tả của danh mục từ dữ liệu mẫu
-            $products = $productData[$category->category_name]['products'] ?? [];
-            $desc = $productData[$category->category_name]['description'] ?? 'Sản phẩm chất lượng cao.';
+            // Tên danh mục (ví dụ: "Điện thoại")
+            $categoryName = $category->category_name;
 
-            // Tạo thư mục cho từng danh mục nếu chưa có
-            $categoryFolder = strtolower(Str::slug($category->category_name));
-            $categoryPath = public_path('images/' . $categoryFolder);
+            // Tạo slug từ tên danh mục (vd: "điện thoại" => "dien-thoai")
+            $categorySlug = strtolower(Str::slug($categoryName));
+
+            // Đường dẫn đến thư mục ảnh của danh mục trong thư mục `public/images`
+            $categoryPath = public_path("images/{$categorySlug}");
+
+            // Nếu thư mục chưa tồn tại thì tạo mới
             if (!is_dir($categoryPath)) {
-                mkdir($categoryPath, 0777, true); // Tạo thư mục nếu chưa tồn tại
+                mkdir($categoryPath, 0777, true);
             }
 
-            // Thêm các sản phẩm vào bảng 'products'
-            foreach ($products as $productName) {
-                // Tạo slug cho tên sản phẩm và đặt tên ảnh
-                $productSlug = Str::slug($productName);
-                $imagePath = 'images/' . $categoryFolder . '/' . $productSlug . '.jpg';  // Đường dẫn đến thư mục con tương ứng
+            // Lấy danh sách sản phẩm mẫu & mô tả tương ứng với danh mục hiện tại
+            $products = $productData[$categoryName]['products'] ?? [];
+            $desc = $productData[$categoryName]['description'] ?? 'Sản phẩm chất lượng cao.';
 
+            // Nếu chưa đủ 20 sản phẩm thì thêm sản phẩm giả để đủ
+            $existingCount = count($products);
+            $total = 20;
+
+            for ($i = $existingCount + 1; $i <= $total; $i++) {
+                $products[] = "{$categoryName} Sản phẩm {$i}";
+            }
+
+            // Duyệt từng sản phẩm để insert vào DB
+            foreach ($products as $productName) {
+                $productSlug = Str::slug($productName); // Tạo slug từ tên sản phẩm
+                $imageFile = "{$categoryPath}/{$productSlug}.jpg"; // Đường dẫn ảnh cụ thể
+
+                // Nếu ảnh sản phẩm tồn tại thì dùng, nếu không thì dùng ảnh mặc định
+                $imagePath = file_exists($imageFile)
+                    ? "images/{$categorySlug}/{$productSlug}.jpg"
+                    : "images/{$categorySlug}/mac-dinh.jpg";
+
+                // Chèn sản phẩm vào bảng `products`
                 DB::table('products')->insert([
-                    'product_name' => $productName,  // Tên sản phẩm
+                    'product_name' => $productName,
                     'slug' => $productSlug,
-                    'description' => $desc,          // Mô tả sản phẩm
-                    'image' => $imagePath,           // Đường dẫn ảnh (trong thư mục con)
-                    'price' => rand(2, 30) * 1000000, // Giá sản phẩm (random từ 2 đến 30 triệu VND)
-                    'category_id' => $category->category_id, // ID danh mục sản phẩm
-                    'created_at' => now(),           // Thời gian tạo
-                    'updated_at' => now(),           // Thời gian cập nhật
+                    'description' => $desc,
+                    'image' => $imagePath,
+                    'price' => rand(2, 30) * 1000000, // Giá ngẫu nhiên từ 2 - 30 triệu
+                    'category_id' => $category->category_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }
