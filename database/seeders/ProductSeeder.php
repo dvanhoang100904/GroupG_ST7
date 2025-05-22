@@ -93,43 +93,53 @@ class ProductSeeder extends Seeder
             ]
         ];
 
+        // Lấy danh sách các danh mục từ bảng `categories`
         $categories = DB::table('categories')->get();
 
         foreach ($categories as $category) {
+            // Tên danh mục (ví dụ: "Điện thoại")
             $categoryName = $category->category_name;
+
+            // Tạo slug từ tên danh mục (vd: "điện thoại" => "dien-thoai")
             $categorySlug = strtolower(Str::slug($categoryName));
+
+            // Đường dẫn đến thư mục ảnh của danh mục trong thư mục `public/images`
             $categoryPath = public_path("images/{$categorySlug}");
 
+            // Nếu thư mục chưa tồn tại thì tạo mới
             if (!is_dir($categoryPath)) {
                 mkdir($categoryPath, 0777, true);
             }
 
+            // Lấy danh sách sản phẩm mẫu & mô tả tương ứng với danh mục hiện tại
             $products = $productData[$categoryName]['products'] ?? [];
             $desc = $productData[$categoryName]['description'] ?? 'Sản phẩm chất lượng cao.';
 
+            // Nếu chưa đủ 20 sản phẩm thì thêm sản phẩm giả để đủ
             $existingCount = count($products);
             $total = 20;
 
-            // Thêm sản phẩm ngẫu nhiên cho đủ số lượng
             for ($i = $existingCount + 1; $i <= $total; $i++) {
                 $products[] = "{$categoryName} Sản phẩm {$i}";
             }
 
+            // Duyệt từng sản phẩm để insert vào DB
             foreach ($products as $productName) {
-                $productSlug = Str::slug($productName);
-                $imageFile = "{$categoryPath}/{$productSlug}.jpg";
+                $productSlug = Str::slug($productName); // Tạo slug từ tên sản phẩm
+                $imageFile = "{$categoryPath}/{$productSlug}.jpg"; // Đường dẫn ảnh cụ thể
 
-                // Kiểm tra xem file ảnh tồn tại không
+                // Nếu ảnh sản phẩm tồn tại thì dùng, nếu không thì dùng ảnh mặc định
                 $imagePath = file_exists($imageFile)
                     ? "images/{$categorySlug}/{$productSlug}.jpg"
                     : "images/{$categorySlug}/mac-dinh.jpg";
 
+                // Chèn sản phẩm vào bảng `products`
                 DB::table('products')->insert([
                     'product_name' => $productName,
                     'slug' => $productSlug,
                     'description' => $desc,
                     'image' => $imagePath,
-                    'price' => rand(2, 30) * 1000000,
+                    'price' => rand(2, 30) * 1000000, // Giá ngẫu nhiên từ 2 - 30 triệu
                     'category_id' => $category->category_id,
                     'created_at' => now(),
                     'updated_at' => now(),

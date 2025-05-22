@@ -1,11 +1,11 @@
-@extends('admin.layout.app') {{-- Kế thừa layout chung admin --}}
+@extends('admin.layout.app') {{-- Kế thừa layout giao diện admin --}}
 
 @section('page_title', 'Thêm mới sản phẩm') {{-- Đặt tiêu đề trang --}}
 
 @section('content')
 <div class="container py-3">
 
-    {{-- Hiển thị thông báo thành công nếu có --}}
+    {{-- Nếu có thông báo thành công từ session (ví dụ sau khi thêm thành công) thì hiển thị --}}
     @if (session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -13,42 +13,41 @@
         </div>
     @endif
 
-    {{-- Hiển thị danh sách lỗi nếu có --}}
+    {{-- Nếu có lỗi validate từ server (thường khi submit form) thì hiển thị danh sách lỗi --}}
     @if ($errors->any())
         <div class="alert alert-danger">
             <strong>Đã xảy ra lỗi:</strong>
             <ul class="mb-0">
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li> {{-- Hiển thị từng lỗi --}}
+                    <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
 
-    {{-- Nút quay lại danh sách sản phẩm --}}
+    {{-- Nút quay lại trang danh sách sản phẩm --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('products.list') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Quay lại danh sách
         </a>
     </div>
 
-    {{-- Form gửi dữ liệu lên route products.store --}}
+    {{-- Form gửi dữ liệu lên server để thêm mới sản phẩm --}}
     <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf {{-- Token chống CSRF --}}
+        @csrf {{-- CSRF token để bảo mật --}}
 
-        {{-- Tên sản phẩm --}}
+        {{-- Input: Tên sản phẩm --}}
         <div class="mb-3">
             <label for="product_name" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
             <input type="text" name="product_name" id="product_name"
                    class="form-control @error('product_name') is-invalid @enderror"
                    value="{{ old('product_name') }}" required>
-            {{-- Hiển thị lỗi nếu có --}}
             @error('product_name')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
-        {{-- Slug sản phẩm --}}
+        {{-- Input: Slug (đường dẫn URL thân thiện) --}}
         <div class="mb-3">
             <label for="slug" class="form-label">Slug</label>
             <input type="text" name="slug" id="slug"
@@ -59,7 +58,7 @@
             @enderror
         </div>
 
-        {{-- Mô tả sản phẩm --}}
+        {{-- Textarea: Mô tả sản phẩm --}}
         <div class="mb-3">
             <label for="description" class="form-label">Mô tả sản phẩm</label>
             <textarea name="description" id="description"
@@ -70,7 +69,7 @@
             @enderror
         </div>
 
-        {{-- Giá sản phẩm --}}
+        {{-- Input: Giá sản phẩm --}}
         <div class="mb-3">
             <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
             <input type="number" name="price" id="price"
@@ -81,7 +80,7 @@
             @enderror
         </div>
 
-        {{-- Upload ảnh --}}
+        {{-- Input: Upload ảnh --}}
         <div class="mb-3">
             <label for="image" class="form-label">Ảnh sản phẩm</label>
             <input type="file" name="image" id="image"
@@ -91,14 +90,15 @@
             @enderror
         </div>
 
-        {{-- Chọn danh mục --}}
+        {{-- Select: Chọn danh mục sản phẩm --}}
         <div class="mb-3">
             <label for="category_id" class="form-label">Danh mục <span class="text-danger">*</span></label>
             <select name="category_id" id="category_id"
                     class="form-select @error('category_id') is-invalid @enderror" required>
                 <option value="">-- Chọn danh mục --</option>
                 @foreach($categories as $category)
-                    <option value="{{ $category->category_id }}" {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
+                    <option value="{{ $category->category_id }}"
+                        {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
                         {{ $category->category_name }}
                     </option>
                 @endforeach
@@ -108,7 +108,7 @@
             @enderror
         </div>
 
-        {{-- Nút submit --}}
+        {{-- Nút submit để lưu sản phẩm --}}
         <button type="submit" class="btn btn-success">Lưu sản phẩm</button>
     </form>
 </div>
