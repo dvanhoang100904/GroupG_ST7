@@ -22,13 +22,14 @@ class HomeController extends Controller
 
         // Lấy sản phẩm nổi bật (giá từ 4tr đến 10tr hoặc mới tạo trong 7 ngày)
         $featuredProducts = Product::where(function ($query) {
-            $query->whereBetween('price', [4000000, 10000000])
-                ->orWhere('created_at', '>=', now()->subDays(7));
-        })
-        ->orderByDesc('created_at')
-        ->limit(8)
-        ->get();
-        
+                $query->whereBetween('price', [4000000, 10000000])
+                    ->orWhere('created_at', '>=', now()->subDays(7));
+            })
+            ->where('image', 'not like', '%mac-dinh.jpg%')  // Loại bỏ ảnh mặc định
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
+
         // ktra và lấy trạng thái == true từ crud
         $slides = Slide::where('is_visible', true)->get();
         // Lấy danh sách chat nếu người dùng là khách hàng

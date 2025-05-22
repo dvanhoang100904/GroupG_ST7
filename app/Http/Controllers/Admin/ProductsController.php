@@ -6,88 +6,98 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;  // Thêm để sử dụng phương thức slug
+use Illuminate\Support\Str;
 
 class ProductsController extends Controller
 {
     /**
-     * Hiển thị danh sách sản phẩm với tùy chọn tìm kiếm.
+     * Hiển thị danh sách sản phẩm với tìm kiếm và phân trang
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search = $request->input('search'); // Lấy từ khóa tìm kiếm từ query string (?search=...)
+
         $products = Product::when($search, function ($query, $search) {
             return $query->where('product_name', 'like', "%{$search}%");
-        })
-        ->orderBy('product_id', 'asc')
-        ->paginate(2);
+        })->orderBy('product_id', 'asc')->paginate(2); // Phân trang: 2 sản phẩm mỗi trang
 
-        $products->appends(['search' => $search]);
+        $products->appends(['search' => $search]); // Giữ nguyên tham số search khi chuyển trang
 
-        return view('admin.content.products.list', compact('products', 'search'));
+        return view('admin.content.products.list', compact('products', 'search')); // Trả về view danh sách
     }
 
-    /** 
-     * Hiển thị form tạo mới sản phẩm.
+    /**
+     * Hiển thị form tạo mới sản phẩm
      */
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::all(); // Lấy tất cả danh mục sản phẩm
         return view('admin.content.products.create', compact('categories'));
     }
 
     /**
-     * Lưu sản phẩm mới vào cơ sở dữ liệu.
+     * Lưu sản phẩm mới
      */
     public function store(Request $request)
     {
-        // Xác thực dữ liệu
+        // Xác thực dữ liệu đầu vào
         $request->validate([
             'product_name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255',
-            'price' => 'nullable|string|max:50',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
+            'slug' => 'nullable|string|max:255|alpha_dash|unique:products,slug',
+            'description' => 'nullable|string|max:1000',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'category_id' => 'required|integer|exists:categories,category_id',
         ]);
 
+        // Tạo instance mới
         $product = new Product();
         $product->product_name = $request->product_name;
         $product->description = $request->description;
         $product->price = $request->price;
         $product->category_id = $request->category_id;
 
-        // Lấy slug danh mục
+        // Xử lý slug, tránh trùng lặp
+        $slug = $request->slug ?: Str::slug($request->product_name);
+        $originalSlug = $slug;
+        $count = 1;
+        while (Product::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+        $product->slug = $slug;
+
+        // Xác định đường dẫn ảnh theo danh mục
         $category = Category::find($request->category_id);
         $categorySlug = Str::slug($category->category_name);
-        $slug = Str::slug($request->product_name);
 
-        if ($request->hasFile('image')) {
+        // Xử lý upload ảnh nếu có
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $image = $request->file('image');
-            $imageName = $slug . '.' . $image->getClientOriginalExtension();
-            // Lưu vào thư mục images/{slug} tương ứng với danh mục
+            $extension = $image->getClientOriginalExtension();
+            $imageName = $slug . '.' . $extension;
             $image->move(public_path("images/{$categorySlug}"), $imageName);
             $product->image = "images/{$categorySlug}/{$imageName}";
         } else {
-            // Ảnh mặc định theo danh mục: {categorySlug}/mac-dinh.jpg
+            // Nếu không có ảnh, dùng ảnh mặc định
             $product->image = "images/{$categorySlug}/mac-dinh.jpg";
         }
 
-        $product->save();
+        $product->save(); // Lưu vào CSDL
 
         return redirect()->route('products.list')->with('success', 'Sản phẩm đã được thêm thành công.');
     }
 
     /**
-     * Hiển thị chi tiết sản phẩm.
+     * Hiển thị chi tiết sản phẩm
      */
     public function read(Product $product)
     {
-        $product->load('category');
+        $product->load('category'); // Nạp thêm thông tin danh mục
         return view('admin.content.products.read', compact('product'));
     }
 
     /**
-     * Hiển thị form chỉnh sửa sản phẩm.
+     * Hiển thị form chỉnh sửa sản phẩm
      */
     public function edit(Product $product)
     {
@@ -96,17 +106,17 @@ class ProductsController extends Controller
     }
 
     /**
-     * Cập nhật thông tin sản phẩm.
+     * Cập nhật sản phẩm
      */
     public function update(Request $request, Product $product)
     {
-        // Xác thực dữ liệu
         $request->validate([
             'product_name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255',
-            'price' => 'nullable|string|max:50',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
-            'category_id' => 'required|integer|exists:categories,category_id',
+            'slug' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|max:2048',
+            'category_id' => 'required|exists:categories,category_id',
         ]);
 
         $product->product_name = $request->product_name;
@@ -114,19 +124,27 @@ class ProductsController extends Controller
         $product->price = $request->price;
         $product->category_id = $request->category_id;
 
+        // Slug duy nhất
+        $slug = $request->slug ?: Str::slug($request->product_name);
+        $originalSlug = $slug;
+        $count = 1;
+        while (Product::where('slug', $slug)->where('product_id', '!=', $product->product_id)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+        $product->slug = $slug;
+
         $category = Category::find($request->category_id);
         $categorySlug = Str::slug($category->category_name);
-        $slug = Str::slug($request->product_name);
 
-        if ($request->hasFile('image')) {
-            // Xóa ảnh cũ nếu có
-            if ($product->image && file_exists(public_path($product->image))) {
-                unlink(public_path($product->image));
+        // Cập nhật ảnh nếu có file ảnh mới
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $image = $request->file('image');
+            $extension = strtolower($image->getClientOriginalExtension());
+            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                return back()->withErrors(['image' => 'Ảnh phải có định dạng jpg, jpeg, png hoặc gif']);
             }
 
-            $image = $request->file('image');
-            $imageName = $slug . '.' . $image->getClientOriginalExtension();
-            // Lưu ảnh mới vào thư mục {categorySlug}
+            $imageName = $slug . '.' . $extension;
             $image->move(public_path("images/{$categorySlug}"), $imageName);
             $product->image = "images/{$categorySlug}/{$imageName}";
         }
@@ -137,17 +155,11 @@ class ProductsController extends Controller
     }
 
     /**
-     * Xóa sản phẩm khỏi cơ sở dữ liệu.
+     * Xóa sản phẩm
      */
     public function destroy(Product $product)
     {
-        // Xóa ảnh nếu có
-        if ($product->image && file_exists(public_path($product->image))) {
-            unlink(public_path($product->image));
-        }
-
         $product->delete();
-
         return redirect()->route('products.list')->with('success', 'Sản phẩm đã được xóa.');
     }
 }
