@@ -26,7 +26,7 @@
                 @if ($category->image)
                     <div>
                         <strong>Hình ảnh:</strong><br>
-                        <img src="{{ asset('storage/' . $category->image) }}" alt="Ảnh danh mục" class="img-thumbnail"
+                        <img src="{{ asset($category->image) }}" alt="Ảnh danh mục" class="img-thumbnail"
                             style="max-width: 300px;">
                     </div>
                 @else

@@ -52,15 +52,12 @@ class CategoryController extends Controller
 
         $category->description = $request->description;
 
-        // Tạo thư mục theo slug trong public/images nếu chưa tồn tại
-        $folderPath = public_path('images/' . $slug);
-        if (!File::exists($folderPath)) {
-            File::makeDirectory($folderPath, 0755, true);
-        }
-
         // Nếu người dùng có upload ảnh, lưu vào storage như cũ
         if ($request->hasFile('image')) {
-            $category->image = $request->file('image')->store('images/categories', 'public');
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('img_category'), $imageName);
+            $category->image = 'img_category/' . $imageName;
         }
 
         $category->save();
@@ -125,9 +122,9 @@ class CategoryController extends Controller
             }
 
             $image = $request->file('image');
-            $imageName = 'thumbnail.' . $image->getClientOriginalExtension();
-            $image->move($folderPath, $imageName);
-            $category->image = 'images/' . $slug . '/' . $imageName;
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('img_category'), $imageName);
+            $category->image = 'img_category/' . $imageName;
         }
 
         $category->save();
