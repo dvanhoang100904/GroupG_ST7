@@ -16,7 +16,7 @@
                 <label for="category_name" class="form-label">Tên danh mục</label>
                 <input type="text" name="category_name" id="category_name" class="form-control @error('category_name') is-invalid @enderror"
                     value="{{ old('category_name') }}" required>
-                @error('name')
+                @error('category_name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
