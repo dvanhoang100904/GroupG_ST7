@@ -4,6 +4,13 @@
 
 @section('content')
     <div class="container py-3">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Thành công!</strong> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ route('slide.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm slide
@@ -79,4 +86,14 @@
         {{-- Phân trang --}}
         @include('admin.layout.pagination', ['paginator' => $slides])
     </div>
+    
+    <script>
+    setTimeout(() => {
+        const alert = document.querySelector('.alert-dismissible');
+        if (alert) {
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+        }
+    }, 3000);// 3s
+</script>
 @endsection

@@ -4,6 +4,13 @@
 
 @section('content')
     <div class="container py-4">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Thành công!</strong> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
         <div class="mb-4">
             <a href="{{ route('slide.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Trở về danh sách
@@ -41,4 +48,13 @@
             </div>
         </div>
     </div>
+    <script>
+    setTimeout(() => {
+        const alert = document.querySelector('.alert-dismissible');
+        if (alert) {
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+        }
+    }, 3000);// 3s
+</script>
 @endsection

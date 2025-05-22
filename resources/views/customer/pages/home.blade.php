@@ -5,12 +5,25 @@
     {{-- Bắt đầu nội dung chính sẽ được chèn vào layout --}}
     <div class="container">
 
-        {{-- Banner đầu trang --}}
+        {{-- Banner đầu trang 
         <div class="banner-wrapper">
             @foreach ($slides as $slide)
                 <img src="{{ asset($slide->image) }}" alt="{{ $slide->name }}" class="banner-img">
             @endforeach
+        </div> --}}
+        <div class="banner-wrapper container-fluid px-0">
+            <div class="row g-0">
+                @foreach ($slides as $slide)
+                    <div class="col-12">
+                        <div class="banner-item">
+                            <img src="{{ asset($slide->image) }}" alt="{{ $slide->name }}">
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
+
+
 
         {{-- Khu vực sản phẩm nổi bật --}}
         <section class="featured-products">
