@@ -1,216 +1,229 @@
-@extends('customer.layouts.app') {{-- Kế thừa giao diện layout chính --}}
-@section('title', $product->product_name) {{-- Gán tiêu đề động dựa vào tên sản phẩm --}}
+@extends('customer.layouts.app')
+@section('title', $product->product_name)
 
 @section('content')
-<div class="container product-detail-page">
-    {{-- Phần hiển thị ảnh & thông tin sản phẩm --}}
-    <div class="product-top-section">
-        {{-- Hình ảnh sản phẩm --}}
-        <div class="product-image">
-            <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
-        </div>
+    <div class="container product-detail-page">
+        {{-- Ảnh và thông tin sản phẩm --}}
+        <div class="product-top-section">
+            {{-- Hình ảnh --}}
+            <div class="product-image">
+                <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+            </div>
 
-        {{-- Thông tin sản phẩm --}}
-        <div class="product-info">
-            <h2>{{ $product->product_name }}</h2>
-            <p class="category">{{ $product->category->category_name ?? 'Chưa phân loại' }}</p>
-            <p class="price">{{ number_format($product->price, 0, ',', '.') }} VND</p>
-            <p class="description">{{ $product->description }}</p>
+            {{-- Thông tin sản phẩm --}}
+            <div class="product-info">
+                <h2>{{ $product->product_name }}</h2>
+                <p class="category">{{ $product->category->category_name ?? 'Chưa phân loại' }}</p>
+                <p class="price">{{ number_format($product->price, 0, ',', '.') }} VND</p>
+                <p class="description">{{ $product->description }}</p>
 
-            {{-- Form thêm sản phẩm vào giỏ --}}
-            <form action="{{ route('cart.addToCart') }}" method="POST">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->product_id }}" />
+                {{-- Thêm sản phẩm vào giỏ hàng --}}
+                <form action="{{ route('cart.addToCart') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->product_id }}" />
 
-                <div class="product-actions">
-                    <div class="quantity-box">
-                        {{-- Giảm số lượng --}}
-                        <button type="button" onclick="changeQuantity(-1)">-</button>
+                    <div class="product-actions">
+                        <div class="quantity-box">
+                            {{-- cộng --}}
+                            <button type="button" onclick="changeQuantity(-1)">-</button>
 
-                        {{-- Input số lượng --}}
-                        <input type="number" name="quantity" id="product-quantity-input" value="1" min="1" required>
+                            {{-- số lượng --}}
+                            <input type="number" name="quantity" id="product-quantity-input" value="1" min="1" required>
 
-                        {{-- Tăng số lượng --}}
-                        <button type="button" onclick="changeQuantity(1)">+</button>
+                            {{-- trừ --}}
+                            <button type="button" onclick="changeQuantity(1)">+</button>
+                        </div>
+                        {{-- action --}}
+                        <button type="submit" class="add-to-cart">Thêm vào giỏ hàng</button>
                     </div>
-
-                    {{-- Nút thêm vào giỏ --}}
-                    <button type="submit" class="add-to-cart">Thêm vào giỏ hàng</button>
+                </form>
+                <div>
+                    <button class="buy-now">Mua ngay</button>
+                    <button id="writeReviewBtn" class="btn btn-outline-primary mt-3">
+                        Viết đánh giá <i class="fas fa-comment ms-2"></i>
+                    </button>
                 </div>
-            </form>
-
-            {{-- Nút mua ngay --}}
-            <button class="buy-now">Mua ngay</button>
-
-            {{-- Nếu đã đăng nhập thì cho phép đánh giá --}}
-            @if(Auth::check())
-                <button class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                    Viết đánh giá <i class="fas fa-comment ms-2"></i>
-                </button>
-            @endif
-        </div>
-
-        {{-- Modal để viết đánh giá --}}
-        <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="reviewModalLabel">
-                            <i class="fas fa-comment"></i> Đánh giá sản phẩm
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        {{-- Gọi file con chứa form đánh giá --}}
-                        @include('customer.pages.addreview')
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+            <!-- Modal đánh giá -->
+            <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="reviewModalLabel">
+                                <i class="fas fa-comment"></i> Đánh giá sản phẩm
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Chèn form đánh giá vào modal -->
+                            @include('customer.pages.addreview')
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- PHẦN HIỂN THỊ ĐÁNH GIÁ --}}
-    <section class="product-reviews mt-5">
-        <h3>Đánh giá sản phẩm</h3>
+        <section class="product-reviews mt-5">
+            <h3 class="mb-4">Đánh giá sản phẩm</h3>
 
-        {{-- Form lọc đánh giá theo số sao --}}
-        <div class="mb-4">
-            <form method="GET">
-                <label for="rating">Lọc theo số sao:</label>
-                <select name="rating" id="rating" onchange="this.form.submit()">
-                    <option value="">Tất cả</option>
-                    @for ($i = 5; $i >= 1; $i--)
-                        <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>{{ $i }} sao</option>
-                    @endfor
-                </select>
-            </form>
-        </div>
+            <!-- Bộ lọc đánh giá -->
+            <div class="mb-3">
+                <form method="GET">
+                    <label for="rating">Lọc theo số sao:</label>
+                    <select class="form-control w-25 d-inline-block" name="rating" id="rating"
+                        onchange="this.form.submit()">
+                        <option value="">Tất cả</option>
+                        @for ($i = 5; $i >= 1; $i--)
+                            <option value="{{ $i }}" {{ request('rating') == $i ? 'selected' : '' }}>
+                                {{ str_repeat('★', $i) . str_repeat('☆', 5 - $i) }}
+                            </option>
+                        @endfor
+                    </select>
+                </form>
+            </div>
 
-        {{-- Hiển thị từng đánh giá --}}
-        @if($reviews->count())
-            @foreach($reviews as $review)
-                <div class="review-card mb-3 border p-3 rounded shadow-sm">
-                    <strong>{{ $review->user->name ?? 'Ẩn danh' }}</strong>
-                    <div>⭐ {{ $review->rating }} / 5</div>
-                    <p>{{ $review->content }}</p>
-
-                    {{-- Nếu có ảnh đánh giá --}}
-                    @if($review->photo)
-                        <div>
-                            <img src="{{ asset($review->photo) }}" alt="Ảnh đánh giá" style="max-width: 150px;">
-                        </div>
-                    @endif
-
-                    <small class="text-muted">{{ $review->created_at->format('d/m/Y H:i') }}</small>
-
-                    {{-- Hiển thị menu chỉnh sửa / xóa nếu người dùng là chủ đánh giá --}}
-                    @if(Auth::check() && Auth::id() === $review->user_id)
-                        <div class="dropdown mt-2">
-                            <button class="btn btn-sm btn-light border dropdown-toggle" type="button"
-                                id="dropdownMenuButton{{ $review->review_id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                ...
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $review->review_id }}">
-                                <li>
-                                    <a class="dropdown-item" data-bs-toggle="modal"
-                                        data-bs-target="#editReviewModal{{ $review->review_id }}">Chỉnh sửa</a>
-                                </li>
-                                <li>
-                                    <form action="{{ route('reviews.destroy', $review->review_id) }}" method="POST"
+            @if($reviews->count())
+                @foreach($reviews as $review)
+                    <div class="review-box">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>{{ $review->user->name ?? 'Ẩn danh' }}</strong>
+                                <div class="star-rating">
+                                    {{ str_repeat('★', $review->rating) . str_repeat('☆', 5 - $review->rating) }}
+                                </div>
+                            </div>
+                            @if(Auth::check() && Auth::id() === $review->user_id)
+                                <div class="actions text-right">
+                                    <i class="fa fa-pen text-primary" title="Sửa đánh giá" data-bs-toggle="modal"
+                                        data-bs-target="#editReviewModal{{ $review->review_id }}"></i>
+                                    <form action="{{ route('reviews.destroy', $review->review_id) }}" method="POST" class="d-inline"
                                         onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger">Xóa</button>
+                                        <button type="submit" class="btn btn-link p-0 m-0 text-danger"><i class="fa fa-trash"
+                                                title="Xóa đánh giá"></i></button>
                                     </form>
-                                </li>
-                            </ul>
-                        </div>
-                    @endif
-
-                    {{-- Nếu có phản hồi từ admin --}}
-                    @if($review->replies->count())
-                        <div class="admin-reply mt-3 ms-3 ps-3 border-start" style="background:#f9f9f9;">
-                            @foreach($review->replies as $reply)
-                                <div class="mb-2 p-2 bg-light rounded">
-                                    <strong class="text-primary">
-                                        {{-- Hiển thị tên hoặc "Admin" nếu user_id là 1 --}}
-                                        @if($reply->user_id == 1)
-                                            Admin
-                                        @else
-                                            {{ $reply->user->name ?? 'Người trả lời' }}
-                                        @endif
-                                    </strong>
-                                    <p>{{ $reply->content }}</p>
-                                    <small class="text-muted">{{ $reply->created_at->format('d/m/Y H:i') }}</small>
                                 </div>
-                            @endforeach
+                            @endif
                         </div>
-                    @endif
-                </div>
+                        <p class="mt-2 mb-1">{{ $review->content }}</p>
 
-                {{-- Modal chỉnh sửa đánh giá --}}
-                <div class="modal fade" id="editReviewModal{{ $review->review_id }}" tabindex="-1"
-                    aria-labelledby="editReviewModalLabel{{ $review->review_id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editReviewModalLabel{{ $review->review_id }}">Chỉnh sửa Đánh giá</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="{{ route('reviews.update', $review->review_id) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="mb-3">
-                                        <label for="rating" class="form-label">Đánh giá sao</label>
-                                        <input type="number" class="form-control" name="rating" id="rating"
-                                            value="{{ $review->rating }}" min="1" max="5" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="content" class="form-label">Nội dung đánh giá</label>
-                                        <textarea class="form-control" name="content" id="content" rows="3"
-                                            required>{{ $review->content }}</textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <button type="submit" class="btn btn-primary">Cập nhật đánh giá</button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        @if($review->photo)
+                            <img src="{{ asset($review->photo) }}" width="100" class="img-thumbnail">
+                        @endif
+
+                        <small class="text-muted d-block mt-2">{{ $review->created_at->format('d/m/Y H:i') }}</small>
+
+                {{-- PHẢN HỒI TẠM THỜI LỒNG TRONG ĐÁNH GIÁ KHÁCH HÀNG --}}
+@if (session()->has('temp_replies'))
+    @php
+        $tempReplies = collect(session('temp_replies'))
+            ->where('review_id', $review->review_id)
+            ->filter(function($r) {
+                return now()->timestamp - $r['time'] <= 900;
+            });
+    @endphp
+
+    {{-- Chỉ hiển thị nếu review này là của khách hàng (user_id != 1) và có phản hồi tạm --}}
+    @if ($review->user_id != 1 && $tempReplies->count())
+        @foreach ($tempReplies as $reply)
+            <div class="admin-reply mt-3 ms-3 ps-3 border-start border-warning rounded" style="background:#fff9e6;">
+                <div class="mb-2 p-2">
+                    <strong class="text-warning">Phản hồi từ Admin (tạm thời)</strong>
+                    <div class="star-rating text-muted">{!! str_repeat('☆', 5) !!}</div>
+                    <p class="mb-1">{{ $reply['content'] }}</p>
+                    <small class="text-muted">Gửi lúc {{ \Carbon\Carbon::createFromTimestamp($reply['time'])->format('d/m/Y H:i') }}</small>
+                </div>
+            </div>
+        @endforeach
+    @endif
+@endif
+
+                    <!-- Modal chỉnh sửa -->
+                    <div class="modal fade" id="editReviewModal{{ $review->review_id }}" tabindex="-1"
+                        aria-labelledby="editReviewModalLabel{{ $review->review_id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Chỉnh sửa Đánh giá</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{ route('reviews.update', $review->review_id) }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="mb-3">
+                                            <label class="form-label">Đánh giá sao</label>
+                                            <input type="number" name="rating" class="form-control" value="{{ $review->rating }}"
+                                                min="1" max="5" required>
+                                        </div>
+                                        @if ($review->photo)
+                                            <div class="mb-3">
+                                                <label class="form-label">Ảnh hiện tại</label><br>
+                                                <img src="{{ asset($review->photo) }}" alt="Ảnh đánh giá"
+                                                    style="max-width: 100px; border-radius: 8px;">
+                                            </div>
+                                        @endif
+
+                                        <!-- Chọn ảnh mới -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Chọn ảnh mới (tùy chọn)</label>
+                                            <input type="file" name="photo" accept="image/*" class="form-control">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Nội dung</label>
+                                            <textarea name="content" class="form-control" rows="3"
+                                                required>{{ $review->content }}</textarea>
+                                        </div>
+                                        <div class="mb-3 text-end">
+                                            <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
-        @else
-            <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
-        @endif
+                @endforeach
+            @else
+                <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
+            @endif
+        </section>
 
-        {{-- KHU VỰC SẢN PHẨM TƯƠNG TỰ --}}
+
+
+        {{-- Khu vực sản phẩm tương tự --}}
         <section class="related-products">
             <h2>SẢN PHẨM TƯƠNG TỰ</h2>
 
             <div class="product-grid">
-                {{-- Vòng lặp hiển thị sản phẩm tương tự --}}
+                {{-- Hiển thị sản phẩm tương tự --}}
                 @foreach ($similarProducts as $product)
                     <a href="{{ route('products.detail', ['slug' => $product->slug]) }}" class="product-card">
                         <div class="product-image">
+                            {{-- Ảnh sản phẩm --}}
                             <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
                         </div>
 
                         <div class="product-info">
+                            {{-- Tên sản phẩm --}}
                             <h3>{{ $product->product_name }}</h3>
+
+                            {{-- Giá sản phẩm --}}
                             <p class="price">{{ number_format($product->price, 0, ',', '.') }}₫</p>
+
+                            {{-- Mô tả ngắn --}}
                             <p class="description">{{ $product->description }}</p>
 
-                            {{-- Nút yêu thích (giả lập - cần script thêm) --}}
+                            {{-- Nút yêu thích --}}
                             <button class="like-btn">❤</button>
 
-                            {{-- Nút thêm vào giỏ --}}
+                            {{-- Nút Thêm vào giỏ --}}
                             <form method="POST" action="{{ route('cart.addToCart') }}">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->product_id }}" />
@@ -222,44 +235,61 @@
                 @endforeach
             </div>
         </section>
-
-        {{-- Nút cuộn lên đầu --}}
+        <!-- Nút trở về đầu trang -->
         <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
     </div>
-</div>
 @endsection
 
 @push('scripts')
-<script>
-    // Hàm thay đổi số lượng sản phẩm trong input
-    function changeQuantity(amount) {
-        const input = document.getElementById('product-quantity-input');
-        let value = parseInt(input.value) || 1;
-        value += amount;
-        if (value < 1) value = 1;
-        input.value = value;
-    }
-</script>
+    <script>
+        function changeQuantity(amount) {
+            const input = document.getElementById('product-quantity-input');
+            let value = parseInt(input.value) || 1;
+            value += amount;
+            if (value < 1) value = 1;
+            input.value = value;
+        }
+    </script>
 @endpush
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const btn = document.getElementById("scrollToTopBtn");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("scrollToTopBtn");
 
-        // Hiển thị nút cuộn khi trang xuống dưới
-        window.onscroll = function () {
-            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
-        };
+            // Ẩn hiện nút khi cuộn
+            window.onscroll = function () {
+                if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                    btn.style.display = "block";
+                } else {
+                    btn.style.display = "none";
+                }
+            };
 
-        // Cuộn lên đầu trang
-        btn.addEventListener("click", function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Khi nhấn nút thì cuộn lên đầu trang
+            btn.addEventListener("click", function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         });
-    });
-</script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const isLoggedIn = @json(Auth::check());
+            const reviewBtn = document.getElementById("writeReviewBtn");
+
+            reviewBtn.addEventListener("click", function () {
+                if (isLoggedIn) {
+                    // Nếu đã đăng nhập, mở modal viết đánh giá
+                    const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+                    reviewModal.show();
+                } else {
+                    // Nếu chưa đăng nhập, hiện alert hoặc modal yêu cầu đăng nhập
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Vui lòng đăng nhập',
+                        html: `Bạn cần <a href="{{ route('customer.login') }}">đăng nhập</a> hoặc <a href="http://127.0.0.1:8000/register">đăng ký</a> để viết đánh giá.`,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    </script>
 @endpush

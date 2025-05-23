@@ -175,7 +175,9 @@ Route::middleware('auth')->group(function () {
 
     // Route form phản hồi cho đánh giá
     Route::get('admin/reviews/{review}/reply', [ReviewController::class, 'replyForm'])->name('admin.reviews.reply');
-
+ Route::get('{review_id}/temp-replies', [ReviewController::class, 'getTemporaryReplies'])->name('admin.reviews.tempReplies.get');
+    Route::post('{review_id}/temp-replies', [ReviewController::class, 'addTemporaryReply'])->name('admin.reviews.tempReplies.add');
+    Route::delete('{review_id}/temp-replies', [ReviewController::class, 'deleteTemporaryReply'])->name('admin.reviews.tempReplies.delete');
     // Route xử lý phản hồi cho đánh giá
     Route::post('/admin/reviews/{review}/reply', [ReviewController::class, 'storeReply'])->name('admin.reviews.storeReply');
     Route::post('admin/review/temp-confirm', [ReviewController::class, 'tempConfirm'])->name('admin.review.tempConfirm');

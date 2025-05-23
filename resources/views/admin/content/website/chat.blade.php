@@ -13,25 +13,25 @@
 
     .messenger {
     display: flex;
-    height: 100vh;
-    margin-left: 260px;
-    /* Đẩy sang phải tránh đè sidebar */
+    height: calc(100vh);
+    /* Trừ header height */
+    margin-left: 0px;
+    /* tránh sidebar admin */
+    margin-top: 30px;
+    /* tránh header */
     }
 
-
-
-    .sidebar {
+    .chat-sidebar {
     width: 300px;
     background: #fff;
     border-right: 1px solid #e0e0e0;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
     margin-top: 70px;
-    /* thêm dòng này */
+    margin-left: 10%: 
     }
 
-
-    .sidebar h2 {
+    .chat-sidebar h2 {
     padding: 15px 20px;
     font-size: 20px;
     font-weight: 700;
@@ -201,11 +201,16 @@
     .message-box-wrapper:hover .icon-options {
     opacity: 1;
     }
+
+    .chat-list {
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    }
   </style>
 
   <div class="messenger">
     <!-- Sidebar người dùng -->
-    <aside class="sidebar">
+    <aside class="chat-sidebar">
     <h2><i class="fas fa-comment-dots me-2"></i>Đoạn chat</h2>
     <input type="text" class="search" placeholder="Tìm kiếm người dùng..." />
 
@@ -257,53 +262,53 @@
       @foreach ($chats as $chat)
       @php
       $isAdmin = $chat->user_id === Auth::id();
-      @endphp
+    @endphp
 
       <div class="{{ $isAdmin ? 'message-right' : 'message-left' }}"
       style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
 
       @if (!$isAdmin)
       <img src="https://i.pravatar.cc/40?u={{ $chat->user_id }}" class="rounded-circle" width="40" height="40" />
-      @endif
+    @endif
 
       <div class="message-box-wrapper" style="display: flex; align-items: center; position: relative;">
 
-        @if (isset($editingChatId) && $editingChatId == $chat->chat_id)
+      @if (isset($editingChatId) && $editingChatId == $chat->chat_id)
       <!-- Form sửa tin nhắn tại chỗ -->
       <form method="POST" action="{{ route('admin.chat.update', $chat->chat_id) }}"
       style="flex-grow: 1; display: flex; gap: 8px;">
       @csrf
       @method('PUT')
       <input type="text" name="description" class="form-control"
-        value="{{ old('description', $editingChatContent) }}" placeholder="Chỉnh sửa tin nhắn...">
+      value="{{ old('description', $editingChatContent) }}" placeholder="Chỉnh sửa tin nhắn...">
       <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
       <a href="{{ route('admin.chat.cancelEdit') }}" class="btn btn-secondary">Hủy</a>
       </form>
       @else
-        <div class="message-box" style="margin-left: 8px; flex-grow: 1;">
-        {{ $chat->description }}
-        <br>
-        <small>{{ $chat->created_at->diffForHumans() }}</small>
-        </div>
+      <div class="message-box" style="margin-left: 8px; flex-grow: 1;">
+      {{ $chat->description }}
+      <br>
+      <small>{{ $chat->created_at->diffForHumans() }}</small>
+      </div>
 
-        @if ($isAdmin)
+      @if ($isAdmin)
       <!-- Icon 3 chấm chỉ hiện với admin -->
       <div class="dropdown" style="position: relative;">
       <i class="fa-solid fa-ellipsis-vertical" id="dropdownMenuButton-{{ $chat->chat_id }}"
-        data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer; font-size: 20px;"></i>
+      data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer; font-size: 20px;"></i>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $chat->chat_id }}"
-        style="min-width: 120px; left: 0;">
-        <li>
-        <a href="{{ route('admin.chat.edit', $chat->chat_id) }}" class="dropdown-item">Chỉnh Sửa</a>
-        </li>
-        <li>
-        <form action="{{ route('admin.chat.delete', $chat->chat_id) }}" method="POST"
-        onsubmit="return confirm('Bạn có chắc muốn xoá tin nhắn này?');">
-        @csrf
-        @method('DELETE')
-        <button class="dropdown-item text-danger" type="submit">Xóa</button>
-        </form>
-        </li>
+      style="min-width: 120px; left: 0;">
+      <li>
+      <a href="{{ route('admin.chat.edit', $chat->chat_id) }}" class="dropdown-item">Chỉnh Sửa</a>
+      </li>
+      <li>
+      <form action="{{ route('admin.chat.delete', $chat->chat_id) }}" method="POST"
+      onsubmit="return confirm('Bạn có chắc muốn xoá tin nhắn này?');">
+      @csrf
+      @method('DELETE')
+      <button class="dropdown-item text-danger" type="submit">Xóa</button>
+      </form>
+      </li>
 
       </ul>
       </div>
@@ -314,11 +319,6 @@
       </div>
     @endforeach
     </div>
-
-
-
-
-
     <!-- Form trả lời -->
     @if ($selectedUserId)
     <!-- Form gửi tin nhắn mới -->
