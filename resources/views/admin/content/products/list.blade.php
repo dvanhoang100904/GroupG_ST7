@@ -1,15 +1,26 @@
 @extends('admin.layout.app')
+{{-- Kế thừa layout chung của admin --}}
 
 @section('page_title', 'Quản Lý Sản Phẩm')
+{{-- Thiết lập tiêu đề trang là "Quản Lý Sản Phẩm" --}}
 
 @section('content')
     <div class="container py-3">
+        {{-- Hiển thị thông báo thành công nếu có --}}
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        {{-- Thanh công cụ: Nút thêm và ô tìm kiếm --}}
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ route('products.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm sản phẩm
             </a>
 
-            <!-- Ô tìm kiếm -->
+            {{-- Ô tìm kiếm sản phẩm --}}
             <div class="search-box">
                 <form method="GET" action="{{ route('products.list') }}" class="search-form">
                     <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." value="{{ request('search') }}">
@@ -20,6 +31,14 @@
             </div>
         </div>
 
+        {{-- Nếu có từ khóa tìm kiếm nhưng không có kết quả --}}
+        @if(request('search') && $products->isEmpty())
+            <div class="alert alert-warning">
+                Không tìm thấy sản phẩm với từ khóa: <strong>{{ request('search') }}</strong>
+            </div>
+        @endif
+
+        {{-- Bảng hiển thị danh sách sản phẩm --}}
         <table class="table table-bordered table-hover">
             <thead class="table-light">
                 <tr>
@@ -32,6 +51,7 @@
                 </tr>
             </thead>
             <tbody>
+                {{-- Lặp qua danh sách sản phẩm --}}
                 @forelse ($products as $product)
                     <tr>
                         <td>{{ $product->product_id }}</td>
@@ -46,15 +66,17 @@
                         <td>{{ $product->price ?? '—' }}</td>
                         <td>{{ $product->category->category_name ?? '—' }}</td>
                         <td>
-                            <!-- Chi tiết -->
+                            {{-- Nút xem chi tiết sản phẩm --}}
                             <a href="{{ route('products.read', $product->product_id) }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> Chi tiết
                             </a>
-                            <!-- Sửa -->
+
+                            {{-- Nút chỉnh sửa sản phẩm --}}
                             <a href="{{ route('products.edit', $product->product_id) }}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Sửa
                             </a>
-                            <!-- Xóa -->
+
+                            {{-- Form xóa sản phẩm --}}
                             <form action="{{ route('products.destroy', $product->product_id) }}" method="POST"
                                 class="d-inline-block"
                                 onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
@@ -67,6 +89,7 @@
                         </td>
                     </tr>
                 @empty
+                    {{-- Nếu không có sản phẩm nào --}}
                     <tr>
                         <td colspan="6" class="text-center">Không có sản phẩm nào.</td>
                     </tr>
@@ -74,7 +97,7 @@
             </tbody>
         </table>
 
-        <!-- Phân trang -->
+        {{-- Phân trang danh sách sản phẩm --}}
         @include('admin.layout.pagination', ['paginator' => $products])
     </div>
 @endsection

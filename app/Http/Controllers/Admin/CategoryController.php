@@ -20,7 +20,7 @@ class CategoryController extends Controller
             return $query->where('category_name', 'like', "%{$search}%");
         })
             ->orderBy('category_id', 'asc')
-            ->paginate(3);
+            ->paginate(4);
 
         $categories->appends(['search' => $search]);
 
@@ -37,7 +37,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_name' => 'required|string|max:100',
+            'category_name' => 'required|string|max:100|unique:categories,category_name',
             'slug' => 'nullable|string|max:100|unique:categories,slug',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
@@ -52,15 +52,12 @@ class CategoryController extends Controller
 
         $category->description = $request->description;
 
-        // Tạo thư mục theo slug trong public/images nếu chưa tồn tại
-        $folderPath = public_path('images/' . $slug);
-        if (!File::exists($folderPath)) {
-            File::makeDirectory($folderPath, 0755, true);
-        }
-
         // Nếu người dùng có upload ảnh, lưu vào storage như cũ
         if ($request->hasFile('image')) {
-            $category->image = $request->file('image')->store('images/categories', 'public');
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('img_category'), $imageName);
+            $category->image = 'img_category/' . $imageName;
         }
 
         $category->save();
@@ -97,7 +94,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'category_name' => 'required|string|max:100',
+            'category_name' => 'required|string|max:100|unique:categories,category_name,' . $category->category_id . ',category_id',
             'slug' => 'nullable|string|max:100|unique:categories,slug,' . $category->category_id . ',category_id',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
@@ -125,9 +122,9 @@ class CategoryController extends Controller
             }
 
             $image = $request->file('image');
-            $imageName = 'thumbnail.' . $image->getClientOriginalExtension();
-            $image->move($folderPath, $imageName);
-            $category->image = 'images/' . $slug . '/' . $imageName;
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('img_category'), $imageName);
+            $category->image = 'img_category/' . $imageName;
         }
 
         $category->save();
