@@ -84,7 +84,9 @@
         <li class="dropdown-item text-muted">Không có thông báo nào</li>
     @endforelse
     <li><hr class="dropdown-divider"></li>
-    
+    <li class="text-center">
+        <a href="{{ route('notifications.index') }}" class="dropdown-item text-primary">Xem tất cả</a>
+    </li>
 </ul>
 
         </div>
@@ -103,17 +105,11 @@
             @if (Auth::user()->role_id === 2)
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
-                    id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img 
-                                src="{{ asset(Auth::user()->avatar ?: 'images/logo.jpg') }}" 
-                                alt="Avatar" 
-                                class="rounded-circle me-2" 
-                                width="32" 
-                                height="32">
-
+                        id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="{{ Auth::user()->avatar ?? 'avatar.png' }}" alt="Avatar" class="rounded-circle me-2"
+                            width="32" height="32">
                         <span class="text-light">{{ Auth::user()->name }}</span>
                     </a>
-
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li>
                             <a class="dropdown-item" href="{{ route('customer.profile.edit') }}">
@@ -128,12 +124,9 @@
                             </a>
                         </li>
                         <!-- Thêm nút quản lý sổ địa chỉ ngay dưới Lịch sử mua hàng -->
-                       
-                        <li>
-                            <a class="dropdown-item" href="{{ route('shipping_address.index') }}">
-                                <i class="fas fa-map-marker-alt me-2"></i> Sổ địa chỉ
-                            </a>
-                        </li>
+
+
+                        
                         <li>
                             <hr class="dropdown-divider">
                         </li>

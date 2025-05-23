@@ -66,7 +66,7 @@ class ReviewController extends Controller
             return redirect()->back()->with('error', 'Đã xảy ra lỗi khi lưu đánh giá.');
         }
     }
-//API
+    //API
     public function tempConfirm(Request $request)
     {
         $reviewId = $request->input('review_id');
@@ -157,34 +157,41 @@ class ReviewController extends Controller
     }
     public function index(Request $request)
     {
-        $query = Review::with(['user', 'chat']);
+        $query = Review::with(['user', 'chat'])
+            ->whereNotNull('rating')
+            ->where('rating', '>', 0)
+            ->whereHas('user', function ($q) {
+                $q->where('role_id', '!=', 1);
+            });
 
-        // Lọc phân loại nếu có
         if ($request->filled('type') && in_array($request->type, ['review', 'chat'])) {
             $query->where('type', $request->type);
         }
 
-        // Lọc theo số sao nếu có
         if ($request->filled('rating') && is_numeric($request->rating)) {
             $query->where('rating', $request->rating);
         }
 
-        $reviews = $query->orderBy('created_at', 'desc')->paginate(10);
+        // Lấy dữ liệu phân trang và giữ query string
+        $reviews = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->all());
 
-        // Lấy danh sách review đã tạm xác nhận (trong session)
+        // Xử lý session tempConfirmed như bạn đã có
         $confirmed = session('temp_confirmed_reviews', []);
         $now = now();
 
-        // Lọc những review 
         $validConfirmed = collect($confirmed)->filter(function ($expireTime) use ($now) {
             return $now->lt(\Carbon\Carbon::parse($expireTime));
         })->keys()->toArray();
 
+        // Truyền luôn các tham số lọc về view để bạn có thể giữ trạng thái filter trên form
         return view('admin.content.website.website', [
             'reviews' => $reviews,
-            'tempConfirmedIds' => $validConfirmed
+            'tempConfirmedIds' => $validConfirmed,
+            'filters' => $request->only(['rating', 'type']),
         ]);
     }
+
+
     public function show($reviewId)
     {
         $review = Review::with(['user', 'product'])->findOrFail($reviewId);
@@ -193,25 +200,67 @@ class ReviewController extends Controller
     }
     public function replyForm($reviewId)
     {
-        $review = Review::with('user')->findOrFail($reviewId);
+        $review = Review::with('user', 'replies.user')->findOrFail($reviewId);
         return view('admin.content.website.reply', compact('review'));
     }
+
     public function storeReply(Request $request, $reviewId)
     {
         $request->validate([
             'reply_content' => 'required|string|max:1000',
         ]);
 
-        $review = Review::findOrFail($reviewId);
+        $review = Review::with('replies.user')->findOrFail($reviewId);
+
 
         Review::create([
-            'user_id' => auth()->id(), // hoặc cố định admin id
+            'user_id' => auth()->id(),
             'product_id' => $review->product_id,
-            'chat_id' => $review->id, // gán chat_id để làm liên kết mềm
+            'chat_id' => $review->chat_id,
             'type' => 'reply',
             'content' => $request->reply_content,
+            'parent_id' => $review->review_id, // đây là điểm then chốt
         ]);
 
-        return response()->json(['message' => 'Phản hồi đã được gửi!']);
+
+        return redirect()->route('admin.reviews.reply', $reviewId)->with('success', 'Phản hồi đã được gửi!');
+    }
+    // Lấy danh sách reply tạm của review (session)
+    public function getTemporaryReplies($review_id)
+    {
+        $tempReplies = session('temp_replies', []);
+        $repliesForReview = array_filter($tempReplies, fn($r) => $r['review_id'] == $review_id);
+        return response()->json(array_values($repliesForReview));
+    }
+
+    // Thêm reply tạm
+    public function addTemporaryReply(Request $request, $review_id)
+    {
+        $content = $request->input('content');
+        if (!$content) {
+            return response()->json(['error' => 'Nội dung không được để trống'], 422);
+        }
+
+        $tempReplies = session('temp_replies', []);
+        $tempReplies[] = [
+            'review_id' => $review_id,
+            'content' => $content,
+            'time' => now()->timestamp
+        ];
+        session(['temp_replies' => $tempReplies]);
+        session()->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    // Xóa reply tạm (sau khi gửi thành công)
+    public function deleteTemporaryReply(Request $request, $review_id)
+    {
+        $tempReplies = session('temp_replies', []);
+        $tempReplies = array_filter($tempReplies, fn($r) => $r['review_id'] != $review_id);
+        session(['temp_replies' => $tempReplies]);
+        session()->save();
+
+        return response()->json(['success' => true]);
     }
 }

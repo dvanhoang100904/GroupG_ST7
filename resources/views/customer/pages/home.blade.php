@@ -51,119 +51,133 @@
             </div>
         </section>
         <!-- Nút trở về đầu trang -->
-    <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
+        <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
     </div>
- <!-- Nút mở chat -->
-<div id="chat-toggle" style="position: fixed; bottom: 90px; right: 30px; z-index: 999;">
-    <button class="btn btn-primary rounded-circle" style="width: 60px; height: 60px;" onclick="toggleChat()">
-        <i class="far fa-comment-dots"></i>
-    </button>
-</div>
+    <!-- Nút mở chat -->
+    <div id="open-chat-button"
+        style="position: fixed; bottom: 0; right: 0; background: #e40000; color: white; padding: 10px; border-radius: 12px 0 0 0; cursor: pointer; font-family: Arial; z-index: 9999;"
+        onclick="toggleChatBox(true)">
+        💬 Chat với nhân viên tư vấn
+    </div>
 
-<!-- Form Chat (ẩn ban đầu) -->
-<div id="chat-box" style="display: none; position: fixed; bottom: 90px; right: 20px; width: 320px; z-index: 9999; font-family: Arial, sans-serif;">
-    @auth
-        @if (Auth::user()->role_id === 2)
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <span>Hỗ trợ khách hàng</span>
-                    <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="toggleChat()"></button>
-                </div>
-                <div class="card-body p-2" style="max-height: 400px; overflow-y: auto;">
-                    <!-- Danh sách tin nhắn -->
-                    <div class="chat-messages" style="max-height: 250px; overflow-y: auto; margin-bottom: 10px;">
+    <!-- Chat box -->
+    <div id="chat-box"
+        style="display: none; position: fixed; bottom: 0; right: 0; width: 360px; height: 600px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); z-index: 10000; font-family: Arial, sans-serif; display: flex; flex-direction: column; background: white;">
+
+        <!-- Header -->
+        <div style="background-color: #e40000; color: white; padding: 10px; display: flex; align-items: center;">
+            <img src="https://i.imgur.com/N5uCbDu.png" alt="avatar"
+                style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
+            <div style="flex-grow: 1;">
+                <strong>Hỗ trợ khách hàng</strong><br>
+                <span style="font-size: 12px;">Chat trực tiếp tại Website</span>
+            </div>
+            <div style="cursor: pointer;" onclick="toggleChatBox(false)">❌</div>
+        </div>
+
+        @auth
+            @if (Auth::user()->role_id === 2)
+                <!-- Nội dung chat -->
+                <div style="flex: 1; display: flex; flex-direction: column;">
+
+                    <!-- Tin nhắn -->
+                    <div class="chat-messages" id="chatMessages"
+                        style="flex: none; height: 300px; padding: 10px; overflow-y: auto; background: #f7f7f7;">
                         @foreach ($chats as $chat)
                             @if ($chat->user_id === auth()->id())
-                                <!-- Tin nhắn khách hàng -->
                                 <div style="text-align: right; margin-bottom: 8px;">
-                                    <div style="display: inline-block; background-color: #006AFF; color: white; padding: 8px 12px; border-radius: 18px 18px 0 18px; max-width: 75%;">
+                                    <div
+                                        style="display: inline-block; background-color: #006AFF; color: white; padding: 8px 12px; border-radius: 18px 18px 0 18px; max-width: 75%;">
                                         {{ $chat->description }}
-                                        <div style="font-size: 10px; color: #d9d9d9; text-align: right;">{{ $chat->created_at->format('H:i') }}</div>
+                                        <div style="font-size: 10px; color: #d9d9d9; text-align: right;">
+                                            {{ $chat->created_at->format('H:i') }}
+                                        </div>
                                     </div>
                                 </div>
                             @else
-                                <!-- Tin nhắn admin -->
                                 <div style="text-align: left; margin-bottom: 8px;">
-                                    <div style="display: inline-block; background-color: #e4e6eb; color: black; padding: 8px 12px; border-radius: 18px 18px 18px 0; max-width: 75%;">
+                                    <div
+                                        style="display: inline-block; background-color: #e4e6eb; color: black; padding: 8px 12px; border-radius: 18px 18px 18px 0; max-width: 30 %;">
                                         {{ $chat->description }}
-                                        <div style="font-size: 10px; color: #888; text-align: right;">{{ $chat->created_at->format('H:i') }}</div>
+                                        <div style="font-size: 10px; color: #888; text-align: right;">
+                                            {{ $chat->created_at->format('H:i') }}
+                                        </div>
                                     </div>
                                 </div>
                             @endif
                         @endforeach
                     </div>
 
-                    <!-- Form gửi tin nhắn -->
-                    <form action="{{ route('customer.chats.store') }}" method="POST">
+                    <!-- Form cố định -->
+                    <form action="{{ route('customer.chats.store') }}" method="POST" enctype="multipart/form-data"
+                        style="border-top: 1px solid #ccc; background: white;">
                         @csrf
-                        <div class="mb-2">
-                            <textarea name="message" class="form-control" rows="2" placeholder="Nhập nội dung..." required></textarea>
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-success btn-sm">Gửi</button>
+                        <div style="display: flex; align-items: center; padding: 2px 5px; gap: 5px;">
+                            <label for="chatFile" style="cursor: pointer; font-size: 16px;">
+                                📎
+                            </label>
+                            <input id="chatFile" name="file" type="file" accept="image/*" style="display: none;">
+                            <input name="message" id="chatInput" type="text" placeholder="Nhập nội dung..." required
+                                style="flex: 1; border: none; outline: none; padding: 4px 6px; font-size: 12px;">
+                            <button type="submit"
+                                style="background: none; border: none; color: #e40000; font-size: 16px;">📤</button>
                         </div>
                     </form>
                 </div>
-            </div>
+            @endif
+        @endauth
 
-            <!-- Auto scroll -->
-            <script>
-                const chatMessages = document.querySelector('.chat-messages');
-                if (chatMessages) {
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }
-            </script>
-        @endif
-    @endauth
-
-    @guest
-        <div class="card border-danger shadow">
-            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-                <span>Vui lòng đăng nhập</span>
-                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="toggleChat()"></button>
+        @guest
+            <div class="text-center p-3">
+                <p>Vui lòng <a href="{{ route('customer.login') }}">đăng nhập</a> để sử dụng chức năng chat.</p>
             </div>
-            <div class="card-body text-center">
-                <p>Vui lòng <a href="{{ route('customer.login') }}">đăng nhập</a> hoặc đăng ký để sử dụng chức năng chat.</p>
-            </div>
-        </div>
-    @endguest
-</div>
+        @endguest
+    </div>
 
-<!-- Script toggle chat -->
-<script>
-    function toggleChat() {
-        const chatBox = document.getElementById("chat-box");
-        if (chatBox.style.display === "none") {
-            chatBox.style.display = "block";
-        } else {
-            chatBox.style.display = "none";
+    <!-- Script toggle + scroll -->
+    <script>
+        function toggleChatBox(show) {
+            const chatBox = document.getElementById("chat-box");
+            const openButton = document.getElementById("open-chat-button");
+            if (show) {
+                chatBox.style.display = "flex";
+                openButton.style.display = "none";
+
+                // Scroll xuống cuối
+                setTimeout(() => {
+                    const chatMessages = document.getElementById("chatMessages");
+                    if (chatMessages) {
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                }, 100);
+            } else {
+                chatBox.style.display = "none";
+                openButton.style.display = "block";
+            }
         }
-    }
-</script>
-
+    </script>
 
 @endsection
-{{-- Kết thúc section content --}}
+
 
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const btn = document.getElementById("scrollToTopBtn");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("scrollToTopBtn");
 
-        // Ẩn hiện nút khi cuộn
-        window.onscroll = function () {
-            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
-        };
+            // Ẩn hiện nút khi cuộn
+            window.onscroll = function () {
+                if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                    btn.style.display = "block";
+                } else {
+                    btn.style.display = "none";
+                }
+            };
 
-        // Khi nhấn nút thì cuộn lên đầu trang
-        btn.addEventListener("click", function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Khi nhấn nút thì cuộn lên đầu trang
+            btn.addEventListener("click", function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         });
-    });
-</script>
+    </script>
 @endpush
-
