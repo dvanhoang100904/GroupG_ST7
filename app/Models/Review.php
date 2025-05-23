@@ -26,8 +26,9 @@ class Review extends Model
     }
     public function replies()
     {
-        return $this->hasMany(Review::class, 'parent_id')->where('type', 'reply');
+        return $this->hasMany(Review::class, 'parent_id')->where('type', 'reply')->with('user');
     }
+
 
 
     public function product()
