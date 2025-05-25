@@ -37,9 +37,9 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_name' => 'required|string|max:100|unique:categories,category_name',
-            'slug' => 'nullable|string|max:100|unique:categories,slug',
-            'description' => 'nullable|string',
+            'category_name' => 'required|string|min:6|max:30|unique:categories,category_name',
+            'slug' => 'nullable|string|min:2|max:100|unique:categories,slug',
+            'description' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
         ]);
 
