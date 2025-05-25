@@ -157,9 +157,23 @@ class ProductsController extends Controller
     /**
      * Xóa sản phẩm
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
+        // Truy vấn chính xác theo cột product_id
+        $product = Product::where('product_id', $id)->first();
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sản phẩm không tồn tại hoặc đã bị xóa.'
+            ]);
+        }
+
         $product->delete();
-        return redirect()->route('products.list')->with('success', 'Sản phẩm đã được xóa.');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sản phẩm đã được xóa.'
+        ]);
     }
 }

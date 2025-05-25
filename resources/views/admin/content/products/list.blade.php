@@ -76,16 +76,48 @@
                                 <i class="fas fa-edit"></i> Sửa
                             </a>
 
-                            {{-- Form xóa sản phẩm --}}
-                            <form action="{{ route('products.destroy', $product->product_id) }}" method="POST"
-                                class="d-inline-block"
-                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i> Xóa
-                                </button>
-                            </form>
+                        {{-- Nút xóa sản phẩm bằng AJAX --}}
+                        <button class="btn btn-danger btn-sm btn-delete"
+                                data-id="{{ $product->product_id }}">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+
+                        {{-- Script xử lý xóa AJAX --}}
+                        <script>
+                            const deleteUrlTemplate = "{{ route('products.destroy', ['id' => ':id']) }}";
+
+                            document.querySelectorAll('.btn-delete').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+
+                                    const id = this.getAttribute('data-id');
+                                    const url = deleteUrlTemplate.replace(':id', id);
+
+                                    fetch(url, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            location.reload();
+                                        } else {
+                                            alert(data.message);
+                                            location.reload();
+                                        }
+                                    })
+                                    .catch(error => {
+                                        alert('Lỗi khi xóa sản phẩm');
+                                        console.error(error);
+                                    });
+                                });
+                            });
+                        </script>
+
                         </td>
                     </tr>
                 @empty
