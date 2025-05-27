@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\Product;
 
 class CartController extends Controller
 {
@@ -63,6 +64,17 @@ class CartController extends Controller
         // Mặc định số lượng là 1
         $quantity = $request->input('quantity', 1);
 
+        // Kiểm tra hợp lệ số lượng
+        if ($quantity <= 0) {
+            return back()->with('error', 'Số lượng không hợp lệ.');
+        }
+
+        // Kiểm tra sản phẩm có tồn tại và còn hàng không
+        $product = Product::find($product_id);
+        if (!$product) {
+            return back()->with('error', 'Sản phẩm không tồn tại.');
+        }
+
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user_id = auth()->check() ? auth()->id() : null;
         $session_id = session()->getId();
@@ -116,6 +128,6 @@ class CartController extends Controller
         }
 
         // Redirect lại trang giỏ hàng
-        return redirect()->route('cart.list');
+        return redirect()->route('cart.list')->with('success', 'Đã thêm sản phẩm vào giỏ hàng.');
     }
 }
