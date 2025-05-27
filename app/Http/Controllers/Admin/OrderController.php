@@ -25,15 +25,21 @@ class OrderController extends Controller
         if ($request->has('q')) {
             $search = $request->q;
             // Tìm kiếm theo order_id, hoặc thông tin người dùng (tên, email)
-            $query->where('order_id', 'LIKE', "%$search%")
-                ->orWhereHas('user', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%")
-                        ->orWhere('email', 'LIKE', "%$search%");
-                });
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('email', 'LIKE', "%{$search}%");
+                    });
+            });
         }
 
         // Lấy các đơn hàng mới nhất có phân trang và giữ lại từ khóa tìm kiếm
         $orders = $query->latest()->paginate(self::PER_PAGES)->appends($request->only('q'));
+
+        if ($orders->isEmpty()) {
+            return back()->with('error', 'Không tìm thấy đơn hàng nào phù hợp với từ khóa "' . $search . '".');
+        }
 
         // Trả về view danh sách đơn hàng
         return view('admin.content.order.list', compact('orders'));
@@ -46,6 +52,11 @@ class OrderController extends Controller
     {
         // Tìm đơn hàng theo id
         $order = Order::find($id);
+
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
         // Trả về view chi tiết đơn hàng
         return view('admin.content.order.detail', compact('order'));
     }
@@ -57,6 +68,10 @@ class OrderController extends Controller
     {
         // Tìm đơn hàng theo id
         $order = Order::find($id);
+
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
 
         // Xóa các chi tiết đơn hàng liên quan
         $order->orderDetails()->delete();
@@ -84,6 +99,10 @@ class OrderController extends Controller
         // Tìm đơn hàng theo id
         $order = Order::find($id);
 
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
         // Trả về view chỉnh sửa đơn hàng
         return view('admin.content.order.edit', compact('order'));
     }
@@ -95,6 +114,10 @@ class OrderController extends Controller
     {
         // Tìm đơn hàng theo id
         $order = Order::find($id);
+
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Không thể cập nhật: đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
 
         // Cập nhật trạng thái đơn hàng
         $order->status = $request->status;

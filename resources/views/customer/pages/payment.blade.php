@@ -3,7 +3,7 @@
 @section('content')
     <section class="bg-light py-5">
         <div class="container">
-            <form action="{{ route('order.placeOrder') }}" method="POST">
+            <form id="orderForm" action="{{ route('order.placeOrder') }}" method="POST">
                 @csrf
                 <div class="row">
                     <div class="col-xl-8 col-lg-8 mb-4">
@@ -104,7 +104,7 @@
                                     <a href="{{ route('cart.list') }}" class="btn btn-outline-secondary">
                                         <i class="fa fa-arrow-left me-1"></i> Quay lại giỏ hàng
                                     </a>
-                                    <button type="submit" class="btn btn-success">Thanh toán</button>
+                                    <button type="submit" class="btn btn-success" id="submitBtn">Thanh toán</button>
                                 </div>
                             </div>
                         </div>
@@ -138,3 +138,24 @@
         </div>
     </section>
 @endsection
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('orderForm');
+            const btn = document.getElementById('submitBtn');
+            if (!form || !btn) return;
+
+            let isSubmitting = false; // kiểm soát submit
+
+            form.addEventListener('submit', (e) => {
+                if (isSubmitting) {
+                    e.preventDefault(); // ngăn submit lần 2
+                    return;
+                }
+                isSubmitting = true;
+                btn.disabled = true;
+                btn.innerText = 'Đang xử lý...';
+            });
+        });
+    </script>
+@endpush

@@ -38,6 +38,20 @@
             </h2>
         </div>
 
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
         <div class="table-responsive mt-3">
             <table class="table table-bordered text-center align-middle">
                 <thead class="table-light">
@@ -52,14 +66,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($orders as $order)
+                    @forelse  ($orders as $order)
                         <tr>
                             {{-- id --}}
                             <td class="text-center fw-bold">#{{ $order->order_id }}</td>
                             {{-- name --}}
-                            <td>{{ $order->shippingAddress->name }}
+                            <td>{{ $order->shippingAddress->name ?? 'Chưa cập nhật' }}
                                 <br>
-                                <small class="text-muted">(Người Đặt: {{ $order->user->name }})</small>
+                                <small class="text-muted">(Người Đặt: {{ $order->user->name ?? 'Không rõ' }})</small>
                             </td>
                             {{-- total --}}
                             <td>{{ number_format($order->total_price, 0, ',', '.') }} <sup>VND</sup></td>
@@ -70,11 +84,11 @@
                                 </span>
                             </td>
                             {{-- payment method --}}
-                            <td>{{ $order->payment->method }}</td>
+                            <td>{{ $order->payment->method ?? 'Chưa có' }}</td>
                             {{-- phone --}}
-                            <td class="text-center">{{ $order->shippingAddress->phone }}
+                            <td class="text-center">{{ $order->shippingAddress->phone ?? '-' }}
                                 <br>
-                                <small class="text-muted">(SĐT Người Đặt: {{ $order->user->phone }})</small>
+                                <small class="text-muted">(SĐT Người Đặt: {{ $order->user->phone ?? '-' }})</small>
                             </td>
 
                             {{-- action --}}
@@ -102,11 +116,15 @@
                                 </form>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center">Chưa có đơn hàng nào</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
         <!-- Phân trang -->
-        {!! $orders->withQueryString()->links('pagination::bootstrap-5') !!}
+        @include('admin.layout.pagination', ['paginator' => $orders])
     </main>
 @endsection

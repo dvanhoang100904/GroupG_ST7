@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddToCartRequest;
+use App\Http\Requests\RemoveFromCartRequest;
+use App\Http\Requests\UpdateCartRequest;
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\Product;
 
 class CartController extends Controller
 {
@@ -25,7 +29,8 @@ class CartController extends Controller
                     $q->where('user_id', $user_id);
                 } else {
                     // Nếu không có người dùng, tìm giỏ hàng của khách theo session
-                    $q->where('session_id', $session_id);
+                    $q->where('session_id', $session_id)
+                        ->whereNull('user_id');
                 }
             })->first();
 
@@ -37,10 +42,14 @@ class CartController extends Controller
             ]);
         }
 
+        // Lọc bỏ cartItem không còn product
+        $cartItems = $cart->cartItems->filter(function ($item) {
+            return $item->product !== null;
+        });
+
         // Lấy các item trong giỏ hàng và tính tổng giá
-        $cartItems = $cart->cartItems;
         $totalPrice = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return $item->product ? $item->product->price * $item->quantity : 0;
         });
 
         // Trả về trang giỏ hàng với các sản phẩm và tổng giá
@@ -50,13 +59,24 @@ class CartController extends Controller
     /**
      * Thêm sản phẩm vào giỏ hàng.
      */
-    public function addToCart(Request $request)
+    public function addToCart(AddToCartRequest $request)
     {
         // Lấy thông tin sản phẩm và số lượng từ request
         $product_id = $request->input('product_id');
 
         // Mặc định số lượng là 1
         $quantity = $request->input('quantity', 1);
+
+        // Kiểm tra hợp lệ số lượng
+        if ($quantity <= 0) {
+            return back()->with('error', 'Số lượng không hợp lệ.');
+        }
+
+        // Kiểm tra sản phẩm có tồn tại và còn hàng không
+        $product = Product::find($product_id);
+        if (!$product) {
+            return back()->with('error', 'Sản phẩm không tồn tại.');
+        }
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user_id = auth()->check() ? auth()->id() : null;
@@ -111,13 +131,13 @@ class CartController extends Controller
         }
 
         // Redirect lại trang giỏ hàng
-        return redirect()->route('cart.list');
+        return redirect()->route('cart.list')->with('success', 'Đã thêm sản phẩm vào giỏ hàng.');
     }
 
     /**
      * Xóa sản phẩm khỏi giỏ hàng.
      */
-    public function removeFromCart(Request $request)
+    public function removeFromCart(RemoveFromCartRequest $request)
     {
         // Lấy product_id sản phẩm cần xóa
         $product_id = $request->input('product_id');
@@ -145,13 +165,16 @@ class CartController extends Controller
                 // Xóa sản phẩm khỏi giỏ hàng
                 $cartItem->delete();
 
+                // Reload lại quan hệ cartItems để tính tổng đúng
+                $cart->load('cartItems.product');
+
                 // Tính lại tổng tiền của giỏ hàng
                 $totalPrice = $cart->cartItems->sum(function ($item) {
                     return $item->product->price * $item->quantity;
                 });
 
                 // Redirect lại trang giỏ hàng và truyền tổng giá mới
-                return redirect()->route('cart.list')->with('totalPrice', $totalPrice);
+                return redirect()->route('cart.list')->with('success', 'Đã xóa sản phẩm khỏi giỏ hàng.')->with('totalPrice', $totalPrice);
             }
         }
 
@@ -161,16 +184,11 @@ class CartController extends Controller
     /**
      * Cập nhật số lượng sản phẩm trong giỏ hàng.
      */
-    public function updateCart(Request $request)
+    public function updateCart(UpdateCartRequest $request)
     {
         // Lấy thông tin sản phẩm và số lượng mới từ request
         $product_id = $request->input('product_id');
         $quantity = $request->input('quantity');
-
-        // Kiểm tra số lượng phải lớn hơn 0
-        if ($quantity < 1) {
-            return back()->withErrors('Số lượng phải lớn hơn 0!');
-        }
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user_id = auth()->check() ? auth()->id() : null;

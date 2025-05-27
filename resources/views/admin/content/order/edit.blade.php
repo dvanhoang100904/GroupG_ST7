@@ -17,6 +17,7 @@
                 </ol>
             </nav>
             <h3 class="mb-4">Cập Nhật Đơn Hàng #1001</h3>
+
             <form action="{{ route('order.update', $order->order_id) }}?page={{ request()->get('page') }}" method="POST">
                 @csrf
                 @method('PUT')
