@@ -25,7 +25,8 @@ class CartController extends Controller
                     $q->where('user_id', $user_id);
                 } else {
                     // Nếu không có người dùng, tìm giỏ hàng của khách theo session
-                    $q->where('session_id', $session_id);
+                    $q->where('session_id', $session_id)
+                        ->whereNull('user_id');
                 }
             })->first();
 
@@ -37,10 +38,14 @@ class CartController extends Controller
             ]);
         }
 
+        // Lọc bỏ cartItem không còn product
+        $cartItems = $cart->cartItems->filter(function ($item) {
+            return $item->product !== null;
+        });
+
         // Lấy các item trong giỏ hàng và tính tổng giá
-        $cartItems = $cart->cartItems;
         $totalPrice = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return $item->product ? $item->product->price * $item->quantity : 0;
         });
 
         // Trả về trang giỏ hàng với các sản phẩm và tổng giá
