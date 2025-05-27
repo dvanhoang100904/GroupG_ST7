@@ -27,7 +27,10 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             OrderDetailSeeder::class,
             PaymentSeeder::class,
-            CartSeeder::class
+            CartSeeder::class,
+            SlideSeeder::class,
+            NotificationSeeder::class,
+            ReviewSeeder::class
         ]);
     }
 }

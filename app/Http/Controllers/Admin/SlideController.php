@@ -9,11 +9,19 @@ use App\Models\Slide;
 class SlideController extends Controller
 {
     // Danh sách slide
-    public function index()
+    public function index(Request $request)
     {
-        $slides = Slide::latest()->paginate(4); // số lượng mỗi trang, ví dụ 10
+        // Lấy giá trị tìm kiếm từ request
+        $search = $request->input('search');
+
+        // Lọc theo tên slide nếu có tìm kiếm
+        $slides = Slide::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })->oldest()->paginate(2);
+
         return view('admin.content.slide.list', compact('slides'));
     }
+
 
 
     // Hiển thị form tạo slide mới
@@ -27,22 +35,23 @@ class SlideController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
-            'image' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image' => 'required|image|mimes:jpg,jpeg,png,gif', //|max:2048 neu muốn giới hạn
         ]);
 
         $slide = new Slide();
         $slide->name = $request->name;
 
         if ($request->hasFile('image')) {
-            $slide->image = $request->file('image')->store('images/slides', 'public');
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path('storage/images/slides'), $filename);
+            $slide->image = 'images/slides/' . $filename;
         }
 
-        $slide->created_at = now(); // nếu bạn muốn tự gán, còn không thì Laravel tự làm
+        $slide->created_at = now();
         $slide->save();
 
         return redirect()->route('slide.index')->with('success', 'Thêm slide thành công!');
     }
-
 
     // Xem chi tiết slide
     public function read($id)
@@ -65,17 +74,23 @@ class SlideController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $slide->name = $request->name;
 
-        // Nếu có ảnh mới thì xử lý
         if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/slides'), $imageName);
-            $slide->image = 'uploads/slides/' . $imageName;
+            if ($slide->image) {
+                $oldImagePath = public_path('storage/' . $slide->image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+            $filename = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path('storage/images/slides'), $filename);
+            $slide->image = 'images/slides/' . $filename;
         }
+
 
         $slide->save();
 
@@ -89,11 +104,32 @@ class SlideController extends Controller
 
         // Xóa file ảnh nếu cần
         if (file_exists(public_path($slide->image))) {
-            unlink(public_path($slide->image));
+            $oldImagePath = public_path('storage/' . $slide->image);
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
         }
 
         $slide->delete();
 
         return redirect()->route('slide.index')->with('success', 'Xóa slide thành công.');
+    }
+
+
+    // chưc năng hiện thị 
+    public function toggleVisibility($id)
+    {
+        $slide = Slide::findOrFail($id);
+
+        if (!$slide->is_visible) {
+            // Nếu đang ẩn và được nhấn để hiện, thì ẩn tất cả slide khác
+            Slide::where('slide_id', '!=', $id)->update(['is_visible' => false]);
+        }
+
+        // Toggle trạng thái
+        $slide->is_visible = !$slide->is_visible;
+        $slide->save();
+
+        return redirect()->route('slide.index')->with('success', 'Cập nhật trạng thái hiển thị slide thành công.');
     }
 }

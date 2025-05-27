@@ -8,6 +8,15 @@
             <a href="{{ route('category.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm danh mục
             </a>
+                <!-- Ô tìm kiếm -->
+        <div class="search-box">
+            <form method="GET" action="{{ route('category.index') }}" class="search-form">
+                <input type="text" name="search" placeholder="Tìm kiếm danh mục..." value="{{ request('search') }}">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
         </div>
 
         <table class="table table-bordered table-hover">
@@ -54,6 +63,6 @@
         </table>
 
         <!-- Phân trang -->
-
+        @include('admin.layout.pagination', ['paginator' => $categories])
     </div>
 @endsection

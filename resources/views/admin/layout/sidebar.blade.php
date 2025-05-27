@@ -9,13 +9,15 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('users.list') }}">
                 <img src="{{ asset('images/users.png') }}" class="icon" />
                 <p>Người dùng</p>
             </a>
         </li>
+       
+
         <li>
-            <a href="#">
+            <a href="{{ route('products.list') }}">
                 <img src="{{ asset('images/products.png') }}" class="icon" />
                 <p>Sản phẩm</p>
             </a>
@@ -33,7 +35,7 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('admin.website') }}">
                 <img src="{{ asset('images/website.png') }}" class="icon" />
                 <p>Website</p>
             </a>

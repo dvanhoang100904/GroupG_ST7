@@ -75,6 +75,9 @@ class LoginController extends Controller
         }
 
         // Nếu thông tin đăng nhập sai, quay lại trang đăng nhập
-        return redirect()->route('customer.login')->withErrors('Email hoặc Mật khẩu không chính xác');
+        return redirect()->route('customer.login')->withErrors([
+            'login_failed' => 'Email hoặc Mật khẩu không chính xác',
+        ])->withInput($request->only('email'));
+
     }
 }

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('slide_id');
             $table->string('name');
             $table->string('image');
+            $table->boolean('is_visible')->default(false); // trạng thái hiện - không hiện  
             $table->timestamps();
         });
     }
