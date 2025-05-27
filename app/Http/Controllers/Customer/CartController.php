@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RemoveFromCartRequest;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
@@ -134,7 +135,7 @@ class CartController extends Controller
     /**
      * Xóa sản phẩm khỏi giỏ hàng.
      */
-    public function removeFromCart(Request $request)
+    public function removeFromCart(RemoveFromCartRequest $request)
     {
         // Lấy product_id sản phẩm cần xóa
         $product_id = $request->input('product_id');
@@ -162,13 +163,16 @@ class CartController extends Controller
                 // Xóa sản phẩm khỏi giỏ hàng
                 $cartItem->delete();
 
+                // Reload lại quan hệ cartItems để tính tổng đúng
+                $cart->load('cartItems.product');
+
                 // Tính lại tổng tiền của giỏ hàng
                 $totalPrice = $cart->cartItems->sum(function ($item) {
                     return $item->product->price * $item->quantity;
                 });
 
                 // Redirect lại trang giỏ hàng và truyền tổng giá mới
-                return redirect()->route('cart.list')->with('totalPrice', $totalPrice);
+                return redirect()->route('cart.list')->with('success', 'Đã xóa sản phẩm khỏi giỏ hàng.')->with('totalPrice', $totalPrice);
             }
         }
 
