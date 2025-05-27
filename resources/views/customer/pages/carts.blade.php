@@ -13,7 +13,7 @@
                         <div class="card-body">
                             <h4 class="card-title mb-4">Giỏ Hàng Của Bạn ({{ $totalQuantity }} sản phẩm)</h4>
                             @forelse ($cartItems as $cartItem)
-                                @if ($cartItem->product)
+                                @if ($cartItem->product && $cartItem->product->price !== null)
                                     <div class="row align-items-center mb-5">
                                         <!-- image -->
                                         <div class="col-md-2">
