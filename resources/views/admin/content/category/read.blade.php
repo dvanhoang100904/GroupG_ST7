@@ -19,7 +19,7 @@
             </div>
             <div class="card-body">
                 <p><strong>ID:</strong> {{ $category->category_id }}</p>
-                <p><strong>Tên danh mục:</strong> {{ $category->name }}</p>
+                <p><strong>Tên danh mục:</strong> {{ $category->category_name }}</p>
                 <p><strong>Slug:</strong> {{ $category->slug }}</p>
                 <p><strong>Mô tả:</strong> {{ $category->description ?: 'Không có mô tả' }}</p>
 

@@ -15,7 +15,7 @@ class CategoryController extends Controller
 
         // Query danh sách danh mục có tìm kiếm + phân trang 20 dòng
         $categories = Category::when($search, function ($query, $search) {
-            return $query->where('name', 'like', "%{$search}%");
+            return $query->where('category_name', 'like', "%{$search}%");
         })
             ->orderBy('category_id', 'desc')
             ->paginate(7);
@@ -36,14 +36,14 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'category_name' => 'required|string|max:100',
             'slug' => 'nullable|string|max:100|unique:categories,slug',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
         ]);
 
         $category = new Category();
-        $category->name = $request->name;
+        $category->category_name = $request->category_name;
         $category->slug = $request->slug;
         $category->description = $request->description;
 
@@ -87,13 +87,13 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'category_name' => 'required|string|max:100',
             'slug' => 'nullable|string|max:100|unique:categories,slug,' . $category->category_id . ',category_id',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
         ]);
 
-        $category->name = $request->name;
+        $category->category_name = $request->category_name;
         $category->slug = $request->slug;
         $category->description = $request->description;
 
