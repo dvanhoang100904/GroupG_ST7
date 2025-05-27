@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\Product;
 
 class CartController extends Controller
 {
@@ -25,7 +26,8 @@ class CartController extends Controller
                     $q->where('user_id', $user_id);
                 } else {
                     // Nếu không có người dùng, tìm giỏ hàng của khách theo session
-                    $q->where('session_id', $session_id);
+                    $q->where('session_id', $session_id)
+                        ->whereNull('user_id');
                 }
             })->first();
 
@@ -37,10 +39,14 @@ class CartController extends Controller
             ]);
         }
 
+        // Lọc bỏ cartItem không còn product
+        $cartItems = $cart->cartItems->filter(function ($item) {
+            return $item->product !== null;
+        });
+
         // Lấy các item trong giỏ hàng và tính tổng giá
-        $cartItems = $cart->cartItems;
         $totalPrice = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return $item->product ? $item->product->price * $item->quantity : 0;
         });
 
         // Trả về trang giỏ hàng với các sản phẩm và tổng giá
@@ -57,6 +63,17 @@ class CartController extends Controller
 
         // Mặc định số lượng là 1
         $quantity = $request->input('quantity', 1);
+
+        // Kiểm tra hợp lệ số lượng
+        if ($quantity <= 0) {
+            return back()->with('error', 'Số lượng không hợp lệ.');
+        }
+
+        // Kiểm tra sản phẩm có tồn tại và còn hàng không
+        $product = Product::find($product_id);
+        if (!$product) {
+            return back()->with('error', 'Sản phẩm không tồn tại.');
+        }
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user_id = auth()->check() ? auth()->id() : null;
@@ -111,7 +128,7 @@ class CartController extends Controller
         }
 
         // Redirect lại trang giỏ hàng
-        return redirect()->route('cart.list');
+        return redirect()->route('cart.list')->with('success', 'Đã thêm sản phẩm vào giỏ hàng.');
     }
 
     /**
