@@ -63,6 +63,10 @@ class OrderController extends Controller
         // Tìm đơn hàng theo id
         $order = Order::find($id);
 
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
         // Xóa các chi tiết đơn hàng liên quan
         $order->orderDetails()->delete();
 
