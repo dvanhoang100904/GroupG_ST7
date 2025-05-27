@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddToCartRequest;
 use App\Http\Requests\RemoveFromCartRequest;
 use Illuminate\Http\Request;
 use App\Models\Cart;
@@ -57,7 +58,7 @@ class CartController extends Controller
     /**
      * Thêm sản phẩm vào giỏ hàng.
      */
-    public function addToCart(Request $request)
+    public function addToCart(AddToCartRequest $request)
     {
         // Lấy thông tin sản phẩm và số lượng từ request
         $product_id = $request->input('product_id');
