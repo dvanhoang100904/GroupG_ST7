@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddToCartRequest;
 use App\Http\Requests\RemoveFromCartRequest;
+use App\Http\Requests\UpdateCartRequest;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
@@ -183,16 +184,11 @@ class CartController extends Controller
     /**
      * Cập nhật số lượng sản phẩm trong giỏ hàng.
      */
-    public function updateCart(Request $request)
+    public function updateCart(UpdateCartRequest $request)
     {
         // Lấy thông tin sản phẩm và số lượng mới từ request
         $product_id = $request->input('product_id');
         $quantity = $request->input('quantity');
-
-        // Kiểm tra số lượng phải lớn hơn 0
-        if ($quantity < 1) {
-            return back()->withErrors('Số lượng phải lớn hơn 0!');
-        }
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user_id = auth()->check() ? auth()->id() : null;
