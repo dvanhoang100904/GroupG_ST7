@@ -84,6 +84,10 @@ class OrderController extends Controller
         // Tìm đơn hàng theo id
         $order = Order::find($id);
 
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
         // Trả về view chỉnh sửa đơn hàng
         return view('admin.content.order.edit', compact('order'));
     }
@@ -95,6 +99,10 @@ class OrderController extends Controller
     {
         // Tìm đơn hàng theo id
         $order = Order::find($id);
+
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Không thể cập nhật: đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
 
         // Cập nhật trạng thái đơn hàng
         $order->status = $request->status;
