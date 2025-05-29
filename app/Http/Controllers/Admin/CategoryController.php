@@ -38,6 +38,8 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        // anh  mac dinh
+        $defaultImagePath = 'images/default/upload.png';
         // Strip tags
         $request->merge([
             'category_name' => strip_tags($request->category_name),
@@ -62,7 +64,7 @@ class CategoryController extends Controller
                     }
                 },
                 function ($attribute, $value, $fail) {
-                    if (preg_match('/[^a-zA-Z0-9\s]/', $value)) {
+                    if (preg_match('/[^\p{L}\p{N}\s]/u', $value)) {
                         $fail('Tên danh mục không được chứa ký tự đặc biệt như @, #, !, v.v.');
                     }
                 },
@@ -97,6 +99,8 @@ class CategoryController extends Controller
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('img_category'), $imageName);
             $category->image = 'img_category/' . $imageName;
+        } else {
+            $category->image = $defaultImagePath;
         }
 
         $category->save();
@@ -106,19 +110,23 @@ class CategoryController extends Controller
 
     public function destroy($id)
     {
+        $defaultImagePath = 'images/default/upload.png';
+
         $category = Category::find($id);
         if (!$category) {
             return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
         }
 
-        if ($category->image && File::exists(public_path($category->image))) {
+        if ($category->image && $category->image !== $defaultImagePath && File::exists(public_path($category->image))) {
             File::delete(public_path($category->image));
         }
+
 
         $category->delete();
 
         return redirect()->route('category.index')->with('success', 'Danh mục đã được xóa.');
     }
+
 
     public function read($id)
     {
@@ -142,6 +150,10 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
+        // img mac dinh
+        $defaultImagePath = 'images/default/upload.png';
+
+
         $category = Category::find($id);
         if (!$category) {
             return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
@@ -176,7 +188,7 @@ class CategoryController extends Controller
                     if (trim(preg_replace('/[\p{Z}\s　\xA0]/u', '', $value)) === '') {
                         $fail('Tên danh mục không được chỉ chứa khoảng trắng.');
                     }
-                    if (preg_match('/[^a-zA-Z0-9\s]/', $value)) {
+                    if (preg_match('/[^\p{L}\p{N}\s]/u', $value)) {
                         $fail('Tên danh mục không được chứa ký tự đặc biệt như @, #, !, v.v.');
                     }
                 },
@@ -205,10 +217,13 @@ class CategoryController extends Controller
         $category->slug = $request->slug ?? Str::slug($request->category_name);
         $category->description = $request->description;
 
+
         if ($request->hasFile('image')) {
-            if ($category->image && File::exists(public_path($category->image))) {
+            if ($category->image && $category->image !== $defaultImagePath && File::exists(public_path($category->image))) {
                 File::delete(public_path($category->image));
             }
+
+
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('img_category'), $imageName);
