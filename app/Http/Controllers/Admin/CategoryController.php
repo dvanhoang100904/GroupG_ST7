@@ -37,10 +37,30 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_name' => 'required|string|max:100|unique:categories,category_name',
-            'slug' => 'nullable|string|max:100|unique:categories,slug',
-            'description' => 'nullable|string',
+            'category_name' => [
+                'required',
+                'string',
+                'min:3',
+                'max:30',
+                'regex:/^(?!\s)(?!.*\s{2,}).*$/',
+                'unique:categories,category_name',
+            ],
+            'slug' => [
+                'nullable',
+                'string',
+                'min:2',
+                'max:100',
+                'unique:categories,slug',
+            ],
+            'description' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
+        ], [
+            'category_name.required' => 'Tên danh mục là bắt buộc.',
+            'category_name.min' => 'Tên danh mục phải có ít nhất :min ký tự.',
+            'category_name.max' => 'Tên danh mục không được vượt quá :max ký tự.',
+            'category_name.regex' => 'Tên danh mục không được bắt đầu bằng dấu cách hoặc có 2 dấu cách liên tiếp.',
+            'category_name.unique' => 'Tên danh mục đã tồn tại.',
+            'slug.unique' => 'Slug đã tồn tại.',
         ]);
 
         $category = new Category();
@@ -66,57 +86,90 @@ class CategoryController extends Controller
     }
 
     // Xóa danh mục
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        // Nếu danh mục có ảnh -> xóa ảnh trong ổ cứng
+        $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
+        }
+
         if ($category->image && File::exists(public_path($category->image))) {
             File::delete(public_path($category->image));
         }
 
-        $category->delete(); // Xóa trong DB
+        $category->delete();
 
         return redirect()->route('category.index')->with('success', 'Danh mục đã được xóa.');
     }
 
+
     // Xem chi tiết danh mục
-    public function read(Category $category)
+    public function read($id)
     {
+        $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
+        }
+
         return view('admin.content.category.read', compact('category'));
     }
 
     // Hiển thị form sửa danh mục
-    public function edit(Category $category)
+    public function edit($id)
     {
+        $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
+        }
+
         return view('admin.content.category.edit', compact('category'));
     }
 
     // Cập nhật danh mục
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
+        $category = Category::find($id);
+        if (!$category) {
+            return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
+        }
+
         $request->validate([
-            'category_name' => 'required|string|max:100|unique:categories,category_name,' . $category->category_id . ',category_id',
-            'slug' => 'nullable|string|max:100|unique:categories,slug,' . $category->category_id . ',category_id',
-            'description' => 'nullable|string',
+            'category_name' => [
+                'required',
+                'string',
+                'min:3',
+                'max:30',
+                'regex:/^(?!\s)(?!.*\s{2,}).*$/',
+                'unique:categories,category_name,' . $category->category_id . ',category_id',
+            ],
+            'slug' => [
+                'nullable',
+                'string',
+                'min:2',
+                'max:100',
+                'unique:categories,slug,' . $category->category_id . ',category_id',
+            ],
+            'description' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
+        ], [
+            'category_name.required' => 'Tên danh mục là bắt buộc.',
+            'category_name.min' => 'Tên danh mục phải có ít nhất :min ký tự.',
+            'category_name.max' => 'Tên danh mục không được vượt quá :max ký tự.',
+            'category_name.regex' => 'Tên danh mục không được bắt đầu bằng dấu cách hoặc có 2 dấu cách liên tiếp.',
+            'category_name.unique' => 'Tên danh mục đã tồn tại.',
+            'slug.unique' => 'Slug đã tồn tại.',
         ]);
 
         $category->category_name = $request->category_name;
-
-        // Cập nhật lại slug nếu có thay đổi
-        $slug = $request->slug ?? Str::slug($request->category_name);
-        $category->slug = $slug;
-
+        $category->slug = $request->slug ?? Str::slug($request->category_name);
         $category->description = $request->description;
 
-        // Tạo lại thư mục nếu chưa có (trường hợp slug mới)
-        $folderPath = public_path('images/' . $slug);
+        $folderPath = public_path('images/' . $category->slug);
         if (!File::exists($folderPath)) {
             File::makeDirectory($folderPath, 0755, true);
         }
 
-        // Nếu có ảnh mới upload
         if ($request->hasFile('image')) {
-            // Xóa ảnh cũ nếu tồn tại
             if ($category->image && File::exists(public_path($category->image))) {
                 File::delete(public_path($category->image));
             }
