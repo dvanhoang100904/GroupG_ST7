@@ -4,6 +4,29 @@
 
 @section('content')
     <div class="container py-3">
+        {{-- thong bao --}}
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Thành công!</strong> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Lỗi!</strong> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+            
+            <script>
+                // Tự động reload trang sau 3 giây nếu có lỗi
+                setTimeout(function() {
+                    window.location.reload();
+                }, 3000);
+            </script>
+        @endif
+
+
+
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ route('products.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm sản phẩm
