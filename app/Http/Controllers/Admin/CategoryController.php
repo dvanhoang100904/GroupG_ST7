@@ -7,42 +7,65 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
     // Hiển thị danh sách danh mục (có tìm kiếm)
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $query = Category::query();
 
-        $categories = Category::when($search, function ($query, $search) {
-            return $query->where('category_name', 'like', "%{$search}%");
-        })
-            ->orderBy('category_id', 'asc')
-            ->paginate(4);
+        if ($search = $request->input('search')) {
+            $query->where('category_name', 'like', "%$search%");
+        }
 
-        $categories->appends(['search' => $search]);
+        $perPage = 4;
+        $page = $request->input('page', 1);
 
-        return view('admin.content.category.list', compact('categories', 'search'));
+        $categories = $query->paginate($perPage);
+
+        if ($page > $categories->lastPage()) {
+            return redirect()->route('category.index')->with('error', 'Trang không tồn tại.');
+        }
+
+        return view('admin.content.category.list', compact('categories'));
     }
 
-    // Hiển thị form thêm danh mục
     public function create()
     {
         return view('admin.content.category.create');
     }
 
-    // Lưu danh mục mới
     public function store(Request $request)
     {
+        // Strip tags
+        $request->merge([
+            'category_name' => strip_tags($request->category_name),
+            'slug' => strip_tags($request->slug),
+            'description' => strip_tags($request->description),
+        ]);
+
         $request->validate([
             'category_name' => [
                 'required',
                 'string',
                 'min:3',
                 'max:30',
-                'regex:/^(?!\s)(?!.*\s{2,}).*$/',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/ {2,}/', $value)) {
+                        $fail('Tên danh mục không được chứa 2 dấu cách liên tiếp.');
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    if (trim(preg_replace('/[\p{Z}\s　\xA0]/u', '', $value)) === '') {
+                        $fail('Tên danh mục không được chỉ chứa khoảng trắng.');
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/[^a-zA-Z0-9\s]/', $value)) {
+                        $fail('Tên danh mục không được chứa ký tự đặc biệt như @, #, !, v.v.');
+                    }
+                },
                 'unique:categories,category_name',
             ],
             'slug' => [
@@ -50,29 +73,25 @@ class CategoryController extends Controller
                 'string',
                 'min:2',
                 'max:100',
+                'regex:/^[a-zA-Z0-9\-]+$/',
                 'unique:categories,slug',
             ],
             'description' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ], [
             'category_name.required' => 'Tên danh mục là bắt buộc.',
             'category_name.min' => 'Tên danh mục phải có ít nhất :min ký tự.',
             'category_name.max' => 'Tên danh mục không được vượt quá :max ký tự.',
-            'category_name.regex' => 'Tên danh mục không được bắt đầu bằng dấu cách hoặc có 2 dấu cách liên tiếp.',
             'category_name.unique' => 'Tên danh mục đã tồn tại.',
             'slug.unique' => 'Slug đã tồn tại.',
+            'slug.regex' => 'Slug chỉ được chứa chữ, số và dấu gạch ngang.',
         ]);
 
         $category = new Category();
         $category->category_name = $request->category_name;
-
-        // Tạo slug nếu chưa có
-        $slug = $request->slug ?? Str::slug($request->category_name);
-        $category->slug = $slug;
-
+        $category->slug = $request->slug ?? Str::slug($request->category_name);
         $category->description = $request->description;
 
-        // Nếu người dùng có upload ảnh, lưu vào storage như cũ
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
@@ -85,7 +104,6 @@ class CategoryController extends Controller
         return redirect()->route('category.index')->with('success', 'Danh mục đã được tạo thành công.');
     }
 
-    // Xóa danh mục
     public function destroy($id)
     {
         $category = Category::find($id);
@@ -102,8 +120,6 @@ class CategoryController extends Controller
         return redirect()->route('category.index')->with('success', 'Danh mục đã được xóa.');
     }
 
-
-    // Xem chi tiết danh mục
     public function read($id)
     {
         $category = Category::find($id);
@@ -114,7 +130,6 @@ class CategoryController extends Controller
         return view('admin.content.category.read', compact('category'));
     }
 
-    // Hiển thị form sửa danh mục
     public function edit($id)
     {
         $category = Category::find($id);
@@ -125,7 +140,6 @@ class CategoryController extends Controller
         return view('admin.content.category.edit', compact('category'));
     }
 
-    // Cập nhật danh mục
     public function update(Request $request, $id)
     {
         $category = Category::find($id);
@@ -133,13 +147,39 @@ class CategoryController extends Controller
             return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
         }
 
+        // Check conflict (Test case 1)
+        if (
+            $request->has('updated_at') &&
+            $request->input('updated_at') !== $category->updated_at->format('Y-m-d H:i:s')
+        ) {
+            return redirect()->route('category.edit', $id)
+                ->withInput()
+                ->with('warning', 'Trang đã được làm mới, vui lòng nhấn Lưu lại một lần nữa để cập nhật.');
+        }
+
+        $request->merge([
+            'category_name' => strip_tags($request->category_name),
+            'slug' => strip_tags($request->slug),
+            'description' => strip_tags($request->description),
+        ]);
+
         $request->validate([
             'category_name' => [
                 'required',
                 'string',
                 'min:3',
                 'max:30',
-                'regex:/^(?!\s)(?!.*\s{2,}).*$/',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/ {2,}/', $value)) {
+                        $fail('Tên danh mục không được chứa 2 dấu cách liên tiếp.');
+                    }
+                    if (trim(preg_replace('/[\p{Z}\s　\xA0]/u', '', $value)) === '') {
+                        $fail('Tên danh mục không được chỉ chứa khoảng trắng.');
+                    }
+                    if (preg_match('/[^a-zA-Z0-9\s]/', $value)) {
+                        $fail('Tên danh mục không được chứa ký tự đặc biệt như @, #, !, v.v.');
+                    }
+                },
                 'unique:categories,category_name,' . $category->category_id . ',category_id',
             ],
             'slug' => [
@@ -147,33 +187,28 @@ class CategoryController extends Controller
                 'string',
                 'min:2',
                 'max:100',
+                'regex:/^[a-zA-Z0-9\-]+$/',
                 'unique:categories,slug,' . $category->category_id . ',category_id',
             ],
             'description' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ], [
             'category_name.required' => 'Tên danh mục là bắt buộc.',
             'category_name.min' => 'Tên danh mục phải có ít nhất :min ký tự.',
             'category_name.max' => 'Tên danh mục không được vượt quá :max ký tự.',
-            'category_name.regex' => 'Tên danh mục không được bắt đầu bằng dấu cách hoặc có 2 dấu cách liên tiếp.',
             'category_name.unique' => 'Tên danh mục đã tồn tại.',
             'slug.unique' => 'Slug đã tồn tại.',
+            'slug.regex' => 'Slug chỉ được chứa chữ, số và dấu gạch ngang.',
         ]);
 
         $category->category_name = $request->category_name;
         $category->slug = $request->slug ?? Str::slug($request->category_name);
         $category->description = $request->description;
 
-        $folderPath = public_path('images/' . $category->slug);
-        if (!File::exists($folderPath)) {
-            File::makeDirectory($folderPath, 0755, true);
-        }
-
         if ($request->hasFile('image')) {
             if ($category->image && File::exists(public_path($category->image))) {
                 File::delete(public_path($category->image));
             }
-
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
             $image->move(public_path('img_category'), $imageName);

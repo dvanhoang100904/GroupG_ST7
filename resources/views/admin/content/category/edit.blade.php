@@ -4,11 +4,18 @@
 
 @section('content')
     <div class="container py-3">
+            @if(session('warning'))
+                <div class="alert alert-warning">
+                    {{ session('warning') }}
+                </div>
+            @endif
 
         <form action="{{ route('category.update', $category->category_id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-        
+
+            <input type="hidden" name="updated_at" value="{{ $category->updated_at }}">
+
             <div class="mb-3">
                 <label for="category_name" class="form-label">Tên danh mục</label>
                 <input type="text" name="category_name" class="form-control @error('category_name') is-invalid @enderror" value="{{ old('category_name', $category->category_name) }}" required>
