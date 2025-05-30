@@ -45,3 +45,9 @@
         </div>
     </div>
 @endsection
+@if(session('not_found'))
+    <script>
+        alert(@json(session('not_found')));
+        window.location.href = "{{ route('products.list') }}";
+    </script>
+@endif

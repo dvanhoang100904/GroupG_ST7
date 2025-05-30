@@ -12,6 +12,13 @@
         @csrf
         @method('PUT')
         {{-- Sử dụng phương thức PUT để cập nhật dữ liệu (RESTful) --}}
+
+        {{-- Nút quay lại trang danh sách sản phẩm --}}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{{ route('products.list') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
         
         {{-- Tên sản phẩm --}}
         <div class="mb-3">
@@ -99,3 +106,9 @@
 @endif
 
 @endsection
+@if(session('not_found'))
+    <script>
+        alert(@json(session('not_found')));
+        window.location.href = "{{ route('products.list') }}";
+    </script>
+@endif

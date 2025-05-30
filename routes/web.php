@@ -120,8 +120,8 @@ Route::prefix('admin')->group(function () {
         Route::get('products', [AdminProductsController::class, 'index'])->name('products.list');
         Route::get('products/create', [AdminProductsController::class, 'create'])->name('products.create');
         Route::post('products', [AdminProductsController::class, 'store'])->name('products.store');
-        Route::get('products/{product}', [AdminProductsController::class, 'read'])->name('products.read');
-        Route::get('products/{product}/edit', [AdminProductsController::class, 'edit'])->name('products.edit');
+        Route::get('/products/{id}', [AdminProductsController::class, 'read'])->name('products.read');
+        Route::get('/products/{id}/edit', [AdminProductsController::class, 'edit'])->name('products.edit');
         Route::put('products/{product}', [AdminProductsController::class, 'update'])->name('products.update');
         Route::delete('products/delete/{id}', [AdminProductsController::class, 'destroy'])->name('products.destroy');
     });

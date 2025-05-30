@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Redirect;
 
 class ProductsController extends Controller
 {
@@ -90,17 +91,28 @@ class ProductsController extends Controller
     /**
      * Hiển thị chi tiết sản phẩm
      */
-    public function read(Product $product)
+    public function read($id)
     {
-        $product->load('category'); // Nạp thêm thông tin danh mục
+        $product = Product::with('category')->find($id);
+
+        if (!$product) {
+            return Redirect::back()->with('not_found', 'Không tìm thấy sản phẩm.');
+        }
+
         return view('admin.content.products.read', compact('product'));
     }
 
     /**
      * Hiển thị form chỉnh sửa sản phẩm
      */
-    public function edit(Product $product)
+    public function edit($id)
     {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return Redirect::back()->with('not_found', 'Không tìm thấy sản phẩm.');
+        }
+
         $categories = Category::all();
         return view('admin.content.products.edit', compact('product', 'categories'));
     }
