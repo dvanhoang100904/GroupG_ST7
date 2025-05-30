@@ -11,6 +11,19 @@ use Illuminate\Support\Facades\Redirect;
 
 class ProductsController extends Controller
 {
+
+    /**
+     * Chuẩn hóa chuỗi: trim + thay nhiều khoảng trắng thành 1 khoảng trắng
+     */
+    protected function cleanText(?string $text): ?string
+    {
+        if ($text === null) {
+            return null;
+        }
+        // trim + replace nhiều khoảng trắng (Unicode safe) thành 1 dấu cách
+        return preg_replace('/\s+/u', ' ', trim($text));
+    }
+
     /**
      * Hiển thị danh sách sản phẩm với tìm kiếm và phân trang
      */
@@ -41,6 +54,13 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
+
+        // Chuẩn hóa dữ liệu đầu vào
+        $request->merge([
+            'product_name' => $this->cleanText($request->product_name),
+            'description' => $this->cleanText($request->description),
+        ]);
+
         // Xác thực dữ liệu đầu vào
         $request->validate([
             'product_name' => 'required|string|max:255',
@@ -69,6 +89,14 @@ class ProductsController extends Controller
             'category_id.required' => 'Vui lòng chọn danh mục sản phẩm.',
             'category_id.exists' => 'Danh mục không tồn tại.',
         ]);
+
+        // Kiểm tra chuỗi chỉ chứa khoảng trắng (kể cả khoảng trắng Unicode)
+        if (preg_match('/^\s*$/u', $request->product_name)) {
+            return back()->withErrors(['product_name' => 'Tên sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
+        }
+        if ($request->description !== null && preg_match('/^\s*$/u', $request->description)) {
+            return back()->withErrors(['description' => 'Mô tả sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
+        }
 
         // Tạo instance mới
         $product = new Product();
@@ -141,6 +169,12 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+
+        $request->merge([
+            'product_name' => $this->cleanText($request->product_name),
+            'description' => $this->cleanText($request->description),
+        ]);
+
         $request->validate([
             'product_name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
@@ -155,6 +189,14 @@ class ProductsController extends Controller
         if ($request->version != $product->version) {
             // Trả về với session version_conflict để view xử lý alert + redirect
             return redirect()->back()->with('version_conflict', 'Sản phẩm đã được cập nhật ở tab khác. Vui lòng tải lại trang để lấy dữ liệu mới nhất.');
+        }
+
+                // Kiểm tra chuỗi chỉ chứa khoảng trắng (kể cả khoảng trắng Unicode)
+        if (preg_match('/^\s*$/u', $request->product_name)) {
+            return back()->withErrors(['product_name' => 'Tên sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
+        }
+        if ($request->description !== null && preg_match('/^\s*$/u', $request->description)) {
+            return back()->withErrors(['description' => 'Mô tả sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
         }
 
         // Cập nhật dữ liệu
