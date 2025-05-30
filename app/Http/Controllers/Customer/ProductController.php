@@ -61,37 +61,6 @@ class ProductController extends Controller
         return view('customer.pages.products', compact('products', 'categories', 'search', 'sort'));
     }
 
-    // Trang chi tiết sản phẩm OLD
-    // public function detail($slug)
-    // {
-    //     // Tìm sản phẩm theo slug
-    //     $product = Product::where('slug', $slug)->firstOrFail();
-
-    //     // Lấy các sản phẩm tương tự nếu có
-    //     $similarProducts = Product::where('product_id', '!=', $product->product_id)
-    //         ->where(function ($query) use ($product) {
-    //             $query->where('category_id', $product->category_id)
-    //                 ->orWhereBetween('price', [$product->price * 0.9, $product->price * 1.1]);
-    //         })
-    //         ->limit(4)
-    //         ->get();
-
-    //     // Xử lý lọc theo số sao (rating)
-    //     $rating = request()->query('rating');
-
-    //     $reviewsQuery = Review::where('product_id', $product->product_id)
-    //         ->orderBy('created_at', 'desc');
-
-    //     if (is_numeric($rating)) {
-    //         $reviewsQuery->where('rating', $rating);
-    //     }
-
-    //     $reviews = $reviewsQuery->get();
-
-    //     // ✅ Chỉ return 1 lần sau khi đã xử lý lọc
-    //     return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews'));
-    // }
-
     public function detail($slug)
     {
         // Tìm sản phẩm theo slug
@@ -135,41 +104,4 @@ class ProductController extends Controller
         // Trả về view chi tiết sản phẩm
         return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews'));
     }
-
-
-    /// yen
-    // public function detail($slug)
-    // {
-    //     // Tìm sản phẩm theo slug
-    //     $product = Product::where('slug', $slug)->first();
-
-    //     // Kiểm tra sản phẩm có tồn tại không
-    //     if (!$product) {
-    //         $displayName = ucwords(str_replace('-', ' ', $slug));
-    //         return view('customer.pages.category-not-found', compact('displayName'));
-    //     }
-
-    //     // Kiểm tra danh mục của sản phẩm có tồn tại không
-    //     $category = Category::find($product->category_id);
-    //     if (!$category) {
-    //         $displayName = ucwords(str_replace('-', ' ', $slug));
-    //         return view('customer.pages.category-not-found', compact('displayName'));
-    //     }
-
-    //     // Lấy các sản phẩm tương tự (cùng danh mục)
-    //     $similarProducts = Product::where('category_id', $product->category_id)
-    //         ->where('product_id', '!=', $product->product_id)
-    //         ->limit(4)
-    //         ->get();
-
-    //     // Lấy đánh giá của sản phẩm
-    //     $reviewsQuery = Review::where('product_id', $product->product_id);
-    //     if (request('rating')) {
-    //         $reviewsQuery->where('rating', request('rating'));
-    //     }
-    //     $reviews = $reviewsQuery->with(['user', 'replies'])->get();
-
-    //     // Trả về view chi tiết sản phẩm
-    //     return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews'));
-    // }
 }
