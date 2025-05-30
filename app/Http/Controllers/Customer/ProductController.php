@@ -15,71 +15,80 @@ class ProductController extends Controller
     {
         $search = $request->input('search', ''); // Lấy từ khóa tìm kiếm nếu có
         $sort = $request->input('sort', '');     // Lấy lựa chọn sắp xếp nếu có
+        $page = $request->input('page');         // Lấy tham số phân trang
+
+        // ✅ Kiểm tra nếu page không phải là số nguyên dương
+        if ($page && (!ctype_digit($page) || (int)$page < 1)) {
+            return redirect()->route('products.index')->with('error', 'Tham số phân trang không hợp lệ.');
+        }
 
         // Truy vấn danh sách sản phẩm
         $products = Product::query()
             ->when($search, function ($query, $search) {
-                // Nếu có từ khóa tìm kiếm thì lọc theo tên sản phẩm hoặc tên danh mục
                 return $query->where('product_name', 'LIKE', '%' . $search . '%')
                     ->orWhereHas('category', function ($query) use ($search) {
                         $query->where('category_name', 'LIKE', '%' . $search . '%');
                     });
             })
             ->when(true, function ($query) {
-                // Điều kiện lọc sản phẩm nổi bật: Giá từ 4 triệu đến 10 triệu hoặc sản phẩm mới tạo trong vòng 7 ngày qua
                 return $query->where(function ($query) {
                     $query->whereBetween('price', [4000000, 10000000])
-                        ->orWhere('created_at', '>=', now()->subDays(7)); // Sản phẩm mới tạo trong 7 ngày qua
+                        ->orWhere('created_at', '>=', now()->subDays(7));
                 });
             });
 
         // Áp dụng sắp xếp theo lựa chọn từ dropdown
         switch ($sort) {
             case 'name_asc':
-                $products->orderBy('product_name', 'asc'); // Sắp xếp theo tên A-Z
+                $products->orderBy('product_name', 'asc');
                 break;
             case 'name_desc':
-                $products->orderBy('product_name', 'desc'); // Sắp xếp theo tên Z-A
+                $products->orderBy('product_name', 'desc');
                 break;
             case 'price_asc':
-                $products->orderBy('price', 'asc'); // Sắp xếp giá thấp đến cao
+                $products->orderBy('price', 'asc');
                 break;
             case 'price_desc':
-                $products->orderBy('price', 'desc'); // Sắp xếp giá cao đến thấp
+                $products->orderBy('price', 'desc');
                 break;
             default:
-                $products->orderBy('product_id'); // Mặc định theo thứ tự thêm vào
+                $products->orderBy('product_id');
         }
 
-        // Lấy chỉ 8 sản phẩm (giới hạn) và phân trang
-        $products = $products->limit(8)->paginate(8)->appends($request->query());
+        // Phân trang với giới hạn 8 sản phẩm
+        $products = $products->paginate(8)->appends($request->query());
 
-        // Lấy tất cả danh mục để hiển thị nếu cần
+        // ✅ Nếu không có sản phẩm ở trang hiện tại và trang > 1 => quay về trang chính
+        if ($products->isEmpty() && $products->currentPage() > 1) {
+            return redirect()->route('products.index')->with('error', 'Trang bạn yêu cầu không tồn tại.');
+        }
+
         $categories = Category::orderBy('category_id')->get();
 
-        // Truyền dữ liệu sang view
         return view('customer.pages.products', compact('products', 'categories', 'search', 'sort'));
     }
 
-    public function detail($slug)
+
+    // Trang chi tiết sản phẩm
+    public function detail($slug,  Request $request)
     {
         // Tìm sản phẩm theo slug
         $product = Product::where('slug', $slug)->first();
 
-        // Xử lý nếu không tìm thấy sản phẩm
         if (!$product) {
-            $displayName = ucwords(str_replace('-', ' ', $slug));
-            return view('customer.pages.category-not-found', compact('displayName'));
+            // Lấy URL trang hiện tại người dùng đang ở (trang bấm vào sản phẩm)
+            $previousUrl = url()->previous();
+
+            // Nếu URL trước đó là chính trang detail này (để tránh lặp vô tận), chuyển về products.index
+            if ($previousUrl === $request->fullUrl()) {
+                return redirect()->route('products.index')->with('error', 'Sản phẩm đã bị xóa hoặc không tồn tại.');
+            }
+
+            // Redirect về trang trước đó với thông báo lỗi
+            return redirect($previousUrl)->with('error', 'Sản phẩm đã bị xóa hoặc không tồn tại. Trang sẽ được tải lại.');
         }
 
-        // Kiểm tra danh mục có tồn tại
-        $category = Category::find($product->category_id);
-        if (!$category) {
-            $displayName = ucwords(str_replace('-', ' ', $slug));
-            return view('customer.pages.category-not-found', compact('displayName'));
-        }
-
-        // Lấy các sản phẩm tương tự: cùng danh mục hoặc gần giá
+        // Lấy các sản phẩm tương tự nếu có
         $similarProducts = Product::where('product_id', '!=', $product->product_id)
             ->where(function ($query) use ($product) {
                 $query->where('category_id', $product->category_id)
@@ -88,12 +97,11 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
-        // Lấy đánh giá sản phẩm (có thể lọc theo số sao)
-        $rating = request('rating');
+        // Xử lý lọc theo số sao (rating)
+        $rating = request()->query('rating');
 
         $reviewsQuery = Review::where('product_id', $product->product_id)
-            ->orderBy('created_at', 'desc')
-            ->with(['user', 'replies']);
+            ->orderBy('created_at', 'desc');
 
         if (is_numeric($rating)) {
             $reviewsQuery->where('rating', $rating);
@@ -101,7 +109,7 @@ class ProductController extends Controller
 
         $reviews = $reviewsQuery->get();
 
-        // Trả về view chi tiết sản phẩm
+        // ✅ Chỉ return 1 lần sau khi đã xử lý lọc
         return view('customer.pages.detail-product', compact('product', 'similarProducts', 'reviews'));
     }
 }

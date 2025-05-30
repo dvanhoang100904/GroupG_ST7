@@ -35,13 +35,27 @@
                 <p><strong>Danh mục:</strong> {{ $product->category->category_name ?? 'Không xác định' }}</p> {{-- Hiển thị tên danh mục hoặc thông báo nếu null --}}
 
                 <p><strong>Ảnh:</strong></p>
-                {{-- Nếu có ảnh thì hiển thị, nếu không thì hiển thị dòng chữ "Không có ảnh" --}}
-                @if ($product->image)
+                @php
+                    $imagePath = public_path($product->image);
+                    $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh');
+                    $defaultImage = "images/{$categorySlug}/mac-dinh.jpg";
+                @endphp
+
+                @if ($product->image && file_exists($imagePath))
                     <img src="{{ asset($product->image) }}" width="200" alt="{{ $product->product_name }}">
+                @elseif (file_exists(public_path($defaultImage)))
+                    <img src="{{ asset($defaultImage) }}" width="200" alt="Ảnh mặc định">
                 @else
-                    <p>Không có ảnh</p>
+                    <p class="text-muted">Không có ảnh</p>
                 @endif
+
             </div>
         </div>
     </div>
 @endsection
+@if(session('not_found'))
+    <script>
+        alert(@json(session('not_found')));
+        window.location.href = "{{ route('products.list') }}";
+    </script>
+@endif
