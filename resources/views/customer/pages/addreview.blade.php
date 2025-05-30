@@ -42,8 +42,6 @@
             <div class="text-danger mt-1">{{ $message }}</div>
         @enderror
     </div>
-
-
     <button type="submit" class="btn btn-primary" id="submitBtn">Gửi đánh giá</button>
 </form>
 

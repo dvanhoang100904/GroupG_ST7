@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
@@ -45,7 +46,6 @@ class ReviewController extends Controller
             'photo.image' => 'Chỉ được tải lên định dạng ảnh.',
             'photo.mimes' => 'Ảnh phải là định dạng .jpg, .png, .jpeg, .gif, .webp.',
         ]);
-
 
         // Kiểm tra nếu người dùng vừa mới gửi đánh giá trong vòng 15s
         $latestReview = Review::where('user_id', Auth::id())
@@ -112,7 +112,6 @@ class ReviewController extends Controller
         session(['temp_confirmed_reviews' => $confirmed]);
         return response()->json(['success' => true]);
     }
-    // Lấy danh sách đánh giá cho 1 sản phẩm
     public function getProductReviews($product_id)
     {
         $reviews = Review::with('user')
@@ -122,6 +121,7 @@ class ReviewController extends Controller
 
         return response()->json($reviews);
     }
+
     public function edit($reviewId)
     {
         $review = Review::findOrFail($reviewId);
@@ -133,28 +133,61 @@ class ReviewController extends Controller
         return view('customer.pages.editreview', compact('review'));
     }
 
-    // Cập nhật đánh giá
     public function update(Request $request, $reviewId)
     {
-        $review = Review::findOrFail($reviewId);
+        $review = Review::find($reviewId);
 
-        if (Auth::id() !== $review->user_id) {
-            return back()->with('error', 'Bạn không có quyền sửa đánh giá này.');
+        if (!$review) {
+            return redirect()->back()
+                ->withInput()
+                ->with('update_error', 'Dữ liệu này đã bị xóa. Vui lòng tải lại trang.')
+                ->with('open_modal', 'editReviewModal' . $reviewId);
         }
 
-        $request->validate([
-            'content' => 'required|string|max:1000',
-            'rating' => 'required|integer|min:1|max:5',
-            'photo' => 'nullable|image|max:2048',
+        if (Auth::id() !== $review->user_id) {
+            return back()
+                ->with('error', 'Bạn không có quyền sửa đánh giá này.')
+                ->with('open_modal', 'editReviewModal' . $reviewId);
+        }
+
+        if ($request->updated_at && $request->updated_at != $review->updated_at->toISOString()) {
+            return back()
+                ->with('error', 'Dữ liệu đã được cập nhật trước đó. Vui lòng tải lại trang.')
+                ->with('open_modal', 'editReviewModal' . $reviewId);
+        }
+
+        // ✅ DÙNG Validator thủ công để chèn thêm open_modal khi lỗi
+        $validator = Validator::make($request->all(), [
+            'content' => ['required', 'string', 'max:1000', function ($attribute, $value, $fail) {
+                if (trim($value) === '') {
+                    $fail('Nội dung không được để trống.');
+                }
+            }],
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'photo' => ['nullable', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('open_modal', 'editReviewModal' . $reviewId);
+        }
+        // ✅ 5. Xử lý ảnh nếu có
         if ($request->hasFile('photo')) {
-            // Xóa ảnh cũ nếu có
+            $photo = $request->file('photo');
+            $mime = $photo->getMimeType();
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+
+            if (!in_array($mime, $allowedMimes)) {
+                return back()->with('error', 'File không đúng định dạng ảnh.')
+                    ->with('open_modal', 'editReviewModal' . $reviewId);
+            }
+
             if ($review->photo && file_exists(public_path($review->photo))) {
                 unlink(public_path($review->photo));
             }
 
-            $photo = $request->file('photo');
             $fileName = time() . '_' . Str::random(10) . '.' . $photo->getClientOriginalExtension();
             $destination = public_path('images/reviews');
             if (!File::exists($destination)) {
@@ -164,14 +197,23 @@ class ReviewController extends Controller
             $review->photo = 'images/reviews/' . $fileName;
         }
 
-        $review->content = $request->content;
+        // ✅ 6. Xóa ảnh nếu người dùng chọn
+        if ($request->has('remove_photo') && $review->photo) {
+            if (file_exists(public_path($review->photo))) {
+                unlink(public_path($review->photo));
+            }
+            $review->photo = null;
+        }
+
+        // ✅ 7. Cập nhật nội dung
+        $review->content = strip_tags($request->content);
         $review->rating = $request->rating;
         $review->save();
 
+        // ✅ 8. Chuyển hướng về chi tiết sản phẩm
         return redirect()->route('products.detail', ['slug' => $review->product->slug])
             ->with('success', 'Đánh giá đã được cập nhật.');
     }
-
     // Xóa đánh giá
     public function destroy($reviewId)
     {
