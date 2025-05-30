@@ -1,51 +1,66 @@
-@if ($orders->hasPages())
+@if ($paginator->hasPages())
     <div class="d-flex justify-content-between align-items-center mt-4">
         {{-- Thông tin hiển thị --}}
         <div class="text-muted">
-            Hiển thị từ <strong>{{ $orders->firstItem() }}</strong> đến
-            <strong>{{ $orders->lastItem() }}</strong> trong tổng số
-            <strong>{{ $orders->total() }}</strong> đơn hàng
+            Hiển thị từ <strong>{{ $paginator->firstItem() }}</strong> đến
+            <strong>{{ $paginator->lastItem() }}</strong> trong tổng số
+            <strong>{{ $paginator->total() }}</strong> mục
         </div>
 
         {{-- Pagination --}}
         <nav aria-label="Page navigation">
             <ul class="pagination pagination-sm mb-0">
-
                 {{-- Nút "Previous" --}}
-                @if ($orders->onFirstPage())
-                    <li class="page-item disabled">
-                        <span class="page-link">&laquo; Previous</span>
-                    </li>
+                @if ($paginator->onFirstPage())
+                    <li class="page-item disabled"><span class="page-link">&laquo; Trước</span></li>
                 @else
                     <li class="page-item">
-                        <a class="page-link" href="{{ $orders->previousPageUrl() }}" rel="prev">&laquo; Previous</a>
+                        <a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev">&laquo; Trước</a>
                     </li>
                 @endif
 
-                {{-- Các nút trang --}}
-                @foreach ($orders->getUrlRange(1, $orders->lastPage()) as $page => $url)
-                    @if ($page == $orders->currentPage())
-                        <li class="page-item active" aria-current="page">
-                            <span class="page-link">{{ $page }}</span>
-                        </li>
-                    @else
-                        <li class="page-item">
-                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                        </li>
-                    @endif
-                @endforeach
+                @php
+                    $currentPage = $paginator->currentPage();
+                    $lastPage = $paginator->lastPage();
+                @endphp
+
+                {{-- Trang đầu --}}
+                <li class="page-item {{ $currentPage == 1 ? 'active' : '' }}">
+                    <a class="page-link" href="{{ $paginator->url(1) }}">1</a>
+                </li>
+
+                {{-- Dấu ... nếu cần --}}
+                @if ($currentPage > 3)
+                    <li class="page-item"><span class="page-link">...</span></li>
+                @endif
+
+                {{-- Các trang gần trang hiện tại --}}
+                @for ($i = max(2, $currentPage - 1); $i <= min($lastPage - 1, $currentPage + 1); $i++)
+                    <li class="page-item {{ $currentPage == $i ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $paginator->url($i) }}">{{ $i }}</a>
+                    </li>
+                @endfor
+
+                {{-- Dấu ... nếu cần --}}
+                @if ($currentPage < $lastPage - 2)
+                    <li class="page-item"><span class="page-link">...</span></li>
+                @endif
+
+                {{-- Trang cuối nếu > 1 --}}
+                @if ($lastPage > 1)
+                    <li class="page-item {{ $currentPage == $lastPage ? 'active' : '' }}">
+                        <a class="page-link" href="{{ $paginator->url($lastPage) }}">{{ $lastPage }}</a>
+                    </li>
+                @endif
 
                 {{-- Nút "Next" --}}
-                @if ($orders->hasMorePages())
+                @if ($paginator->hasMorePages())
                     <li class="page-item">
-                        <a class="page-link" href="{{ $orders->nextPageUrl() }}" rel="next">Next &raquo;</a>
+                        <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next">Tiếp &raquo;</a>
                     </li>
                 @else
-                    <li class="page-item disabled">
-                        <span class="page-link">Next &raquo;</span>
-                    </li>
+                    <li class="page-item disabled"><span class="page-link">Tiếp &raquo;</span></li>
                 @endif
-
             </ul>
         </nav>
     </div>

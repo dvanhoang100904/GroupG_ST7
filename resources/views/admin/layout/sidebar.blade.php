@@ -9,19 +9,21 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('users.list') }}">
                 <img src="{{ asset('images/users.png') }}" class="icon" />
                 <p>Người dùng</p>
             </a>
         </li>
+       
+
         <li>
-            <a href="#">
+            <a href="{{ route('products.list') }}">
                 <img src="{{ asset('images/products.png') }}" class="icon" />
                 <p>Sản phẩm</p>
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('category.index') }}">
                 <img src="{{ asset('images/category.png') }}" class="icon" />
                 <p>Danh mục</p>
             </a>
@@ -33,28 +35,25 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('admin.website') }}">
                 <img src="{{ asset('images/website.png') }}" class="icon" />
                 <p>Website</p>
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('slide.index') }}">
                 <img src="{{ asset('images/banner.png') }}" class="icon" />
-                <p>Banner</p>
+                <p>Slide</p>
             </a>
         </li>
-    </ul>
-    <ul>
         <span>Chức năng</span>
         <li>
-            <form action="{{ route('admin.logout') }}" method="POST" style="display: flex; align-items: center;">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <img src="{{ asset('images/logout.png') }}" class="icon" />
+                <p>Thoát</p>
+            </a>
+            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                 @csrf
-                <button type="submit"
-                    style="border: none; background: none; padding: 0; display: flex; align-items: center; cursor: pointer;">
-                    <img src="{{ asset('images/logout.png') }}" class="icon" />
-                    <p style="margin: 0 0 0 5px;">Thoát</p>
-                </button>
             </form>
         </li>
     </ul>

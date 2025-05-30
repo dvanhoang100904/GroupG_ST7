@@ -1,6 +1,30 @@
 @extends('admin.layout.app')
-
+@section('page_title', 'Quản Lý Đơn Hàng')
 @section('content')
+    @php
+        $orderStatuses = [
+            'chờ_xử_lý' => [
+                'label' => 'Chờ xử lý',
+                'color' => 'secondary',
+            ],
+            'đang_xử_lý' => [
+                'label' => 'Đang xử lý',
+                'color' => 'warning',
+            ],
+            'đang_vận_chuyển' => [
+                'label' => 'Đang vận chuyển',
+                'color' => 'primary',
+            ],
+            'đã_giao_hàng' => [
+                'label' => 'Đã giao hàng',
+                'color' => 'success',
+            ],
+            'đã_hủy' => [
+                'label' => 'Đã hủy',
+                'color' => 'danger',
+            ],
+        ];
+    @endphp
     <main class="flex-grow-1 p-4 bg-light">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <form action="{{ route('order.list') }}?page={{ request()->get('page') }}" method="GET" class="w-100">
@@ -28,34 +52,61 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($orders as $order)
+                    @forelse  ($orders as $order)
                         <tr>
                             {{-- id --}}
                             <td class="text-center fw-bold">#{{ $order->order_id }}</td>
                             {{-- name --}}
-                            <td>{{ $order->user->name }}</td>
+                            <td>{{ $order->shippingAddress->name ?? 'Chưa cập nhật' }}
+                                <br>
+                                <small class="text-muted">(Người Đặt: {{ $order->user->name ?? 'Không rõ' }})</small>
+                            </td>
                             {{-- total --}}
-                            <td>{{ number_format($order->total_price, 0, ',', '.') }} VND</td>
+                            <td>{{ number_format($order->total_price, 0, ',', '.') }} <sup>VND</sup></td>
                             {{-- status --}}
-                            <td>{{ $order->status }}</td>
+                            <td>
+                                <span class="badge bg-{{ $orderStatuses[$order->status]['color'] ?? 'secondary' }}">
+                                    {{ $orderStatuses[$order->status]['label'] ?? $order->status }}
+                                </span>
+                            </td>
                             {{-- payment method --}}
-                            <td>{{ $order->payment->method }}</td>
+                            <td>{{ $order->payment->method ?? 'Chưa có' }}</td>
                             {{-- phone --}}
-                            <td class="text-center">{{ $order->user->phone }}</td>
+                            <td class="text-center">{{ $order->shippingAddress->phone ?? '-' }}
+                                <br>
+                                <small class="text-muted">(SĐT Người Đặt: {{ $order->user->phone ?? '-' }})</small>
+                            </td>
+
                             {{-- action --}}
                             <td class="d-flex justify-content-center gap-3">
-                                <a href="#!" class="btn btn-sm btn-info" title="Xem">
+                                {{-- detail --}}
+                                <a href="{{ route('order.detail', $order->order_id) }}?page={{ request()->get('page') }}"
+                                    class="btn btn-sm btn-info" title="Xem">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="#!" class="btn btn-sm btn-warning" title="Chỉnh sửa">
+                                {{-- edit --}}
+                                <a href="{{ route('order.edit', $order->order_id) }}?page={{ request()->get('page') }}"
+                                    class="btn btn-sm btn-warning" title="Chỉnh sửa">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="#!" class="btn btn-sm btn-danger" title="Xóa">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
+                                {{-- delete --}}
+                                <form
+                                    action="{{ route('order.delete', $order->order_id) }}?page={{ request()->get('page') }}"
+                                    onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');"
+                                    method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" href="#!" class="btn btn-sm btn-danger" title="Xóa">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center">Chưa có đơn hàng nào</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
