@@ -19,7 +19,9 @@ class ProductsController extends Controller
 
         $products = Product::when($search, function ($query, $search) {
             return $query->where('product_name', 'like', "%{$search}%");
-        })->orderBy('product_id', 'asc')->paginate(2); // Phân trang: 2 sản phẩm mỗi trang
+        })
+            ->orderBy('product_id', 'asc')
+            ->paginate(2); // Phân trang: 2 sản phẩm mỗi trang
 
         $products->appends(['search' => $search]); // Giữ nguyên tham số search khi chuyển trang
 
@@ -90,26 +92,47 @@ class ProductsController extends Controller
     /**
      * Hiển thị chi tiết sản phẩm
      */
-    public function read(Product $product)
+    public function read($id)
     {
-        $product->load('category'); // Nạp thêm thông tin danh mục
+        $product = Product::with('category')->find($id);
+
+        if (!$product) {
+            return redirect()->route('products.list')
+                ->with('error', 'Hiện tại sản phẩm không tồn tại');
+        }
+
         return view('admin.content.products.read', compact('product'));
     }
 
     /**
      * Hiển thị form chỉnh sửa sản phẩm
      */
-    public function edit(Product $product)
+    public function edit($id)
     {
+        $product = Product::find($id);
         $categories = Category::all();
+
+        if (!$product) {
+            return redirect()->route('products.list')
+                ->with('error', 'Hiện tại sản phẩm không tồn tại');
+        }
+
         return view('admin.content.products.edit', compact('product', 'categories'));
     }
 
     /**
      * Cập nhật sản phẩm
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return redirect()->route('products.list')
+                ->with('error', 'Hiện tại sản phẩm không tồn tại');
+        }
+
+        // Xác thực dữ liệu
         $request->validate([
             'product_name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
@@ -157,9 +180,22 @@ class ProductsController extends Controller
     /**
      * Xóa sản phẩm
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return redirect()->route('products.list')
+                ->with('error', 'Hiện tại sản phẩm không tồn tại');
+        }
+
+        // Xóa ảnh nếu có và tồn tại file ảnh
+        if ($product->image && file_exists(public_path($product->image))) {
+            unlink(public_path($product->image));
+        }
+
         $product->delete();
+
         return redirect()->route('products.list')->with('success', 'Sản phẩm đã được xóa.');
     }
 }

@@ -10,6 +10,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
             </div>
         @endif
+        @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Lỗi!</strong> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+@endif
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ route('slide.create') }}" class="btn btn-success">
@@ -44,7 +50,13 @@
                         <td>{{ $slide->slide_id }}</td>
                         <td>{{ $slide->name }}</td>
                         <td>
-                            <img src="{{ asset($slide->image) }}" alt="Slide" class="img-fluid" style="max-height: 200px;">
+                            {{-- <img src="{{ asset($slide->image) }}" alt="Slide" class="img-fluid" style="max-height: 200px;"> --}}
+                            @php
+    $imagePath = public_path($slide->image);
+    $imageUrl = file_exists($imagePath) ? asset($slide->image) : asset('images/default/upload.png');
+@endphp
+<img src="{{ $imageUrl }}" alt="Slide" class="img-fluid" style="max-height: 200px;">
+
                         </td>
                         <td>{{ $slide->created_at->format('d/m/Y') }}</td>
                         <td>

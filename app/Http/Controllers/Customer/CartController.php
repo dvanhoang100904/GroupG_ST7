@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateCartRequest;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
+use App\Models\Category;
 
 class CartController extends Controller
 {
@@ -58,13 +59,12 @@ class CartController extends Controller
 
     /**
      * Thêm sản phẩm vào giỏ hàng.
+     * YÊN DA CHINH SUA PHAN NAY!!!!!!!!! 
      */
     public function addToCart(AddToCartRequest $request)
     {
         // Lấy thông tin sản phẩm và số lượng từ request
         $product_id = $request->input('product_id');
-
-        // Mặc định số lượng là 1
         $quantity = $request->input('quantity', 1);
 
         // Kiểm tra hợp lệ số lượng
@@ -72,17 +72,18 @@ class CartController extends Controller
             return back()->with('error', 'Số lượng không hợp lệ.');
         }
 
-        // Kiểm tra sản phẩm có tồn tại và còn hàng không
+        // Kiểm tra sản phẩm có tồn tại không
         $product = Product::find($product_id);
         if (!$product) {
-            return back()->with('error', 'Sản phẩm không tồn tại.');
+            // Nếu sản phẩm không tồn tại, trả về thông báo lỗi
+            return view('customer.pages.category-not-found');
         }
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user_id = auth()->check() ? auth()->id() : null;
         $session_id = session()->getId();
 
-        //  Ưu tiên lấy cart theo session nếu chưa đăng nhập
+        // Ưu tiên lấy cart theo session nếu chưa đăng nhập
         $cart = null;
 
         if ($user_id) {

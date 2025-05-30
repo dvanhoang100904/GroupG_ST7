@@ -199,6 +199,7 @@ Route::middleware('auth')->group(function () {
 });
 Route::post('/customer/chats', [ChatController::class, 'store'])->name('customer.chats.store')->middleware('auth');
 Route::get('/home', [HomeController::class, 'indexx'])->name('customer.home');
+Route::post('/validate-category', [CategoryControllers::class, 'validateCategory'])->name('category.validate');
 // Route chuyển tới trang đánh giá khách hàng
 Route::get('/admin/reviews', function () {
     return view('admin.content.website.website');
