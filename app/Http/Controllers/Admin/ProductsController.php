@@ -56,6 +56,8 @@ class ProductsController extends Controller
             'slug.alpha_dash' => 'Slug chỉ được chứa chữ cái, số, dấu gạch ngang hoặc gạch dưới.',
             'slug.unique' => 'Slug đã tồn tại. Vui lòng chọn slug khác.',
             
+             'description.max' => 'Mô tả sản phẩm không được vượt quá 1000 ký tự.',
+
             'price.required' => 'Vui lòng nhập giá sản phẩm.',
             'price.numeric' => 'Giá sản phẩm phải là số.',
             'price.min' => 'Giá sản phẩm phải lớn hơn hoặc bằng 0.',
@@ -142,7 +144,7 @@ class ProductsController extends Controller
         $request->validate([
             'product_name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'category_id' => 'required|exists:categories,category_id',
