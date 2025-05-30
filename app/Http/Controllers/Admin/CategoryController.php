@@ -21,7 +21,6 @@ class CategoryController extends Controller
 
         $perPage = 4;
         $page = $request->input('page', 1);
-
         $categories = $query->paginate($perPage);
 
         if ($page > $categories->lastPage()) {
@@ -38,9 +37,8 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        // anh  mac dinh
         $defaultImagePath = 'images/default/upload.png';
-        // Strip tags
+
         $request->merge([
             'category_name' => strip_tags($request->category_name),
             'slug' => strip_tags($request->slug),
@@ -57,13 +55,9 @@ class CategoryController extends Controller
                     if (preg_match('/ {2,}/', $value)) {
                         $fail('Tên danh mục không được chứa 2 dấu cách liên tiếp.');
                     }
-                },
-                function ($attribute, $value, $fail) {
                     if (trim(preg_replace('/[\p{Z}\s　\xA0]/u', '', $value)) === '') {
                         $fail('Tên danh mục không được chỉ chứa khoảng trắng.');
                     }
-                },
-                function ($attribute, $value, $fail) {
                     if (preg_match('/[^\p{L}\p{N}\s]/u', $value)) {
                         $fail('Tên danh mục không được chứa ký tự đặc biệt như @, #, !, v.v.');
                     }
@@ -87,6 +81,9 @@ class CategoryController extends Controller
             'category_name.unique' => 'Tên danh mục đã tồn tại.',
             'slug.unique' => 'Slug đã tồn tại.',
             'slug.regex' => 'Slug chỉ được chứa chữ, số và dấu gạch ngang.',
+            'image.image' => 'Bạn phải chọn đúng định dạng hình ảnh (jpeg, png, jpg, gif, svg).',
+            'image.mimes' => 'Ảnh chỉ được có định dạng: jpeg, png, jpg, gif, svg.',
+            'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
         ]);
 
         $category = new Category();
@@ -121,12 +118,10 @@ class CategoryController extends Controller
             File::delete(public_path($category->image));
         }
 
-
         $category->delete();
 
         return redirect()->route('category.index')->with('success', 'Danh mục đã được xóa.');
     }
-
 
     public function read($id)
     {
@@ -150,16 +145,14 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        // img mac dinh
         $defaultImagePath = 'images/default/upload.png';
-
 
         $category = Category::find($id);
         if (!$category) {
             return redirect()->route('category.index')->with('error', 'Danh mục này không tồn tại hoặc đã bị xóa.');
         }
 
-        // Check conflict (Test case 1)
+        // Kiểm tra xung đột cập nhật
         if (
             $request->has('updated_at') &&
             $request->input('updated_at') !== $category->updated_at->format('Y-m-d H:i:s')
@@ -211,18 +204,19 @@ class CategoryController extends Controller
             'category_name.unique' => 'Tên danh mục đã tồn tại.',
             'slug.unique' => 'Slug đã tồn tại.',
             'slug.regex' => 'Slug chỉ được chứa chữ, số và dấu gạch ngang.',
+            'image.image' => 'Bạn phải chọn đúng định dạng hình ảnh (jpeg, png, jpg, gif, svg).',
+            'image.mimes' => 'Ảnh chỉ được có định dạng: jpeg, png, jpg, gif, svg.',
+            'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
         ]);
 
         $category->category_name = $request->category_name;
         $category->slug = $request->slug ?? Str::slug($request->category_name);
         $category->description = $request->description;
 
-
         if ($request->hasFile('image')) {
             if ($category->image && $category->image !== $defaultImagePath && File::exists(public_path($category->image))) {
                 File::delete(public_path($category->image));
             }
-
 
             $image = $request->file('image');
             $imageName = time() . '_' . $image->getClientOriginalName();
