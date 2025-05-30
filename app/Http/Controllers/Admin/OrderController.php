@@ -115,24 +115,46 @@ class OrderController extends Controller
         // Tìm đơn hàng theo id
         $order = Order::find($id);
 
-        if (!$order) {
-            return redirect()->route('order.list')->with('error', 'Không thể cập nhật: đơn hàng không tồn tại hoặc đã bị xóa.');
-        }
-
-        // Cập nhật trạng thái đơn hàng
-        $order->status = $request->status;
-        $order->save();
-
-        // Cập nhật thông tin thanh toán nếu có
-        $payment = $order->payment;
-        if ($payment) {
-            $payment->status = $request->payment_status;
-            $payment->method = $request->payment_method;
-            $payment->save();
-        }
-
         // Lấy trang hiện tại để duy trì trang khi chuyển hướng
         $page = $request->get('page');
+
+        if (!$order) {
+            return redirect()->route('order.list', ['page' => $page])->with('error', 'Không thể cập nhật: đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
+        if ($request->updated_at != $order->updated_at) {
+            return redirect()->route('order.edit', $id)->with('error', 'Dữ liệu đã bị thay đổi bởi người khác. Vui lòng tải lại trang.');
+        }
+
+        // kiểm tra có thay đổi hay không
+        $isOrderChanged = $order->status !== $request->status;
+
+        // Cập nhật trạng thái nếu có thay đổi
+        if ($isOrderChanged) {
+            $order->status = $request->status;
+            $order->save();
+        }
+
+        // Kiểm tra và cập nhật thông tin thanh toán nếu có thay đổi
+        $payment = $order->payment;
+        $isPaymentChanged = false;
+
+        if ($payment) {
+            $isPaymentChanged = $payment->status !== $request->payment_status || $payment->method !== $request->payment_method;
+
+            if ($isPaymentChanged) {
+                $payment->status = $request->payment_status;
+                $payment->method = $request->payment_method;
+                $payment->save();
+            }
+        }
+
+        // Nếu không có gì thay đổi
+        if (!$isOrderChanged && !$isPaymentChanged) {
+            return redirect()->route('order.list', ['page' => $page])
+                ->with('info', 'Không có thay đổi nào được thực hiện.');
+        }
+
 
         // Chuyển hướng về danh sách đơn hàng
         return redirect()->route('order.list', ['page' => $page])->with('success', 'Cập nhật đơn hàng thành công!');
