@@ -6,7 +6,19 @@
 
 @section('content')
 <div class="container py-3">
-    
+
+    {{-- Hiển thị lỗi validation tổng quát --}}
+    @if($errors->any())
+    <div class="alert alert-danger">
+        <strong>Đã xảy ra lỗi, vui lòng kiểm tra lại:</strong>
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     {{-- Form cập nhật sản phẩm --}}
     <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -106,9 +118,10 @@
 @endif
 
 @endsection
+
 @if(session('not_found'))
-    <script>
-        alert(@json(session('not_found')));
-        window.location.href = "{{ route('products.list') }}";
-    </script>
+<script>
+    alert(@json(session('not_found')));
+    window.location.href = "{{ route('products.list') }}";
+</script>
 @endif

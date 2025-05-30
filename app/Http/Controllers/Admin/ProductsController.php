@@ -49,6 +49,23 @@ class ProductsController extends Controller
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'category_id' => 'required|integer|exists:categories,category_id',
+        ], [
+            'product_name.required' => 'Vui lòng nhập tên sản phẩm.',
+            'product_name.max' => 'Tên sản phẩm không được vượt quá 255 ký tự.',
+            
+            'slug.alpha_dash' => 'Slug chỉ được chứa chữ cái, số, dấu gạch ngang hoặc gạch dưới.',
+            'slug.unique' => 'Slug đã tồn tại. Vui lòng chọn slug khác.',
+            
+            'price.required' => 'Vui lòng nhập giá sản phẩm.',
+            'price.numeric' => 'Giá sản phẩm phải là số.',
+            'price.min' => 'Giá sản phẩm phải lớn hơn hoặc bằng 0.',
+            
+            'image.image' => 'Tệp tải lên phải là ảnh.',
+            'image.mimes' => 'Ảnh phải có định dạng: jpg, jpeg, png hoặc gif.',
+            'image.max' => 'Dung lượng ảnh không được vượt quá 2MB.',
+
+            'category_id.required' => 'Vui lòng chọn danh mục sản phẩm.',
+            'category_id.exists' => 'Danh mục không tồn tại.',
         ]);
 
         // Tạo instance mới
