@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'Trang Chủ')</title>
+
+    <!-- ✅ Favicon -->
+    <link rel="icon" href="{{ asset('images/logo.jpg') }}" type="image/jpeg">
+
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 
     {{-- Google Fonts: Poppins --}}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -17,30 +23,20 @@
 
     {{-- bootstrap css --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/customer.css') }}">
-
+    @stack('styles')
 
 </head>
 
 <body>
-    {{-- header --}}
     @include('customer.layouts.header')
 
-    {{-- navbar --}}
-    @include('customer.layouts.navbar')
+    @yield('content')
 
-    {{-- main content --}}
-    <div>
-        @yield('content')
-    </div>
-
-
-    {{-- footer --}}
     @include('customer.layouts.footer')
 
     {{-- bootstrap js --}}
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/customer.js') }}"></script>
+    @stack('scripts')
 </body>
 
 </html>

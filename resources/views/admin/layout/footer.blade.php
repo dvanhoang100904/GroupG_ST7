@@ -1,5 +1,5 @@
 <!-- Footer -->
 <div class="footer">
-    © 2025 Hệ thống quản trị đẹp trai nhất.!
+    © 2025 Hệ thống quản trị tốt nhất, xịn nhất vũ trụ.!
   </div>
   

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('shipping_addresses', function (Blueprint $table) {
             $table->bigIncrements('shipping_address_id');
             $table->string('name', 50);
+            $table->string('email',)->unique()->nullable();
             $table->string('address', 255);
             $table->string('phone', 20);
             $table->unsignedBigInteger('user_id');

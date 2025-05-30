@@ -21,7 +21,7 @@ class RedirectIfCustomerAuth
 
             // nếu customer đã đăng nhập
             if ($user->role_id === 2) {
-                return redirect()->route('customer.index');
+                return redirect()->route('home');
             }
 
             // nếu admin đã đăng nhập

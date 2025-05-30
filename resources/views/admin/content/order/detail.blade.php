@@ -1,5 +1,5 @@
 @extends('admin.layout.app')
-
+@section('page_title', 'Quản Lý Đơn Hàng')
 @section('content')
     @php
         $paymentStatuses = [
@@ -46,9 +46,6 @@
     @endphp
     <main class="flex-grow-1 p-4 bg-light">
         <div class="mb-4">
-            <h2 class="fw-bold mb-3">
-                <i class="fas fa-shopping-cart me-2"></i> Chi tiết đơn hàng
-            </h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item">
@@ -57,9 +54,12 @@
                             Quản lý đơn hàng
                         </a>
                     </li>
-                    <li class="breadcrumb-item active" aria-current="page">Chi tiết #{{ $order->order_id }}</li>
+                    <li class="breadcrumb-item active" aria-current="page">Chi tiết </li>
                 </ol>
             </nav>
+            <h3 class="fw-bold mb-3">
+                <i class="fas fa-shopping-cart me-2"></i> Chi tiết đơn hàng #{{ $order->order_id }}
+            </h3>
         </div>
 
         {{-- detail --}}
@@ -91,7 +91,7 @@
             <div class="card-body row">
                 <div class="col-md-6">
                     <p><strong>Tên Người Nhận:</strong> {{ $order->shippingAddress->name }}</p>
-                    <p><strong>Email:</strong> {{ $order->user->email }}</p>
+                    <p><strong>Email:</strong> {{ $order->shippingAddress->email }}</p>
                     <div class="col-md-6">
                         <p><strong>Số điện thoại:</strong> {{ $order->shippingAddress->phone }}</p>
                         <p><strong>Địa chỉ giao hàng:</strong> {{ Str::limit($order->shippingAddress->address, 30) }}</p>
@@ -118,15 +118,16 @@
                             <tr class="text-center">
                                 <td>
                                     @if ($orderDetail->product)
-                                        {{ $orderDetail->product->name }}
+                                        {{ $orderDetail->product->product_name }}
                                     @else
                                         <span class="text-muted">[Đã xoá]</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if ($orderDetail->product && $orderDetail->product->image)
-                                        <img src="{{ asset('storage/' . $orderDetail->product->image) }}"
-                                            alt="{{ $orderDetail->product->name }}" width="50" class="rounded border">
+                                        <img src="{{ asset($orderDetail->product->image) }}"
+                                            alt="{{ $orderDetail->product->product_name }}" width="50"
+                                            class="rounded border">
                                     @else
                                         <span class="text-muted">Không có ảnh</span>
                                     @endif
@@ -154,7 +155,8 @@
                 <i class="fas fa-arrow-left"></i> Quay lại
             </a>
 
-            <a href="#!" class="btn btn-warning">
+            <a href="{{ route('order.edit', $order->order_id) }}?page={{ request()->get('page') }}"
+                class="btn btn-warning">
                 <i class="fas fa-edit"></i> Chỉnh sửa
             </a>
         </div>
