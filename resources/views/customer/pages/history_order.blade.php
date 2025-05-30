@@ -98,8 +98,13 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <h6 class="fw-bold">Thông tin giao hàng</h6>
-                                            <p class="mb-1">{{ $order->shippingAddress->address }}</p>
-                                            <p class="mb-1">{{ $order->shippingAddress->phone }}</p>
+                                            @if($order->shippingAddress)
+                                                <p class="mb-1">{{ $order->shippingAddress->address }}</p>
+                                                <p class="mb-1">{{ $order->shippingAddress->phone }}</p>
+                                            @else
+                                                <p class="mb-1 text-muted">Chưa có địa chỉ giao hàng</p>
+                                            @endif
+
                                         </div>
                                         <div class="col-md-6 text-md-end">
                                             <h6 class="fw-bold">Tổng cộng</h6>

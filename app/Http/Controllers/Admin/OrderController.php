@@ -25,15 +25,21 @@ class OrderController extends Controller
         if ($request->has('q')) {
             $search = $request->q;
             // Tìm kiếm theo order_id, hoặc thông tin người dùng (tên, email)
-            $query->where('order_id', 'LIKE', "%$search%")
-                ->orWhereHas('user', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%")
-                        ->orWhere('email', 'LIKE', "%$search%");
-                });
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('email', 'LIKE', "%{$search}%");
+                    });
+            });
         }
 
         // Lấy các đơn hàng mới nhất có phân trang và giữ lại từ khóa tìm kiếm
         $orders = $query->latest()->paginate(self::PER_PAGES)->appends($request->only('q'));
+
+        if ($orders->isEmpty()) {
+            return back()->with('error', 'Không tìm thấy đơn hàng nào phù hợp với từ khóa "' . $search . '".');
+        }
 
         // Trả về view danh sách đơn hàng
         return view('admin.content.order.list', compact('orders'));

@@ -115,12 +115,12 @@ class ProductSeeder extends Seeder
             $products = $productData[$categoryName]['products'] ?? [];
             $desc = $productData[$categoryName]['description'] ?? 'Sản phẩm chất lượng cao.';
 
-            // Nếu chưa đủ 20 sản phẩm thì thêm sản phẩm giả để đủ
+            // Nếu chưa đủ 100 sản phẩm thì thêm sản phẩm giả để đủ
             $existingCount = count($products);
-            $total = 20;
+            $total = 100;
 
             for ($i = $existingCount + 1; $i <= $total; $i++) {
-                $products[] = "{$categoryName} Sản phẩm {$i}";
+                $products[] = "{$categoryName} {$i}";
             }
 
             // Duyệt từng sản phẩm để insert vào DB

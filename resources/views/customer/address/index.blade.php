@@ -3,6 +3,28 @@
 @section('title', 'Quản lý địa chỉ nhận hàng')
 
 @section('content')
+
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+@endif
+
+@if (session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>{{ session('warning') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-times-circle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+@endif
+
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold text-primary">
@@ -25,34 +47,34 @@
 
                                     </h5>
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                                            id="addressDropdown{{ $address->shipping_address_id }}"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <ul class="dropdown-menu"
-                                            aria-labelledby="addressDropdown{{ $address->shipping_address_id }}">
-                                            <li>
-                                                <a class="dropdown-item"
-                                                    href="{{ route('shipping_address.edit', $address->shipping_address_id) }}">
-                                                    <i class="fas fa-edit me-2 text-primary"></i>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <form
-                                                    action="{{ route('shipping_address.destroy', $address->shipping_address_id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="dropdown-item"
-                                                        onclick="return confirm('Bạn có chắc muốn xoá địa chỉ này không?')">
-                                                        <i class="fas fa-trash-alt me-2 text-danger"></i>
-                                                    </button>
-                                                </form>
-                                            </li>
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                        id="addressDropdown{{ $address->shipping_address_id }}"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu"
+                                        aria-labelledby="addressDropdown{{ $address->shipping_address_id }}">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('shipping_address.edit', $address->shipping_address_id) }}">
+                                                <i class="fas fa-edit me-2 text-primary"></i>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form
+                                                action="{{ route('shipping_address.destroy', $address->shipping_address_id) }}"
+                                                method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item"
+                                                    onclick="return confirm('Bạn có chắc muốn xoá địa chỉ này không?')">
+                                                    <i class="fas fa-trash-alt me-2 text-danger"></i>
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
 
-                                        </ul>
-                                    </div>
                                 </div>
 
                                 <div class="address-details">
