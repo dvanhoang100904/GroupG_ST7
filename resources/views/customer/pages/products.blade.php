@@ -81,12 +81,18 @@
                     <p class="description">{{ Str::limit($product->description, 100) }}</p>
 
                     {{-- Nút yêu thích sản phẩm --}}
-                    <form method="POST" action="{{ route('favorites.store', ['productId' => $product->product_id]) }}" style="display:inline;">
-                        @csrf
-                        <button class="favorite-btn" data-product-id="{{ $product->product_id }}" style="background:none; border:none; cursor:pointer;">
-                            <i class="fa fa-heart" style="color: black;"></i>
-                        </button>
-                    </form>
+                    @php
+                    $isFavorited = auth()->check() && optional($product->favorites)->contains('user_id', auth()->id());
+                @endphp
+
+                <form method="POST" action="{{ route('favorites.store', ['productId' => $product->product_id]) }}" style="display:inline;">
+                    @csrf
+                    <button class="favorite-btn" data-product-id="{{ $product->product_id }}" style="background:none; border:none; cursor:pointer;">
+                        <i class="fa fa-heart" style="color: {{ $isFavorited ? 'red' : 'black' }};"></i>
+                    </button>
+
+                </form>
+
 
                     {{-- Nút thêm vào giỏ hàng --}}
                     <form method="POST" action="{{ route('cart.addToCart') }}">
