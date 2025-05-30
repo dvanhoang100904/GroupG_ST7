@@ -14,6 +14,13 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         {{-- Thanh công cụ: Nút thêm và ô tìm kiếm --}}
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ route('products.create') }}" class="btn btn-success">

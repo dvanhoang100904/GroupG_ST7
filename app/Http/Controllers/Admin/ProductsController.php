@@ -8,6 +8,9 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\PaginatorInvalidPageException;
 
 class ProductsController extends Controller
 {
@@ -29,16 +32,26 @@ class ProductsController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search'); // Lấy từ khóa tìm kiếm từ query string (?search=...)
+        $search = $request->input('search');
+        $page = $request->input('page');
+
+        // 👉 Kiểm tra nếu page không phải số nguyên dương (vd: abc, -1, v.v.)
+        if ($page && (!ctype_digit($page) || (int)$page < 1)) {
+            return redirect()->route('products.list')->with('error', 'Tham số phân trang không hợp lệ.');
+        }
 
         $products = Product::when($search, function ($query, $search) {
             return $query->where('product_name', 'like', "%{$search}%");
-        })->orderBy('product_id', 'asc')->paginate(2); // Phân trang: 2 sản phẩm mỗi trang
+        })->orderBy('product_id', 'asc')->paginate(2)->appends(['search' => $search]);
 
-        $products->appends(['search' => $search]); // Giữ nguyên tham số search khi chuyển trang
+        // 👉 Nếu trang yêu cầu vượt quá số trang hiện có
+        if ($products->isEmpty() && $products->currentPage() > 1) {
+            return redirect()->route('products.list')->with('error', 'Trang bạn yêu cầu vượt quá số trang hiện có.');
+        }
 
-        return view('admin.content.products.list', compact('products', 'search')); // Trả về view danh sách
+        return view('admin.content.products.list', compact('products', 'search'));
     }
+
 
     /**
      * Hiển thị form tạo mới sản phẩm
