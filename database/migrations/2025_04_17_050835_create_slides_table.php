@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('slides', function (Blueprint $table) {
             $table->bigIncrements('slide_id');
+            $table->string('name');
             $table->string('image');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('link')->nullable();
+            $table->boolean('is_visible')->default(false); // trạng thái hiện - không hiện  
             $table->timestamps();
         });
     }

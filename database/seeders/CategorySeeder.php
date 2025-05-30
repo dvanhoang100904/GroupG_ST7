@@ -2,41 +2,51 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Faker\Factory as Faker;
 
 class CategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        $faker = Faker::create();
-
+        // Dữ liệu danh mục sản phẩm
         $categories = [
-            [
-                'name' => 'Điện thoại, Tablet',
-                'image' => 'phones.jpg'
-            ],
-            [
-                'name' => 'Laptop',
-                'image' => 'laptops.jpg'
-            ],
-            [
-                'name' => 'Phụ kiện',
-                'image' => 'accessories.jpg'
-            ],
+            'Điện thoại',
+            'Laptop',
+            'Âm thanh (tai nghe, loa)',
+            'Đồng hồ',
+            'Đồ gia dụng',
+            'PC - Màn hình',
+            'Tivi'
         ];
+
+        // Duyệt qua từng danh mục để thêm vào cơ sở dữ liệu
         foreach ($categories as $category) {
-            Category::create([
-                'name' => $category['name'],
-                'slug' => Str::slug($category['name']) . '-' . uniqid(),
-                'description' => $faker->sentence(20),
-                'image' => $category['image'],
+            $categorySlug = Str::slug($category);
+
+            $image = null;
+            switch ($categorySlug) {
+                case 'tivi':
+                    $image = 'img_category/smart-tv.png';
+                    break;
+                case 'laptop':
+                    $image = 'img_category/laptop-screen.png';
+                    break;
+                case 'dong-ho':
+                    $image = 'img_category/clock.png';
+                    break;
+                default:
+                    $image = null;
+            }
+
+            DB::table('categories')->insert([
+                'category_name' => $category,
+                'slug' => $categorySlug,
+                'description' => 'Mô tả cho ' . $category,
+                'image' => $image,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }

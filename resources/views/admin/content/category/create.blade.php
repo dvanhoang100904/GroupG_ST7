@@ -1,12 +1,10 @@
 @extends('admin.layout.app')
 
-@section('title', 'Thêm danh mục')
 @section('page_title', 'Thêm mới danh mục')
 
 @section('content')
     <div class="container py-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3>Thêm mới danh mục</h3>
             <a href="{{ route('category.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Quay lại danh sách
             </a>
@@ -15,10 +13,10 @@
         <form action="{{ route('category.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-3">
-                <label for="name" class="form-label">Tên danh mục</label>
-                <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror"
-                    value="{{ old('name') }}" required>
-                @error('name')
+                <label for="category_name" class="form-label">Tên danh mục</label>
+                <input type="text" name="category_name" id="category_name" class="form-control @error('category_name') is-invalid @enderror"
+                    value="{{ old('category_name') }}" required>
+                @error('category_name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>

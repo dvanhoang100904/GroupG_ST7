@@ -1,14 +1,38 @@
 @extends('admin.layout.app')
 
-@section('title', 'Quản lý danh mục')
+@section('page_title', 'Quản Lý Danh Mục')
 
 @section('content')
-    <div class="container py-3">
+    <div class="container py-3">  
+        {{-- thong bao --}}
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Thành công!</strong> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Lỗi!</strong> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3>Danh sách danh mục</h3>
             <a href="{{ route('category.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Thêm danh mục
             </a>
+          
+
+                <!-- Ô tìm kiếm -->
+        <div class="search-box">
+            <form method="GET" action="{{ route('category.index') }}" class="search-form">
+                <input type="text" name="search" placeholder="Tìm kiếm danh mục..." value="{{ request('search') }}">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
         </div>
 
         <table class="table table-bordered table-hover">
@@ -25,7 +49,7 @@
                 @forelse ($categories as $category)
                     <tr>
                         <td>{{ $category->category_id }}</td>
-                        <td>{{ $category->name }}</td>
+                        <td>{{ $category->category_name }}</td>
                         <td>{{ $category->slug }}</td>
                         <td>{{ $category->description }}</td>
                         <td>
@@ -56,6 +80,5 @@
 
         <!-- Phân trang -->
         @include('admin.layout.pagination', ['paginator' => $categories])
-
     </div>
 @endsection

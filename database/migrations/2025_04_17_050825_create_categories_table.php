@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->bigIncrements('category_id');
-            $table->string('name', 100);
-            $table->text('description')->nullable();
+            $table->string('category_name', 255);
             $table->text('image')->nullable();
-            $table->string('slug', 100)->unique();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Xóa bảng 'categories' nếu tồn tại
         Schema::dropIfExists('categories');
     }
 };
