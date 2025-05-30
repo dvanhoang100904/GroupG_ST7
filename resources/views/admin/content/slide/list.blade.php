@@ -10,6 +10,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
             </div>
         @endif
+        @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Lỗi!</strong> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+@endif
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <a href="{{ route('slide.create') }}" class="btn btn-success">

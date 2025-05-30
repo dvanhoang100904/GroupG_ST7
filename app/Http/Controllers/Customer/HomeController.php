@@ -16,7 +16,7 @@ class HomeController extends Controller
     {
         // Lấy dữ liệu slides
         $slides = Slide::all();  // Hoặc tùy vào cách bạn lưu trữ slide
-        
+
         // Lấy tất cả các danh mục từ bảng 'categories'
         $categories = Category::orderBy('category_id')->get();
 
@@ -25,10 +25,10 @@ class HomeController extends Controller
             $query->whereBetween('price', [4000000, 10000000])
                 ->orWhere('created_at', '>=', now()->subDays(7));
         })
-        ->orderByDesc('created_at')
-        ->limit(8)
-        ->get();
-        
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
+
         // ktra và lấy trạng thái == true từ crud
         $slides = Slide::where('is_visible', true)->get();
         // Lấy danh sách chat nếu người dùng là khách hàng
@@ -44,6 +44,7 @@ class HomeController extends Controller
                 ->get();
         }
 
-        return view('customer.pages.home', compact('categories', 'featuredProducts', 'slides' , 'chats'));
+        return view('customer.pages.home', compact('categories', 'featuredProducts', 'slides', 'chats'));
     }
+    // yen da xoa tu dong tao danh muc old
 }
