@@ -117,8 +117,16 @@ class ProductsController extends Controller
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
             'category_id' => 'required|exists:categories,category_id',
+            'version' => 'required|integer', // Kiểm tra version
         ]);
 
+        // Kiểm tra xung đột phiên bản (cập nhật từ tab cũ)
+        if ($request->version != $product->version) {
+            // Trả về với session version_conflict để view xử lý alert + redirect
+            return redirect()->back()->with('version_conflict', 'Sản phẩm đã được cập nhật ở tab khác. Vui lòng tải lại trang để lấy dữ liệu mới nhất.');
+        }
+
+        // Cập nhật dữ liệu
         $product->product_name = $request->product_name;
         $product->description = $request->description;
         $product->price = $request->price;
@@ -136,7 +144,7 @@ class ProductsController extends Controller
         $category = Category::find($request->category_id);
         $categorySlug = Str::slug($category->category_name);
 
-        // Cập nhật ảnh nếu có file ảnh mới
+        // Cập nhật ảnh nếu có
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $image = $request->file('image');
             $extension = strtolower($image->getClientOriginalExtension());
@@ -149,10 +157,15 @@ class ProductsController extends Controller
             $product->image = "images/{$categorySlug}/{$imageName}";
         }
 
+        // Tăng version
+        $product->version = $product->version + 1;
+
         $product->save();
 
-        return redirect()->route('products.read', $product->product_id)->with('success', 'Cập nhật sản phẩm thành công.');
+        return redirect()->route('products.read', $product->product_id)
+            ->with('success', 'Cập nhật sản phẩm thành công.');
     }
+
 
     /**
      * Xóa sản phẩm

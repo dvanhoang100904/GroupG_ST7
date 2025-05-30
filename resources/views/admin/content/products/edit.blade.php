@@ -19,7 +19,6 @@
             <input type="text" name="product_name"
                 class="form-control @error('product_name') is-invalid @enderror"
                 value="{{ old('product_name', $product->product_name) }}" required>
-            {{-- Hiển thị lỗi nếu có --}}
             @error('product_name')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -50,7 +49,6 @@
         <div class="mb-3">
             <label class="form-label">Danh mục</label>
             <select name="category_id" class="form-control @error('category_id') is-invalid @enderror" required>
-                {{-- Lặp qua danh sách danh mục để tạo option --}}
                 @foreach ($categories as $category)
                     <option value="{{ $category->category_id }}"
                         {{ old('category_id', $product->category_id) == $category->category_id ? 'selected' : '' }}>
@@ -84,8 +82,20 @@
             @enderror
         </div>
 
+        {{-- Trường version để xử lý cập nhật trùng --}}
+        <input type="hidden" name="version" value="{{ $product->version }}">
+
         {{-- Nút submit --}}
         <button type="submit" class="btn btn-primary">Cập nhật</button>
     </form>
 </div>
+
+{{-- Hiển thị alert nếu có lỗi version_conflict và redirect về list --}}
+@if(session('version_conflict'))
+<script>
+    alert(@json(session('version_conflict')));
+    window.location.href = "{{ route('products.list') }}";
+</script>
+@endif
+
 @endsection
