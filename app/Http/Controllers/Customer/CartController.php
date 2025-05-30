@@ -59,7 +59,6 @@ class CartController extends Controller
 
     /**
      * Thêm sản phẩm vào giỏ hàng.
-     * YÊN DA CHINH SUA PHAN NAY!!!!!!!!! 
      */
     public function addToCart(AddToCartRequest $request)
     {
