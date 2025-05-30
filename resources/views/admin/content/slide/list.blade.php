@@ -50,7 +50,7 @@
                         <td>{{ $slide->slide_id }}</td>
                         <td>{{ $slide->name }}</td>
                         <td>
-                            <img src="{{ asset($slide->image) }}" alt="Slide" class="img-fluid" style="max-height: 200px;">
+                            {{-- <img src="{{ asset($slide->image) }}" alt="Slide" class="img-fluid" style="max-height: 200px;"> --}}
                             @php
     $imagePath = public_path($slide->image);
     $imageUrl = file_exists($imagePath) ? asset($slide->image) : asset('images/default/upload.png');

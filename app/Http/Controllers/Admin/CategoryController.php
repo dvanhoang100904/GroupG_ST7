@@ -58,7 +58,7 @@ class CategoryController extends Controller
                     if (trim(preg_replace('/[\p{Z}\s　\xA0]/u', '', $value)) === '') {
                         $fail('Tên danh mục không được chỉ chứa khoảng trắng.');
                     }
-                    if (preg_match('/[^\p{L}\p{N}\s]/u', $value)) {
+                    if (preg_match('/[^\p{L}\p{N}\s(),-]/u', $value)) {
                         $fail('Tên danh mục không được chứa ký tự đặc biệt như @, #, !, v.v.');
                     }
                 },
@@ -181,7 +181,7 @@ class CategoryController extends Controller
                     if (trim(preg_replace('/[\p{Z}\s　\xA0]/u', '', $value)) === '') {
                         $fail('Tên danh mục không được chỉ chứa khoảng trắng.');
                     }
-                    if (preg_match('/[^\p{L}\p{N}\s]/u', $value)) {
+                    if (preg_match('/[^\p{L}\p{N}\s(),-]/u', $value)) {
                         $fail('Tên danh mục không được chứa ký tự đặc biệt như @, #, !, v.v.');
                     }
                 },
