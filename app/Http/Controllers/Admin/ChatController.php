@@ -12,7 +12,11 @@ class ChatController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedUserId = $request->input('user_id'); // truyền vào nếu muốn xem chat với người dùng nào
+        $selectedUserId = $request->input('user_id');
+
+        if ($selectedUserId && !User::find($selectedUserId)) {
+            return redirect()->route('admin.chat.index')->with('error', 'Người dùng không tồn tại.');
+        }
 
         $query = Chat::with('user')->whereNull('assessment_star_id');
 
@@ -23,19 +27,19 @@ class ChatController extends Controller
             });
         }
 
-        $chats = $query->orderBy('created_at')->get();
+        $chats = $query->orderBy('created_at')->paginate(30)->withQueryString();
 
         $users = User::whereHas('chats', function ($q) {
             $q->where('receiver_id', auth()->id())
                 ->orWhere('user_id', auth()->id());
         })->get();
 
-        // Lấy thông tin edit từ session
         $editingChatId = session('editing_chat_id');
         $editingChatContent = session('editing_chat_content');
 
         return view('admin.content.website.chat', compact('chats', 'users', 'selectedUserId', 'editingChatId', 'editingChatContent'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -44,7 +48,7 @@ class ChatController extends Controller
 
         Chat::create([
             'user_id' => auth()->id(),
-            'receiver_id' => 1, // ID của admin hoặc user mặc định nhận tin nhắn
+            'receiver_id' => 1, // TODO: Cần làm động nếu nhiều admin
             'description' => $request->message,
             'type' => 'chat',
             'status' => 'open',
@@ -57,88 +61,88 @@ class ChatController extends Controller
     {
         $adminId = auth()->id();
 
-        // Lấy tất cả chat gửi đến admin, nhóm theo user gửi
-        $chats = Chat::with('user')
-            ->where('receiver_id', $adminId)
-            ->orderBy('created_at')
-            ->get()
-            ->groupBy('user_id');
+        try {
+            $chats = Chat::with('user')
+                ->where('receiver_id', $adminId)
+                ->orderBy('created_at')
+                ->get()
+                ->groupBy('user_id');
 
-        // Gom nhóm chat thành mảng theo user
-        $grouped = $chats->map(function ($items, $userId) {
-            return [
-                'user_id' => $userId,
-                'user_name' => $items->first()->user->name ?? 'Không rõ',
-                'messages' => $items->map(function ($chat) {
-                    return [
-                        'description' => $chat->description,
-                        'created_at' => $chat->created_at->format('d/m/Y H:i')
-                    ];
-                })
-            ];
-        });
+            $grouped = $chats->map(function ($items, $userId) {
+                return [
+                    'user_id' => $userId,
+                    'user_name' => optional($items->first()->user)->name ?? 'Không rõ',
+                    'messages' => $items->map(function ($chat) {
+                        return [
+                            'description' => $chat->description,
+                            'created_at' => $chat->created_at->format('d/m/Y H:i')
+                        ];
+                    })
+                ];
+            });
 
-        // Lấy danh sách người dùng đã chat với admin, loại trừ user_id = 1 (admin)
-        $users = User::whereHas('chats', function ($q) use ($adminId) {
-            $q->where('receiver_id', $adminId)
-                ->orWhere('user_id', $adminId);
-        })->where('user_id', '!=', 1)->get();
+            $users = User::whereHas('chats', function ($q) use ($adminId) {
+                $q->where('receiver_id', $adminId)->orWhere('user_id', $adminId);
+            })->where('user_id', '!=', 1)->get();
 
-        return response()->json([
-            'groupedChats' => $grouped,
-            'users' => $users,
-        ]);
+            return response()->json([
+                'groupedChats' => $grouped,
+                'users' => $users,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Dữ liệu không hợp lệ, vui lòng tải lại trang.'], 400);
+        }
     }
 
-    // Hiển thị trang chi tiết chat của một user
     public function showChat($id)
     {
         $adminId = auth()->id();
 
-        $user = User::findOrFail($id);
+        try {
+            $user = User::find($id);
+            if (!$user) {
+                return redirect()->route('admin.chat.index')->with('error', 'Người dùng không tồn tại.');
+            }
 
-        // Lấy các tin nhắn 2 chiều giữa user này và admin
-        $chats = Chat::with('user')
-            ->where(function ($q) use ($id, $adminId) {
-                $q->where('user_id', $id)->where('receiver_id', $adminId);
-            })
-            ->orWhere(function ($q) use ($id, $adminId) {
-                $q->where('user_id', $adminId)->where('receiver_id', $id);
-            })
-            ->orderBy('created_at')
-            ->get();
+            $chats = Chat::with('user')
+                ->where(function ($q) use ($id, $adminId) {
+                    $q->where('user_id', $id)->where('receiver_id', $adminId);
+                })
+                ->orWhere(function ($q) use ($id, $adminId) {
+                    $q->where('user_id', $adminId)->where('receiver_id', $id);
+                })
+                ->orderBy('created_at')
+                ->get();
 
-        // Lấy danh sách người dùng đã từng chat, loại trừ admin (user_id=1)
-        $users = User::whereHas('chats', function ($q) use ($adminId) {
-            $q->where('receiver_id', $adminId)
-                ->orWhere('user_id', $adminId);
-        })->where('user_id', '!=', 1)->get();
+            $users = User::whereHas('chats', function ($q) use ($adminId) {
+                $q->where('receiver_id', $adminId)->orWhere('user_id', $adminId);
+            })->where('user_id', '!=', 1)->get();
 
-        $selectedUserId = $id; // Người đang chat
+            $selectedUserId = $id;
 
-        return view('admin.content.website.chat', compact(
-            'user',
-            'chats',
-            'users',
-            'selectedUserId'
-        ))->with([
-            'editingChatId' => session('editing_chat_id'),
-            'editingChatContent' => session('editing_chat_content'),
-        ]);
+            return view('admin.content.website.chat', compact('user', 'chats', 'users', 'selectedUserId'))
+                ->with([
+                    'editingChatId' => session('editing_chat_id'),
+                    'editingChatContent' => session('editing_chat_content'),
+                ]);
+        } catch (\Exception $e) {
+            return redirect()->route('admin.chat.index')->with('error', 'Người dùng không tồn tại hoặc tin nhắn đã bị xóa.');
+        }
     }
 
-    // Gửi phản hồi từ admin đến người dùng
     public function reply(Request $request, $id)
     {
-        // Kiểm tra dữ liệu đầu vào
         $request->validate([
             'description' => 'required|string|max:1000'
         ]);
 
-        // Tạo tin nhắn mới
+        if (!User::find($id)) {
+            return redirect()->route('admin.chat.index')->with('error', 'Người dùng không tồn tại.');
+        }
+
         $chat = new Chat();
-        $chat->user_id = Auth::id(); // Admin gửi
-        $chat->receiver_id = $id;    // Người dùng nhận
+        $chat->user_id = Auth::id();
+        $chat->receiver_id = $id;
         $chat->description = $request->description;
         $chat->type = 'reply';
         $chat->status = 'open';
@@ -146,7 +150,6 @@ class ChatController extends Controller
         $chat->photo = null;
         $chat->save();
 
-        //  Sau khi gửi tin nhắn, chuyển về lại trang chat với người dùng
         return redirect()->route('admin.chat.show', ['id' => $id])
             ->with('success', 'Phản hồi đã được gửi thành công.');
     }
