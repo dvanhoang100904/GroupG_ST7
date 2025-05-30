@@ -117,82 +117,113 @@
 
                         <small class="text-muted d-block mt-2">{{ $review->created_at->format('d/m/Y H:i') }}</small>
 
-                {{-- PHẢN HỒI TẠM THỜI LỒNG TRONG ĐÁNH GIÁ KHÁCH HÀNG --}}
-@if (session()->has('temp_replies'))
-    @php
-        $tempReplies = collect(session('temp_replies'))
-            ->where('review_id', $review->review_id)
-            ->filter(function($r) {
-                return now()->timestamp - $r['time'] <= 900;
-            });
-    @endphp
+                        {{-- PHẢN HỒI LỒNG TRONG ĐÁNH GIÁ KHÁCH HÀNG --}}
+                        @if (session()->has('temp_replies'))
+                            @php
+                                $tempReplies = collect(session('temp_replies'))
+                                    ->where('review_id', $review->review_id)
+                                    ->filter(function ($r) {
+                                        return now()->timestamp - $r['time'] <= 900;
+                                    });
+                            @endphp
 
-    {{-- Chỉ hiển thị nếu review này là của khách hàng (user_id != 1) và có phản hồi tạm --}}
-    @if ($review->user_id != 1 && $tempReplies->count())
-        @foreach ($tempReplies as $reply)
-            <div class="admin-reply mt-3 ms-3 ps-3 border-start border-warning rounded" style="background:#fff9e6;">
-                <div class="mb-2 p-2">
-                    <strong class="text-warning">Phản hồi từ Admin (tạm thời)</strong>
-                    <div class="star-rating text-muted">{!! str_repeat('☆', 5) !!}</div>
-                    <p class="mb-1">{{ $reply['content'] }}</p>
-                    <small class="text-muted">Gửi lúc {{ \Carbon\Carbon::createFromTimestamp($reply['time'])->format('d/m/Y H:i') }}</small>
-                </div>
-            </div>
-        @endforeach
-    @endif
-@endif
-
-                    <!-- Modal chỉnh sửa -->
-                    <div class="modal fade" id="editReviewModal{{ $review->review_id }}" tabindex="-1"
-                        aria-labelledby="editReviewModalLabel{{ $review->review_id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Chỉnh sửa Đánh giá</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form action="{{ route('reviews.update', $review->review_id) }}" method="POST"
-                                        enctype="multipart/form-data">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="mb-3">
-                                            <label class="form-label">Đánh giá sao</label>
-                                            <input type="number" name="rating" class="form-control" value="{{ $review->rating }}"
-                                                min="1" max="5" required>
+                            {{-- Chỉ hiển thị nếu review này là của khách hàng (user_id != 1) và có phản hồi --}}
+                            @if ($review->user_id != 1 && $tempReplies->count())
+                                @foreach ($tempReplies as $reply)
+                                    <div class="admin-reply mt-3 ms-3 ps-3 border-start border-warning rounded" style="background:#fff9e6;">
+                                        <div class="mb-2 p-2">
+                                            <strong class="text-warning">Phản hồi từ Admin </strong>
+                                            <div class="star-rating text-muted">{!! str_repeat('☆', 5) !!}</div>
+                                            <p class="mb-1">{{ $reply['content'] }}</p>
+                                            <small class="text-muted">Gửi lúc
+                                                {{ \Carbon\Carbon::createFromTimestamp($reply['time'])->format('d/m/Y H:i') }}</small>
                                         </div>
-                                        @if ($review->photo)
-                                            <div class="mb-3">
-                                                <label class="form-label">Ảnh hiện tại</label><br>
-                                                <img src="{{ asset($review->photo) }}" alt="Ảnh đánh giá"
-                                                    style="max-width: 100px; border-radius: 8px;">
-                                            </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        @endif
+                        <!-- Modal chỉnh sửa -->
+                        <div class="modal fade" id="editReviewModal{{ $review->review_id }}" tabindex="-1"
+                            aria-labelledby="editReviewModalLabel{{ $review->review_id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Chỉnh sửa Đánh giá</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        {{-- Cảnh báo lỗi cập nhật bị xung đột hoặc bị xóa --}}
+                                        @if (session('update_error'))
+                                            <div class="alert alert-warning">{{ session('update_error') }}</div>
                                         @endif
 
-                                        <!-- Chọn ảnh mới -->
-                                        <div class="mb-3">
-                                            <label class="form-label">Chọn ảnh mới (tùy chọn)</label>
-                                            <input type="file" name="photo" accept="image/*" class="form-control">
-                                        </div>
+                                        @if (session('error'))
+                                            <div class="alert alert-danger">{{ session('error') }}</div>
+                                        @endif
 
-                                        <div class="mb-3">
-                                            <label class="form-label">Nội dung</label>
-                                            <textarea name="content" class="form-control" rows="3"
-                                                required>{{ $review->content }}</textarea>
-                                        </div>
-                                        <div class="mb-3 text-end">
-                                            <button type="submit" class="btn btn-primary">Cập nhật</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                        </div>
-                                    </form>
+                                        <form action="{{ route('reviews.update', $review->review_id) }}" method="POST"
+                                            enctype="multipart/form-data">
+                                            @csrf
+                                            @method('PUT')
+
+                                            {{-- Gửi updated_at để phát hiện cập nhật từ tab khác --}}
+                                            <input type="hidden" name="updated_at" value="{{ $review->updated_at->toISOString() }}">
+
+                                            {{-- Đánh giá sao --}}
+                                            <div class="mb-3">
+                                                <label class="form-label">Đánh giá sao</label>
+                                                <input type="number" name="rating" class="form-control"
+                                                    value="{{ old('rating', $review->rating) }}" min="1" max="5" required>
+                                                @error('rating') <small class="text-danger">{{ $message }}</small> @enderror
+                                            </div>
+
+                                            {{-- Ảnh hiện tại + tùy chọn xóa --}}
+                                            @if ($review->photo)
+                                                <div class="mb-3">
+                                                    <label class="form-label">Ảnh hiện tại</label><br>
+                                                    <img src="{{ asset($review->photo) }}" alt="Ảnh đánh giá"
+                                                        style="max-width: 100px; border-radius: 8px;">
+                                                    <div class="form-check mt-2">
+                                                        <input type="checkbox" name="remove_photo" class="form-check-input"
+                                                            id="removePhotoCheckbox{{ $review->review_id }}">
+                                                        <label for="removePhotoCheckbox{{ $review->review_id }}"
+                                                            class="form-check-label">Xóa ảnh hiện tại</label>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            {{-- Chọn ảnh mới --}}
+                                            <div class="mb-3">
+                                                <label class="form-label">Chọn ảnh mới (tùy chọn)</label>
+                                                <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,.pdf,.docx,.txt"
+                                                    class="form-control">
+                                                @error('photo') <small class="text-danger">{{ $message }}</small> @enderror
+                                            </div>
+
+                                            {{-- Nội dung đánh giá --}}
+                                            <div class="mb-3">
+                                                <label class="form-label">Nội dung</label>
+                                                <textarea name="content" class="form-control" rows="3"
+                                                    required>{{ old('content', $review->content) }}</textarea>
+                                                @error('content') <small class="text-danger">{{ $message }}</small> @enderror
+                                            </div>
+
+                                            {{-- Nút thao tác --}}
+                                            <div class="mb-3 text-end">
+                                                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                            </div>
+                                        </form>
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                 @endforeach
             @else
-                <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
-            @endif
+                    <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
+                @endif
         </section>
 
 
@@ -291,5 +322,19 @@
                 }
             });
         });
+        document.addEventListener('DOMContentLoaded', function () {
+            @if($errors->any() || session('error') || session('success'))
+                var reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+                reviewModal.show();
+            @endif
+                    });
+        @if (session('open_modal'))
+            document.addEventListener("DOMContentLoaded", function () {
+                var modalId = "{{ session('open_modal') }}";
+                var modal = new bootstrap.Modal(document.getElementById(modalId));
+                modal.show();
+                console.log("Auto-open modal: " + modalId);
+            });
+        @endif
     </script>
 @endpush
