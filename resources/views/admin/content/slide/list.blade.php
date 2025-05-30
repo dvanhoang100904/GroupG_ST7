@@ -51,6 +51,12 @@
                         <td>{{ $slide->name }}</td>
                         <td>
                             <img src="{{ asset($slide->image) }}" alt="Slide" class="img-fluid" style="max-height: 200px;">
+                            @php
+    $imagePath = public_path($slide->image);
+    $imageUrl = file_exists($imagePath) ? asset($slide->image) : asset('images/default/upload.png');
+@endphp
+<img src="{{ $imageUrl }}" alt="Slide" class="img-fluid" style="max-height: 200px;">
+
                         </td>
                         <td>{{ $slide->created_at->format('d/m/Y') }}</td>
                         <td>
