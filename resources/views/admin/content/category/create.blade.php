@@ -18,7 +18,7 @@
                     value="{{ old('category_name') }}" required>
                 @error('category_name')
                     <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                @enderror             
             </div>
 
             <div class="mb-3">

@@ -39,8 +39,14 @@
                 @if ($slide->image)
                     <div>
                         <strong>Hình ảnh:</strong><br>
-                        <img src="{{ asset($slide->image) }}" alt="Ảnh slide" class="img-thumbnail"
-                            style="max-width: 300px;">
+                        @php
+                            $imagePath = public_path($slide->image);
+                            $imageUrl = file_exists($imagePath) ? asset($slide->image) : asset('images/default/upload.png');
+                        @endphp
+                        <img src="{{ $imageUrl }}" alt="Slide" class="img-fluid" style="max-height: 200px;">
+
+                        {{-- <img src="{{ asset($slide->image) }}" alt="Ảnh slide" class="img-thumbnail"
+                            style="max-width: 300px;"> --}}
                     </div>
                 @else
                     <p><strong>Hình ảnh:</strong> Không có ảnh</p>
