@@ -2,6 +2,16 @@
 
 return [
 
+    'passwords' => [
+    'customers' => [
+        'provider' => 'customers', // nếu bạn có provider riêng
+        'table' => 'password_resets',
+        'expire' => 60,
+        'throttle' => 60,
+    ],
+],
+
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
@@ -111,5 +121,7 @@ return [
     */
 
     'password_timeout' => 10800,
+
+    
 
 ];

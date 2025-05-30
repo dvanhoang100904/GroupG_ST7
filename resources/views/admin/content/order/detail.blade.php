@@ -91,7 +91,7 @@
             <div class="card-body row">
                 <div class="col-md-6">
                     <p><strong>Tên Người Nhận:</strong> {{ $order->shippingAddress->name }}</p>
-                    <p><strong>Email:</strong> {{ $order->user->email }}</p>
+                    <p><strong>Email:</strong> {{ $order->shippingAddress->email }}</p>
                     <div class="col-md-6">
                         <p><strong>Số điện thoại:</strong> {{ $order->shippingAddress->phone }}</p>
                         <p><strong>Địa chỉ giao hàng:</strong> {{ Str::limit($order->shippingAddress->address, 30) }}</p>
@@ -118,15 +118,16 @@
                             <tr class="text-center">
                                 <td>
                                     @if ($orderDetail->product)
-                                        {{ $orderDetail->product->name }}
+                                        {{ $orderDetail->product->product_name }}
                                     @else
                                         <span class="text-muted">[Đã xoá]</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if ($orderDetail->product && $orderDetail->product->image)
-                                        <img src="{{ asset('storage/' . $orderDetail->product->image) }}"
-                                            alt="{{ $orderDetail->product->name }}" width="50" class="rounded border">
+                                        <img src="{{ asset($orderDetail->product->image) }}"
+                                            alt="{{ $orderDetail->product->product_name }}" width="50"
+                                            class="rounded border">
                                     @else
                                         <span class="text-muted">Không có ảnh</span>
                                     @endif

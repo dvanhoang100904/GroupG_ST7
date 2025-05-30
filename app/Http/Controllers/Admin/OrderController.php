@@ -10,50 +10,73 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+    // Định nghĩa số lượng đơn hàng hiển thị mỗi trang
+    const PER_PAGES = 10;
+
     /**
-     * List Orders
+     * Liệt kê danh sách đơn hàng
      */
     public function index(Request $request)
     {
+        // Tạo truy vấn cơ sở dữ liệu cho đơn hàng
         $query = Order::query();
 
+        // Kiểm tra nếu có từ khóa tìm kiếm
         if ($request->has('q')) {
             $search = $request->q;
-            $query->where('order_id', 'LIKE', "%$search%")
-                ->orWhereHas('user', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%")
-                        ->orWhere('email', 'LIKE', "%$search%");
-                });
+            // Tìm kiếm theo order_id, hoặc thông tin người dùng (tên, email)
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'LIKE', "%{$search}%")
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'LIKE', "%{$search}%")
+                            ->orWhere('email', 'LIKE', "%{$search}%");
+                    });
+            });
         }
 
-        $perPage = 10;
-        $orders = $query->latest()->paginate($perPage)->appends($request->only('q'));
+        // Lấy các đơn hàng mới nhất có phân trang và giữ lại từ khóa tìm kiếm
+        $orders = $query->latest()->paginate(self::PER_PAGES)->appends($request->only('q'));
 
+        if ($orders->isEmpty()) {
+            return back()->with('error', 'Không tìm thấy đơn hàng nào phù hợp với từ khóa "' . $search . '".');
+        }
+
+        // Trả về view danh sách đơn hàng
         return view('admin.content.order.list', compact('orders'));
     }
 
     /**
-     * Detail order
+     * Hiển thị chi tiết đơn hàng
      */
     public function show($id)
     {
+        // Tìm đơn hàng theo id
         $order = Order::find($id);
+
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
+        // Trả về view chi tiết đơn hàng
         return view('admin.content.order.detail', compact('order'));
     }
 
     /**
-     * delete Order
+     * Xóa đơn hàng
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        DB::beginTransaction();
-
+        // Tìm đơn hàng theo id
         $order = Order::find($id);
 
-        // Xoá các chi tiết đơn hàng 
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
+        // Xóa các chi tiết đơn hàng liên quan
         $order->orderDetails()->delete();
 
-        // Xoá thông tin thanh toán
+        // Xóa thông tin thanh toán nếu có
         if ($order->payment) {
             $order->payment()->delete();
         }
@@ -61,32 +84,46 @@ class OrderController extends Controller
         // Xoá chính đơn hàng
         $order->delete();
 
-        DB::commit();
+        // Lấy trang hiện tại để duy trì trang khi chuyển hướng
+        $page = $request->get('page');
 
-        return redirect()->route('order.list')->with('success', 'Xóa đơn hàng thành công.');
+        // Chuyển hướng về danh sách đơn hàng
+        return redirect()->route('order.list', ['page' => $page])->with('success', 'Xóa đơn hàng thành công.');
     }
 
     /**
-     * Form Edit Order
+     * Hiển thị form chỉnh sửa đơn hàng
      */
     public function edit($id)
     {
+        // Tìm đơn hàng theo id
         $order = Order::find($id);
+
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
+        // Trả về view chỉnh sửa đơn hàng
         return view('admin.content.order.edit', compact('order'));
     }
 
     /**
-     * Update Order
+     * Cập nhật thông tin đơn hàng
      */
     public function update(UpdateOrderRequest $request, $id)
     {
-        DB::beginTransaction();
-
+        // Tìm đơn hàng theo id
         $order = Order::find($id);
+
+        if (!$order) {
+            return redirect()->route('order.list')->with('error', 'Không thể cập nhật: đơn hàng không tồn tại hoặc đã bị xóa.');
+        }
+
+        // Cập nhật trạng thái đơn hàng
         $order->status = $request->status;
         $order->save();
 
-        // Cập nhật payment nếu tồn tại
+        // Cập nhật thông tin thanh toán nếu có
         $payment = $order->payment;
         if ($payment) {
             $payment->status = $request->payment_status;
@@ -94,10 +131,10 @@ class OrderController extends Controller
             $payment->save();
         }
 
-        DB::commit();
-
+        // Lấy trang hiện tại để duy trì trang khi chuyển hướng
         $page = $request->get('page');
 
+        // Chuyển hướng về danh sách đơn hàng
         return redirect()->route('order.list', ['page' => $page])->with('success', 'Cập nhật đơn hàng thành công!');
     }
 }

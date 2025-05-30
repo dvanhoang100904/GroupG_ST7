@@ -22,6 +22,7 @@ class ShippingAddressSeeder extends Seeder
 
             ShippingAddress::create([
                 'name' => $faker->name,
+                'email' => $faker->email,
                 'address' => $faker->address,
                 'phone' => $faker->phoneNumber,
                 'user_id' => $user->user_id,
