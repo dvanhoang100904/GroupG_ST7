@@ -9,9 +9,24 @@
         {{-- Hiển thị thông báo thành công nếu có --}}
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <strong>Thành công!</strong> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
             </div>
+        @endif
+
+        {{-- Hiển thị thông báo lỗi nếu có --}}
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Lỗi!</strong> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+
+            <script>
+                // Tự động reload trang sau 3 giây nếu có lỗi
+                setTimeout(function() {
+                    window.location.reload();
+                }, 3000);
+            </script>
         @endif
 
         {{-- Thanh công cụ: Nút thêm và ô tìm kiếm --}}
