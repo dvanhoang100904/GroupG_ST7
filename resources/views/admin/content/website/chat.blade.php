@@ -28,7 +28,7 @@
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
     margin-top: 70px;
-    margin-left: 10%: 
+    margin-left: 10%:
     }
 
     .chat-sidebar h2 {
@@ -217,7 +217,7 @@
     <ul class="chat-list">
       @foreach ($users as $userItem)
       @if ($userItem && $userItem->user_id)
-      <li class="chat-item {{ $userItem->user_id == $selectedUserId ? 'active' : '' }}">
+       @if ($userItem && $userItem->user_id && $userItem->user_id != 1)
       <a href="{{ route('admin.chat.show', ['id' => $userItem->user_id]) }}"
       class="d-flex align-items-center gap-3 text-decoration-none text-dark">
       <img src="https://i.pravatar.cc/40?u={{ $userItem->user_id }}" alt="avatar">
@@ -227,6 +227,7 @@
       </div>
       </a>
       </li>
+      @endif
     @else
       <li class="chat-item text-danger">Không xác định được user</li>
     @endif
@@ -331,7 +332,14 @@
     @else
     <div class="alert alert-warning">Vui lòng chọn một người dùng để gửi tin nhắn.</div>
     @endif
-
     </main>
-  </div>
-@endsection
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const chatMessages = document.getElementById('chat-messages');
+      if (chatMessages) {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    });
+    </script>
+
+  @endsection
