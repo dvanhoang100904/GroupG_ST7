@@ -98,6 +98,12 @@ class ProductsController extends Controller
             return back()->withErrors(['description' => 'Mô tả sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
         }
 
+        // Kiểm tra trùng tên sản phẩm
+        $existing = Product::where('product_name', $request->product_name)->first();
+        if ($existing) {
+            return back()->withErrors(['product_name' => 'Tên sản phẩm đã tồn tại.'])->withInput();
+        }
+
         // Tạo instance mới
         $product = new Product();
         $product->product_name = $request->product_name;
@@ -191,12 +197,18 @@ class ProductsController extends Controller
             return redirect()->back()->with('version_conflict', 'Sản phẩm đã được cập nhật ở tab khác. Vui lòng tải lại trang để lấy dữ liệu mới nhất.');
         }
 
-                // Kiểm tra chuỗi chỉ chứa khoảng trắng (kể cả khoảng trắng Unicode)
+        // Kiểm tra chuỗi chỉ chứa khoảng trắng (kể cả khoảng trắng Unicode)
         if (preg_match('/^\s*$/u', $request->product_name)) {
             return back()->withErrors(['product_name' => 'Tên sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
         }
         if ($request->description !== null && preg_match('/^\s*$/u', $request->description)) {
             return back()->withErrors(['description' => 'Mô tả sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
+        }
+
+        // Kiểm tra trùng tên sản phẩm
+        $existing = Product::where('product_name', $request->product_name)->first();
+        if ($existing) {
+            return back()->withErrors(['product_name' => 'Tên sản phẩm đã tồn tại.'])->withInput();
         }
 
         // Cập nhật dữ liệu
