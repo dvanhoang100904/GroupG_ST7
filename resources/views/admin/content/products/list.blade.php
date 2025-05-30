@@ -9,24 +9,16 @@
         {{-- Hiển thị thông báo thành công nếu có --}}
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>Thành công!</strong> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
-        {{-- Hiển thị thông báo lỗi nếu có --}}
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Lỗi!</strong> {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-
-            <script>
-                // Tự động reload trang sau 3 giây nếu có lỗi
-                setTimeout(function() {
-                    window.location.reload();
-                }, 3000);
-            </script>
         @endif
 
         {{-- Thanh công cụ: Nút thêm và ô tìm kiếm --}}
@@ -72,8 +64,16 @@
                         <td>{{ $product->product_id }}</td>
                         <td>{{ $product->product_name }}</td>
                         <td>
-                            @if ($product->image)
+                            @php
+                                $imagePath = public_path($product->image);
+                                $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh');
+                                $defaultImage = "images/{$categorySlug}/mac-dinh.jpg";
+                            @endphp
+
+                            @if ($product->image && file_exists($imagePath))
                                 <img src="{{ asset($product->image) }}" width="60" alt="{{ $product->product_name }}">
+                            @elseif (file_exists(public_path($defaultImage)))
+                                <img src="{{ asset($defaultImage) }}" width="60" alt="Ảnh mặc định">
                             @else
                                 <span class="text-muted">Không có ảnh</span>
                             @endif
@@ -91,16 +91,48 @@
                                 <i class="fas fa-edit"></i> Sửa
                             </a>
 
-                            {{-- Form xóa sản phẩm --}}
-                            <form action="{{ route('products.destroy', $product->product_id) }}" method="POST"
-                                class="d-inline-block"
-                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i> Xóa
-                                </button>
-                            </form>
+                        {{-- Nút xóa sản phẩm bằng AJAX --}}
+                        <button class="btn btn-danger btn-sm btn-delete"
+                                data-id="{{ $product->product_id }}">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+
+                        {{-- Script xử lý xóa AJAX --}}
+                        <script>
+                            const deleteUrlTemplate = "{{ route('products.destroy', ['id' => ':id']) }}";
+
+                            document.querySelectorAll('.btn-delete').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+
+                                    const id = this.getAttribute('data-id');
+                                    const url = deleteUrlTemplate.replace(':id', id);
+
+                                    fetch(url, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            location.reload();
+                                        } else {
+                                            alert(data.message);
+                                            location.reload();
+                                        }
+                                    })
+                                    .catch(error => {
+                                        alert('Lỗi khi xóa sản phẩm');
+                                        console.error(error);
+                                    });
+                                });
+                            });
+                        </script>
+
                         </td>
                     </tr>
                 @empty
