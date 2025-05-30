@@ -2,6 +2,13 @@
 @section('title', 'Chỉnh sửa địa chỉ nhận hàng')
 
 @section('content')
+@if (session('warning'))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>{{ session('warning') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+@endif
+
 <div class="container">
     <h2 class="page-heading mb-4">Chỉnh sửa địa chỉ nhận hàng</h2>
 
@@ -34,6 +41,7 @@
             <button type="submit" class="btn btn-primary">Cập nhật</button>
             <a href="{{ route('shipping_address.index') }}" class="btn btn-outline-secondary">Hủy</a>
         </div>
+        <input type="hidden" name="updated_at" value="{{ $shippingAddress->updated_at->toISOString() }}">
     </form>
 </div>
 @endsection

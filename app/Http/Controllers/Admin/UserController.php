@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    //Hiển thị user
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -33,13 +34,15 @@ class UserController extends Controller
     }
 
 
-
+    //Tạo user
     public function create()
     {
         $roles = Role::all();
         return view('admin.content.user.create', compact('roles'));
     }
 
+
+    //User
     public function store(Request $request)
     {
         $request->validate([
@@ -70,17 +73,26 @@ class UserController extends Controller
         return redirect()->route('users.list')->with('success', 'Thêm người dùng thành công.');
     }
 
+    //Detail user
     public function read(User $user)
     {
         return view('admin.content.user.read', compact('user'));
     }
 
-    public function edit(User $user)
+
+    //Edit user
+    public function edit($userId)
     {
-        $roles = Role::all();
-        return view('admin.content.user.edit', compact('user', 'roles'));
+        try {
+            $user = User::findOrFail($userId);
+            $roles = Role::all();
+            return view('admin.content.user.edit', compact('user', 'roles'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->route('users.list')->with('warning', 'Người dùng không tồn tại hoặc đã bị xoá.');
+        }
     }
 
+    //Update user
     public function update(Request $request, User $user)
     {
         $request->validate([
@@ -116,14 +128,26 @@ class UserController extends Controller
         return redirect()->route('users.read', $user->user_id)->with('success', 'Cập nhật người dùng thành công.');
     }
 
+    //Xử lý xoá user
     public function destroy(User $user)
-    {
-        if ($user->avatar && file_exists(public_path($user->avatar))) {
-            unlink(public_path($user->avatar));
+        {
+            if ($user->user_id == 1) {
+                    return redirect()->route('users.list')->with('error', 'Không thể xoá người dùng Admin!');
+                }
+            try {
+                 
+                if ($user->avatar && file_exists(public_path($user->avatar))) {
+                    unlink(public_path($user->avatar));
+                }
+
+                $user->delete();
+
+                return redirect()->route('users.list')->with('success', 'Người dùng đã bị xóa.');
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                return redirect()->route('users.list')->with('warning', 'Người dùng này đã bị xóa hoặc không tồn tại!');
+            } catch (\Exception $e) {
+                return redirect()->route('users.list')->with('error', 'Đã có lỗi xảy ra, vui lòng thử lại.');
+            }
         }
 
-        $user->delete();
-
-        return redirect()->route('users.list')->with('success', 'Người dùng đã bị xóa.');
-    }
 }
