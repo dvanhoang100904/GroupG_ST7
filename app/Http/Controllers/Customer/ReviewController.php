@@ -217,20 +217,34 @@ class ReviewController extends Controller
     // Xóa đánh giá
     public function destroy($reviewId)
     {
-        $review = Review::findOrFail($reviewId);
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Bạn cần đăng nhập để xóa đánh giá.');
+        }
+        $review = Review::find($reviewId);
+
+        if (!$review) {
+            return back()->with('error', 'Đánh giá không tồn tại hoặc đã bị xóa.');
+        }
 
         if (Auth::id() !== $review->user_id) {
             return back()->with('error', 'Bạn không có quyền xóa đánh giá này.');
         }
 
-        if ($review->photo && file_exists(public_path($review->photo))) {
-            unlink(public_path($review->photo));
+        if ($review->photo) {
+            $photoPath = public_path($review->photo);
+            if (file_exists($photoPath)) {
+                @unlink($photoPath); // dùng @ để tránh lỗi khi xóa
+            }
         }
-
-        $review->delete();
-
-        return back()->with('success', 'Đánh giá đã được xóa.');
+        try {
+            $review->delete();
+            return back()->with('success', 'Đánh giá đã được xóa.');
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi xóa đánh giá: ' . $e->getMessage());
+            return back()->with('error', 'Không thể xóa đánh giá. Vui lòng thử lại.');
+        }
     }
+
     public function index(Request $request)
     {
         $query = Review::with(['user', 'chat'])
