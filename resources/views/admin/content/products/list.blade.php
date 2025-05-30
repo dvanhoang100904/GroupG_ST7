@@ -101,11 +101,14 @@
                         <script>
                             const deleteUrlTemplate = "{{ route('products.destroy', ['id' => ':id']) }}";
 
-                            document.querySelectorAll('.btn-delete').forEach(button => {
-                                button.addEventListener('click', function () {
+                            document.addEventListener('click', function (e) {
+                                if (e.target.closest('.btn-delete')) {
+                                    e.preventDefault();
+                                    const button = e.target.closest('.btn-delete');
+
                                     if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
 
-                                    const id = this.getAttribute('data-id');
+                                    const id = button.getAttribute('data-id');
                                     const url = deleteUrlTemplate.replace(':id', id);
 
                                     fetch(url, {
@@ -117,19 +120,14 @@
                                     })
                                     .then(response => response.json())
                                     .then(data => {
-                                        if (data.success) {
-                                            alert(data.message);
-                                            location.reload();
-                                        } else {
-                                            alert(data.message);
-                                            location.reload();
-                                        }
+                                        alert(data.message);
+                                        location.reload();
                                     })
                                     .catch(error => {
                                         alert('Lỗi khi xóa sản phẩm');
                                         console.error(error);
                                     });
-                                });
+                                }
                             });
                         </script>
 
