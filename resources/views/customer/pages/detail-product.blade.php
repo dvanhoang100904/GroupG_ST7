@@ -291,5 +291,11 @@
                 }
             });
         });
+        document.addEventListener('DOMContentLoaded', function () {
+        @if($errors->any() || session('error') || session('success'))
+            var reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+            reviewModal.show();
+        @endif
+    });
     </script>
 @endpush

@@ -24,31 +24,65 @@ class ReviewController extends Controller
                 ->with('error', 'Bạn cần đăng nhập để đánh giá sản phẩm.');
         }
 
-        $request->validate([
-            'content' => 'required|string|max:1000',
-            'rating' => 'required|integer|min:1|max:5',
-            'photo' => 'nullable|image|max:2048',
+        // Chuyển số full-width thành half-width (ex: "５" -> "5")
+        $request->merge([
+            'rating' => preg_replace_callback('/[０-９]/u', fn($m) => ord($m[0]) - 65248, $request->rating)
         ]);
 
+        // Validate đầu vào
+        $request->validate([
+            'content' => [
+                'required',
+                'string',
+                'max:1000',
+                'not_regex:/^\s*$/u', // kiểm tra khoảng trắng
+            ],
+            'rating' => 'required|integer|min:1|max:5',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [
+            'content.required' => 'Vui lòng nhập nội dung đánh giá.',
+            'content.not_regex' => 'Nội dung không được toàn là khoảng trắng.',
+            'photo.image' => 'Chỉ được tải lên định dạng ảnh.',
+            'photo.mimes' => 'Ảnh phải là định dạng .jpg, .png, .jpeg, .gif, .webp.',
+        ]);
+
+
+        // Kiểm tra nếu người dùng vừa mới gửi đánh giá trong vòng 15s
+        $latestReview = Review::where('user_id', Auth::id())
+            ->where('product_id', $productId)
+            ->latest()
+            ->first();
+
+        if ($latestReview && $latestReview->created_at->diffInSeconds(now()) < 15) {
+            return redirect()->back()->with('error', 'Vui lòng chờ ít nhất 15s trước khi gửi đánh giá mới.');
+        }
+
         $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photo = $request->file('photo');
-            $fileName = time() . '_' . Str::random(10) . '.' . $photo->getClientOriginalExtension();
+        try {
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                $fileName = time() . '_' . Str::random(10) . '.' . $photo->getClientOriginalExtension();
 
-            $destination = public_path('images/reviews');
-            if (!File::exists($destination)) {
-                File::makeDirectory($destination, 0755, true);
+                $destination = public_path('images/reviews');
+                if (!File::exists($destination)) {
+                    File::makeDirectory($destination, 0755, true);
+                }
+
+                $photo->move($destination, $fileName);
+                $photoPath = 'images/reviews/' . $fileName;
             }
-
-            $photo->move($destination, $fileName);
-            $photoPath = 'images/reviews/' . $fileName;
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi upload ảnh đánh giá: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Không thể upload ảnh đánh giá.');
         }
 
         try {
+            $cleanContent = strip_tags(trim($request->content)); // Xoá HTML + khoảng trắng dư thừa
+
             Review::create([
                 'user_id' => Auth::id(),
                 'product_id' => $productId,
-                'content' => $request->content,
+                'content' => $cleanContent,
                 'rating' => $request->rating,
                 'photo' => $photoPath,
                 'type' => 'product',
@@ -62,10 +96,10 @@ class ReviewController extends Controller
                 ->with('success', 'Đánh giá đã được gửi thành công!');
         } catch (\Exception $e) {
             Log::error('Lỗi khi lưu đánh giá: ' . $e->getMessage());
-
             return redirect()->back()->with('error', 'Đã xảy ra lỗi khi lưu đánh giá.');
         }
     }
+
     //API
     public function tempConfirm(Request $request)
     {
