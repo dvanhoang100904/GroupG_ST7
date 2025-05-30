@@ -7,7 +7,19 @@
         <div class="product-top-section">
             {{-- Hình ảnh --}}
             <div class="product-image">
-                <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                @php
+                    $imagePath = public_path($product->image);
+                    $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh');
+                    $defaultImage = "images/{$categorySlug}/mac-dinh.jpg";
+                @endphp
+
+                @if ($product->image && file_exists($imagePath))
+                    <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                @elseif (file_exists(public_path($defaultImage)))
+                    <img src="{{ asset($defaultImage) }}" alt="Ảnh mặc định">
+                @else
+                    <p class="text-muted">Không có ảnh</p>
+                @endif
             </div>
 
             {{-- Thông tin sản phẩm --}}

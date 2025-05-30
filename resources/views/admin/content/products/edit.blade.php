@@ -83,10 +83,18 @@
         {{-- Ảnh hiện tại của sản phẩm --}}
         <div class="mb-3">
             <label class="form-label">Ảnh hiện tại</label><br>
-            @if ($product->image)
+            @php
+                $imagePath = public_path($product->image);
+                $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh');
+                $defaultImage = "images/{$categorySlug}/mac-dinh.jpg";
+            @endphp
+
+            @if ($product->image && file_exists($imagePath))
                 <img src="{{ asset($product->image) }}" width="150" alt="{{ $product->product_name }}">
+            @elseif (file_exists(public_path($defaultImage)))
+                <img src="{{ asset($defaultImage) }}" width="150" alt="Ảnh mặc định">
             @else
-                <p>Chưa có ảnh</p>
+                <p class="text-muted">Chưa có ảnh</p>
             @endif
         </div>
 

@@ -49,9 +49,21 @@
         @foreach ($products as $product)
             {{-- Thẻ bao mỗi sản phẩm, liên kết tới trang chi tiết --}}
             <a href="{{ route('products.detail', ['slug' => $product->slug]) }}" class="product-card">
+                {{-- Hiển thị ảnh sản phẩm --}}
                 <div class="product-image">
-                    {{-- Hiển thị ảnh sản phẩm --}}
-                    <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                    @php
+                        $imagePath = public_path($product->image);
+                        $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh');
+                        $defaultImage = "images/{$categorySlug}/mac-dinh.jpg";
+                    @endphp
+
+                    @if ($product->image && file_exists($imagePath))
+                        <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                    @elseif (file_exists(public_path($defaultImage)))
+                        <img src="{{ asset($defaultImage) }}" alt="Ảnh mặc định">
+                    @else
+                        <p class="text-muted">Không có ảnh</p>
+                    @endif
                 </div>
 
                 <div class="product-info">

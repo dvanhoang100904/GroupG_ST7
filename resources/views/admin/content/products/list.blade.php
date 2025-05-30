@@ -64,8 +64,16 @@
                         <td>{{ $product->product_id }}</td>
                         <td>{{ $product->product_name }}</td>
                         <td>
-                            @if ($product->image)
+                            @php
+                                $imagePath = public_path($product->image);
+                                $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh');
+                                $defaultImage = "images/{$categorySlug}/mac-dinh.jpg";
+                            @endphp
+
+                            @if ($product->image && file_exists($imagePath))
                                 <img src="{{ asset($product->image) }}" width="60" alt="{{ $product->product_name }}">
+                            @elseif (file_exists(public_path($defaultImage)))
+                                <img src="{{ asset($defaultImage) }}" width="60" alt="Ảnh mặc định">
                             @else
                                 <span class="text-muted">Không có ảnh</span>
                             @endif

@@ -218,11 +218,6 @@ class ProductsController extends Controller
             return back()->withErrors(['description' => 'Mô tả sản phẩm không được chỉ chứa khoảng trắng.'])->withInput();
         }
 
-        // Kiểm tra trùng tên sản phẩm
-        $existing = Product::where('product_name', $request->product_name)->first();
-        if ($existing) {
-            return back()->withErrors(['product_name' => 'Tên sản phẩm đã tồn tại.'])->withInput();
-        }
 
         // Cập nhật dữ liệu
         $product->product_name = $request->product_name;
