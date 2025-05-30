@@ -5,6 +5,13 @@
     {{-- Bắt đầu nội dung chính sẽ được chèn vào layout --}}
     <div class="container">
 
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
         {{-- Banner đầu trang 
         <div class="banner-wrapper">
             @foreach ($slides as $slide)

@@ -70,10 +70,23 @@ class ProductController extends Controller
 
 
     // Trang chi tiết sản phẩm
-    public function detail($slug)
+    public function detail($slug,  Request $request)
     {
         // Tìm sản phẩm theo slug
-        $product = Product::where('slug', $slug)->firstOrFail();
+        $product = Product::where('slug', $slug)->first();
+
+        if (!$product) {
+            // Lấy URL trang hiện tại người dùng đang ở (trang bấm vào sản phẩm)
+            $previousUrl = url()->previous();
+
+            // Nếu URL trước đó là chính trang detail này (để tránh lặp vô tận), chuyển về products.index
+            if ($previousUrl === $request->fullUrl()) {
+                return redirect()->route('products.index')->with('error', 'Sản phẩm đã bị xóa hoặc không tồn tại.');
+            }
+
+            // Redirect về trang trước đó với thông báo lỗi
+            return redirect($previousUrl)->with('error', 'Sản phẩm đã bị xóa hoặc không tồn tại. Trang sẽ được tải lại.');
+        }
 
         // Lấy các sản phẩm tương tự nếu có
         $similarProducts = Product::where('product_id', '!=', $product->product_id)
