@@ -5,6 +5,13 @@
 
 @section('content')
     <div class="container">
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
         {{-- Hiển thị tên danh mục sản phẩm (viết hoa toàn bộ) --}}
         <h2 class="product-heading">{{ mb_strtoupper($category->category_name) }}</h2>
 

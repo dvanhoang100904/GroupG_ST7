@@ -4,6 +4,14 @@
 
 @section('content') {{-- Bắt đầu nội dung trang --}}
 <div class="container">
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    @endif
+
     {{-- Tiêu đề cho trang sản phẩm --}}
     <h2 class="product-heading">SẢN PHẨM</h2>
 
