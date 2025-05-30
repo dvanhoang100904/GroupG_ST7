@@ -64,6 +64,7 @@ class ChatController extends Controller
         try {
             $chats = Chat::with('user')
                 ->where('receiver_id', $adminId)
+
                 ->orderBy('created_at')
                 ->get()
                 ->groupBy('user_id');
@@ -155,28 +156,71 @@ class ChatController extends Controller
     }
     public function edit(Chat $chat)
     {
-        if ($chat->created_at->diffInMinutes(now()) > 5 || $chat->user_id !== auth()->id()) {
-            return back()->with('error', 'Không thể sửa tin nhắn này.');
+        if (!$chat || !$chat->exists) {
+            return redirect()->route('admin.chat.show', ['id' => auth()->id()])
+                ->with('error', 'Tin nhắn không tồn tại hoặc đã bị xóa.');
         }
 
+        // Kiểm tra quyền và thời gian chỉnh sửa
+        if ($chat->created_at->diffInMinutes(now()) > 5 || $chat->user_id !== auth()->id()) {
+            return redirect()->route('admin.chat.show', [
+                'id' => $chat->user_id === auth()->id() ? $chat->receiver_id : $chat->user_id
+            ])->with('error', 'Không thể sửa tin nhắn này.');
+        }
+
+        // Kiểm tra xem tin nhắn có bị thay đổi so với session hay không
+        if (session('editing_chat_id') && session('editing_chat_id') == $chat->chat_id) {
+            if (session('editing_chat_content') !== $chat->description) {
+                session()->forget(['editing_chat_id', 'editing_chat_content']);
+                return redirect()->route('admin.chat.show', [
+                    'id' => $chat->user_id === auth()->id() ? $chat->receiver_id : $chat->user_id
+                ])->with('warning', 'Tin nhắn đã bị thay đổi, vui lòng kiểm tra lại.');
+            }
+        }
+
+        // Lưu session sửa
         session([
             'editing_chat_id' => $chat->chat_id,
             'editing_chat_content' => $chat->description,
         ]);
 
-        return back();
+        return redirect()->route('admin.chat.show', [
+            'id' => $chat->user_id === auth()->id() ? $chat->receiver_id : $chat->user_id
+        ]);
     }
+
 
     public function update(Request $request, Chat $chat)
     {
+        if (!$chat || !$chat->exists) {
+            return redirect()->route('admin.chat.show', ['id' => auth()->id()])
+                ->with('error', 'Tin nhắn không tồn tại hoặc đã bị xóa.');
+        }
+
+        if ($chat->created_at->diffInMinutes(now()) > 5 || $chat->user_id !== auth()->id()) {
+            return redirect()->route('admin.chat.show', [
+                'id' => $chat->user_id === auth()->id() ? $chat->receiver_id : $chat->user_id
+            ])->with('error', 'Không thể sửa tin nhắn này.');
+        }
+
         $request->validate([
             'description' => 'required|string|max:1000',
         ]);
 
+        if ($chat->description === $request->description) {
+            return redirect()->route('admin.chat.show', [
+                'id' => $chat->user_id === auth()->id() ? $chat->receiver_id : $chat->user_id
+            ])->with('info', 'Không có thay đổi nào được thực hiện.');
+        }
+
         $chat->description = $request->description;
         $chat->save();
+
         session()->forget(['editing_chat_id', 'editing_chat_content']);
-        return redirect()->back()->with('success', 'Cập nhật tin nhắn thành công!');
+
+        return redirect()->route('admin.chat.show', [
+            'id' => $chat->user_id === auth()->id() ? $chat->receiver_id : $chat->user_id
+        ])->with('success', 'Cập nhật tin nhắn thành công!');
     }
 
     public function destroy(Chat $chat)

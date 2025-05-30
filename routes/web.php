@@ -175,7 +175,7 @@ Route::middleware('auth')->group(function () {
 
     // Route form phản hồi cho đánh giá
     Route::get('admin/reviews/{review}/reply', [ReviewController::class, 'replyForm'])->name('admin.reviews.reply');
- Route::get('{review_id}/temp-replies', [ReviewController::class, 'getTemporaryReplies'])->name('admin.reviews.tempReplies.get');
+    Route::get('{review_id}/temp-replies', [ReviewController::class, 'getTemporaryReplies'])->name('admin.reviews.tempReplies.get');
     Route::post('{review_id}/temp-replies', [ReviewController::class, 'addTemporaryReply'])->name('admin.reviews.tempReplies.add');
     Route::delete('{review_id}/temp-replies', [ReviewController::class, 'deleteTemporaryReply'])->name('admin.reviews.tempReplies.delete');
     // Route xử lý phản hồi cho đánh giá
@@ -189,10 +189,12 @@ Route::middleware('auth')->group(function () {
     // Chỉnh sửa
     Route::get('/admin/chat/edit/{chat}', [ChatController::class, 'edit'])->name('admin.chat.edit');
     Route::put('/admin/chat/update/{chat}', [ChatController::class, 'update'])->name('admin.chat.update');
+
     Route::get('/admin/chat/cancel-edit', function () {
         session()->forget(['editing_chat_id', 'editing_chat_content']);
         return back();
     })->name('admin.chat.cancelEdit');
+    Route::get('/chat/{id}', [ChatController::class, 'showChat'])->name('chat.show');
 
     // Xóa
     Route::delete('/admin/chat/delete/{chat}', [ChatController::class, 'destroy'])->name('admin.chat.delete');
