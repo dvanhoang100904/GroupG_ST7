@@ -1,28 +1,39 @@
-@extends('customer.layouts.app') {{-- Kế thừa layout giao diện khách hàng --}}
+@extends('customer.layouts.app') {{-- Kế thừa layout chính dành cho giao diện khách hàng --}}
 
-@section('title', 'Trang sản phẩm') {{-- Gán tiêu đề trang --}}
+@section('title', 'Trang sản phẩm') {{-- Đặt tiêu đề cho trang là "Trang sản phẩm" --}}
 
-@section('content') {{-- Bắt đầu nội dung trang --}}
+@section('content') {{-- Bắt đầu nội dung chính của trang --}}
 <div class="container">
-    {{-- Tiêu đề cho trang sản phẩm --}}
+
+    {{-- Nếu có thông báo lỗi trong session (ví dụ như lỗi khi thêm giỏ hàng, lỗi hệ thống...) --}}
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }} {{-- Hiển thị thông báo lỗi --}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    @endif
+
+    {{-- Tiêu đề lớn cho phần danh sách sản phẩm --}}
     <h2 class="product-heading">SẢN PHẨM</h2>
 
-    {{-- Bộ lọc sắp xếp --}}
+    {{-- Khu vực sắp xếp sản phẩm --}}
     <div class="sort-filter mb-3">
         <div class="sort-label">Sắp xếp:</div>
-        <form method="GET" id="sortForm"> {{-- Form sắp xếp sử dụng phương thức GET --}}
+
+        {{-- Form gửi yêu cầu sắp xếp bằng phương thức GET --}}
+        <form method="GET" id="sortForm">
+            {{-- Nếu người dùng đang tìm kiếm thì giữ lại từ khóa trong form --}}
             @if(request('search'))
-                {{-- Giữ nguyên từ khóa tìm kiếm nếu có --}}
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
 
-            {{-- Các button sắp xếp theo tên và giá --}}
+            {{-- Các nút sắp xếp: theo tên và giá, có thêm class active nếu đang được chọn --}}
             <button type="submit" name="sort" value="name_asc" class="sort-btn {{ request('sort') == 'name_asc' ? 'active' : '' }}">Tên A-Z</button>
             <button type="submit" name="sort" value="name_desc" class="sort-btn {{ request('sort') == 'name_desc' ? 'active' : '' }}">Tên Z-A</button>
             <button type="submit" name="sort" value="price_asc" class="sort-btn {{ request('sort') == 'price_asc' ? 'active' : '' }}">Giá thấp đến cao</button>
             <button type="submit" name="sort" value="price_desc" class="sort-btn {{ request('sort') == 'price_desc' ? 'active' : '' }}">Giá cao đến thấp</button>
 
-            {{-- Nút quay lại để xóa bộ lọc --}}
+            {{-- Nút để xóa sắp xếp, quay lại trạng thái mặc định --}}
             @if(request('sort'))
                 <button type="submit" name="sort" value="" class="sort-btn reset-btn">Quay lại</button>
             @endif
@@ -30,41 +41,54 @@
     </div>
 
     <div class="product-grid">
-        {{-- Nếu không có sản phẩm nào --}}
+        {{-- Nếu không có sản phẩm nào được trả về --}}
         @if ($products->count() === 0)
             <div class="alert alert-warning text-center my-4">
                 Không tìm thấy sản phẩm nào{{ $search ? ' với từ khóa: "' . $search . '"' : '' }}.
             </div>
         @endif
 
-        {{-- Lặp qua danh sách sản phẩm --}}
+        {{-- Duyệt qua danh sách sản phẩm --}}
         @foreach ($products as $product)
-            {{-- Thẻ bao mỗi sản phẩm, liên kết tới trang chi tiết --}}
+            {{-- Mỗi sản phẩm là một thẻ liên kết đến trang chi tiết --}}
             <a href="{{ route('products.detail', ['slug' => $product->slug]) }}" class="product-card">
+                
+                {{-- Hiển thị hình ảnh sản phẩm --}}
                 <div class="product-image">
-                    {{-- Hiển thị ảnh sản phẩm --}}
-                    <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                    @php
+                        $imagePath = public_path($product->image); // Đường dẫn tuyệt đối tới ảnh sản phẩm
+                        $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh'); // Tạo slug từ tên danh mục
+                        $defaultImage = "images/{$categorySlug}/mac-dinh.jpg"; // Ảnh mặc định theo danh mục
+                    @endphp
+
+                    @if ($product->image && file_exists($imagePath))
+                        <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                    @elseif (file_exists(public_path($defaultImage)))
+                        <img src="{{ asset($defaultImage) }}" alt="Ảnh mặc định">
+                    @else
+                        <p class="text-muted">Không có ảnh</p>
+                    @endif
                 </div>
 
                 <div class="product-info">
                     {{-- Tên sản phẩm --}}
                     <h3>{{ $product->product_name }}</h3>
 
-                    {{-- Giá sản phẩm được định dạng --}}
+                    {{-- Giá sản phẩm được định dạng VND --}}
                     <p class="price">{{ number_format($product->price, 0, ',', '.') }}₫</p>
 
-                    {{-- Mô tả rút gọn sản phẩm --}}
+                    {{-- Mô tả sản phẩm rút gọn (tối đa 100 ký tự) --}}
                     <p class="description">{{ Str::limit($product->description, 100) }}</p>
 
-                    {{-- Form yêu thích sản phẩm --}}
+                    {{-- Nút yêu thích sản phẩm --}}
                     <form method="POST" action="{{ route('favorites.store', ['productId' => $product->product_id]) }}" style="display:inline;">
                         @csrf
                         <button class="favorite-btn" data-product-id="{{ $product->product_id }}" style="background:none; border:none; cursor:pointer;">
-                            <i class="fa fa-heart" style="color: black;"></i> {{-- Icon trái tim --}}
+                            <i class="fa fa-heart" style="color: black;"></i>
                         </button>
                     </form>
 
-                    {{-- Form thêm vào giỏ hàng --}}
+                    {{-- Nút thêm vào giỏ hàng --}}
                     <form method="POST" action="{{ route('cart.addToCart') }}">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->product_id }}" />
@@ -76,20 +100,21 @@
         @endforeach
     </div>
 
-    {{-- Phân trang --}}
+    {{-- Hiển thị phân trang, giữ nguyên các query hiện tại (sort, search,...) --}}
     @include('customer.layouts.pagination', ['paginator' => $products->appends(request()->query())])
 
-    {{-- Nút cuộn về đầu trang --}}
+    {{-- Nút quay về đầu trang --}}
     <button id="scrollToTopBtn" title="Lên đầu trang">⬆</button>
 </div>
 @endsection
 
-@push('scripts') {{-- Đẩy script vào cuối trang --}}
+{{-- Đẩy đoạn mã JavaScript cuộn lên đầu trang vào cuối file --}}
+@push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const btn = document.getElementById("scrollToTopBtn");
 
-        // Hiện nút khi cuộn trang xuống dưới 200px
+        // Hiển thị nút khi người dùng cuộn xuống hơn 200px
         window.onscroll = function () {
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
                 btn.style.display = "block";
@@ -98,7 +123,7 @@
             }
         };
 
-        // Cuộn lên đầu trang khi nhấn nút
+        // Khi nhấn nút thì cuộn lên đầu trang một cách mượt mà
         btn.addEventListener("click", function () {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -106,12 +131,13 @@
 </script>
 @endpush
 
-@push('scripts') {{-- Script xử lý yêu thích sản phẩm --}}
+{{-- Script xử lý logic yêu thích sản phẩm bằng AJAX --}}
+@push('scripts')
 <script>
 $(document).ready(function() {
     $(document).on('click', '.favorite-btn', function(e) {
-        e.preventDefault(); // Ngăn hành vi mặc định của nút
-        e.stopPropagation(); // Ngăn click lan ra thẻ cha (thẻ <a>)
+        e.preventDefault(); // Ngăn form submit mặc định
+        e.stopPropagation(); // Ngăn sự kiện lan ra thẻ cha (tránh click vào thẻ <a>)
 
         let btn = $(this);
         let icon = btn.find('i.fa-heart');
@@ -122,10 +148,11 @@ $(document).ready(function() {
             return;
         }
 
-        let isFavorited = icon.css('color') === 'rgb(255, 0, 0)'; // Kiểm tra màu đỏ
+        // Kiểm tra xem đã được yêu thích chưa dựa trên màu icon (màu đỏ là đã yêu thích)
+        let isFavorited = icon.css('color') === 'rgb(255, 0, 0)';
 
         if (isFavorited) {
-            // Nếu đã yêu thích thì xóa
+            // Nếu đã yêu thích => Gửi AJAX DELETE để xóa
             $.ajax({
                 url: '/favorites/' + productId,
                 type: 'DELETE',
@@ -138,7 +165,7 @@ $(document).ready(function() {
                 }
             });
         } else {
-            // Nếu chưa yêu thích thì thêm mới
+            // Nếu chưa yêu thích => Gửi AJAX POST để thêm
             $.post('/favorites/' + productId, {_token: '{{ csrf_token() }}'})
             .done(function() {
                 icon.css('color', 'red');

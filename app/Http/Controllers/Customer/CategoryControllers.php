@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryControllers extends Controller
 {
@@ -16,23 +17,35 @@ class CategoryControllers extends Controller
     public function show(Request $request, $slug)
     {
         $sort = $request->input('sort');
+        $page = $request->input('page');
+
+        // ✅ Kiểm tra nếu page không hợp lệ
+        if ($page && (!ctype_digit($page) || (int)$page < 1)) {
+            return redirect()->route('category.show', ['slug' => $slug])
+                ->with('error', 'Tham số phân trang không hợp lệ.');
+        }
 
         // Tìm danh mục theo slug
         $category = Category::where('slug', $slug)->first();
-
-        // xap sep theo ten mess loi
         if (!$category) {
             return view('customer.pages.category-not-found');
         }
 
-        // Lưu thông tin danh mục vào session để kiểm tra sau này
+        // Lưu danh mục vào session
         session()->put('current_category', [
             'id' => $category->category_id,
             'slug' => $category->slug,
             'name' => $category->category_name
         ]);
 
+        // Lấy danh sách sản phẩm theo danh mục và sort
         $products = $this->getProductsByCategory($category->category_id, $sort);
+
+        // ✅ Nếu trang hiện tại vượt quá số trang thực tế → redirect về trang đầu
+        if ($products instanceof LengthAwarePaginator && $products->isEmpty() && $products->currentPage() > 1) {
+            return redirect()->route('category.show', ['slug' => $slug])
+                ->with('error', 'Trang bạn yêu cầu không tồn tại.');
+        }
 
         $categories = Category::orderBy('category_id')->get();
 

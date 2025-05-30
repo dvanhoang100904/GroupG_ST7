@@ -5,6 +5,13 @@
     {{-- Bắt đầu nội dung chính sẽ được chèn vào layout --}}
     <div class="container">
 
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        @endif
+
         {{-- Banner đầu trang 
         <div class="banner-wrapper">
             @foreach ($slides as $slide)
@@ -35,7 +42,20 @@
                     <a href="{{ route('products.detail', ['slug' => $product->slug]) }}" class="product-card">
                         <div class="product-image">
                             {{-- Ảnh sản phẩm --}}
-                            <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                            @php
+                                $imagePath = public_path($product->image);
+                                $categorySlug = \Illuminate\Support\Str::slug(optional($product->category)->category_name ?? 'mac-dinh');
+                                $defaultImage = "images/{$categorySlug}/mac-dinh.jpg";
+                            @endphp
+
+                            @if ($product->image && file_exists($imagePath))
+                                <img src="{{ asset($product->image) }}" alt="{{ $product->product_name }}">
+                            @elseif (file_exists(public_path($defaultImage)))
+                                <img src="{{ asset($defaultImage) }}" alt="Ảnh mặc định">
+                            @else
+                                <p class="text-muted">Không có ảnh</p>
+                            @endif
+
                         </div>
 
                         <div class="product-info">
