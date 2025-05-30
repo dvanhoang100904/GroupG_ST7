@@ -51,6 +51,9 @@
         
                 {{-- Input ảnh --}}
                 <input type="file" name="image" id="image" class="form-control" accept="image/*" onchange="previewImage(event)">
+            @error('image')
+    <div class="invalid-feedback d-block">{{ $message }}</div>
+@enderror
             </div>
         
             <div class="d-flex justify-content-between">
