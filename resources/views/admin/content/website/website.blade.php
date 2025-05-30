@@ -151,10 +151,10 @@
           const modal = bootstrap.Modal.getInstance(modalEl);
           modal.hide();
         } else {
-          alert('Xác nhận thất bại!');
+          alert('Dữ liệu đã bị xóa khỏi hệ thống!');
         }
         })
-        .catch(() => alert('Xác Nhận thất bại!'));
+        .catch(() => alert('Dữ liệu đã bị xóa khỏi hệ thống!'));
       }
     });
     </script>
