@@ -10,6 +10,7 @@ use App\Models\Payment;
 use App\Models\ShippingAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -62,49 +63,58 @@ class OrderController extends Controller
             return $item->product ? $item->product->price * $item->quantity : 0;
         });
 
-        // Lưu thông tin địa chỉ giao hàng
-        $shippingAddress = ShippingAddress::create([
-            'user_id' => $user->user_id,
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'address' => $request->address,
-        ]);
+        try {
+            $order = DB::transaction(
+                function () use ($user, $request, $cart, $cartItems, $totalPrice) {
+                    // Lưu thông tin địa chỉ giao hàng
+                    $shippingAddress = ShippingAddress::create([
+                        'user_id' => $user->user_id,
+                        'name' => $request->name,
+                        'phone' => $request->phone,
+                        'email' => $request->email,
+                        'address' => $request->address,
+                    ]);
 
-        // Tạo đơn hàng mới
-        $order = Order::create([
-            'user_id' => $user->user_id,
-            'total_price' => $totalPrice,
-            'status' => 'chờ_xử_lý',
-            'shipping_address_id' => $shippingAddress->shipping_address_id,
-            'notes' => $request->notes,
-        ]);
+                    // Tạo đơn hàng mới
+                    $order = Order::create([
+                        'user_id' => $user->user_id,
+                        'total_price' => $totalPrice,
+                        'status' => 'chờ_xử_lý',
+                        'shipping_address_id' => $shippingAddress->shipping_address_id,
+                        'notes' => $request->notes,
+                    ]);
 
-        // Thêm chi tiết cho từng sản phẩm trong đơn hàng
-        foreach ($cartItems as $cartItem) {
-            OrderDetail::create([
-                'order_id' => $order->order_id,
-                'product_id' => $cartItem->product_id,
-                'quantity' => $cartItem->quantity,
-                'price' => $cartItem->product->price,
-                'total_price' => $cartItem->product->price * $cartItem->quantity,  // Lưu tổng giá cho mỗi sản phẩm
-            ]);
+                    // Thêm chi tiết cho từng sản phẩm trong đơn hàng
+                    foreach ($cartItems as $cartItem) {
+                        OrderDetail::create([
+                            'order_id' => $order->order_id,
+                            'product_id' => $cartItem->product_id,
+                            'quantity' => $cartItem->quantity,
+                            'price' => $cartItem->product->price,
+                            'total_price' => $cartItem->product->price * $cartItem->quantity,  // Lưu tổng giá cho mỗi sản phẩm
+                        ]);
+                    }
+
+                    // Xóa giỏ hàng sau khi đơn hàng được tạo
+                    $cart->cartItems()->delete();
+                    // Xóa giỏ hàng của người dùng
+                    $cart->delete();
+
+                    // Tạo thông tin thanh toán với trạng thái 'đang_chờ'
+                    Payment::create([
+                        'order_id' => $order->order_id,
+                        'method' => $request->paymentMethod,
+                        'status' => 'đang_chờ',
+                    ]);
+
+                    return $order;
+                }
+            );
+        } catch (\Exception $e) {
+            return back()->withErrors('Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.');
         }
-
-        // Xóa giỏ hàng sau khi đơn hàng được tạo
-        $cart->cartItems()->delete();
-        // Xóa giỏ hàng của người dùng
-        $cart->delete();
-
-        // Tạo thông tin thanh toán với trạng thái 'đang_chờ'
-        Payment::create([
-            'order_id' => $order->order_id,
-            'method' => $request->paymentMethod,
-            'status' => 'đang_chờ',
-        ]);
-
         // Chuyển hướng đến trang thành công với order_id đơn hàng
-        return redirect()->route('order.success', $order->order_id);
+        return redirect()->route('order.success', $order->order_id)->with('success', 'Đặt hàng thành công!');;
     }
 
     /**

@@ -10,6 +10,8 @@
         </a>
     </div>
 
+    
+
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul class="mb-0">
@@ -27,8 +29,9 @@
         <div class="mb-3">
             <label for="name" class="form-label">Tên</label>
             <input type="text" name="name" id="name"
-                   class="form-control @error('name') is-invalid @enderror"
-                   value="{{ old('name', $user->name) }}" required>
+            class="form-control @error('name') is-invalid @enderror"
+            value="{{ $errors->any() ? old('name') : $user->name }}" required>
+
             @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -37,8 +40,9 @@
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input type="email" name="email" id="email"
-                   class="form-control @error('email') is-invalid @enderror"
-                   value="{{ old('email', $user->email) }}" required>
+            class="form-control @error('email') is-invalid @enderror"
+            value="{{ $errors->any() ? old('email') : $user->email }}" required>
+
             @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -47,8 +51,9 @@
         <div class="mb-3">
             <label for="phone" class="form-label">Số điện thoại</label>
             <input type="text" name="phone" id="phone"
-                   class="form-control @error('phone') is-invalid @enderror"
-                   value="{{ old('phone', $user->phone) }}">
+            class="form-control @error('phone') is-invalid @enderror"
+            value="{{ $errors->any() ? old('phone') : $user->phone }}">
+
             @error('phone')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -57,8 +62,9 @@
         <div class="mb-3">
             <label for="role_id" class="form-label">Role ID</label>
             <input type="number" name="role_id" id="role_id"
-                   class="form-control @error('role_id') is-invalid @enderror"
-                   value="{{ old('role_id', $user->role_id) }}" required>
+            class="form-control @error('role_id') is-invalid @enderror"
+            value="{{ $errors->any() ? old('role_id') : $user->role_id }}" required>
+
             @error('role_id')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -90,6 +96,7 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
+        <input type="hidden" name="updated_at" value="{{ $user->updated_at }}">
 
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-save"></i> Cập nhật người dùng
