@@ -34,8 +34,19 @@ class OrderController extends Controller
             });
         }
 
+        // Kiểm tra page hợp lệ
+        $page = $request->get('page');
+        if (!is_null($page) && (!is_numeric($page) || (int)$page < 1)) {
+            return redirect()->route('order.list')->with('error', 'Tham số phân trang không hợp lệ.');
+        }
+
         // Lấy các đơn hàng mới nhất có phân trang và giữ lại từ khóa tìm kiếm
         $orders = $query->latest()->paginate(self::PER_PAGES)->appends($request->only('q'));
+
+        // Nếu page vượt quá lastPage()
+        if ($orders->lastPage() < $orders->currentPage()) {
+            return redirect()->route('order.list')->with('error', 'Trang không tồn tại.');
+        }
 
         if ($orders->isEmpty()) {
             return back()->with('error', 'Không tìm thấy đơn hàng nào phù hợp với từ khóa "' . $search . '".');
